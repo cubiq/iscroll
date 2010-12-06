@@ -2,9 +2,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Scrolling DIV demo on iPhone / iPod Touch / Android / iPad</title>
 
 <script type="text/javascript" src="../../src/iscroll.js?v4"></script>
@@ -13,7 +13,7 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', { zoom:1 });
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -80,7 +80,7 @@ body {
 	-webkit-tap-highlight-color:rgba(0,0,0,0);
 
 	float:left;
-	width:1000px;
+	width:100%;
 	padding:0;
 }
 
