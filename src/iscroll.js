@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 dev.rel. - Last updated: 2010.12.03
+ * Version 4.0 dev.rel. - Last updated: 2010.12.20
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -19,7 +19,7 @@ function iScroll (el, options) {
 
 	that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
 	that.scroller = that.wrapper.children[0];
-	that.scroller.style.cssText += '-webkit-transition-property:-webkit-transform;-webkit-transition-timing-function:cubic-bezier(0,0,0,1);-webkit-transition-duration:0;-webkit-transform:' + trnOpen + '0,0' + trnClose;
+	that.scroller.style.cssText += '-webkit-transition-property:-webkit-transform;-webkit-transition-timing-function:cubic-bezier(0,0,0,1);-webkit-transition-duration:0;-webkit-transform-origin:0 0;-webkit-transform:' + trnOpen + '0,0' + trnClose;
 
 	that.options = {
 		vScroll: true,
@@ -86,10 +86,10 @@ iScroll.prototype = {
 	refresh: function () {
 		var that = this;
 		
-		that.wrapperW = that.wrapper.clientWidth * that.scale;
-		that.wrapperH = that.wrapper.clientHeight * that.scale; console.log(that.wrapperH)
-		that.scrollerW = that.scroller.offsetWidth * that.scale;
-		that.scrollerH = that.scroller.offsetHeight * that.scale;
+		that.wrapperW = that.wrapper.clientWidth;
+		that.wrapperH = that.wrapper.clientHeight;
+		that.scrollerW = round(that.scroller.offsetWidth * that.scale);
+		that.scrollerH = round(that.scroller.offsetHeight * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH;
 		that.dirX = 0;
@@ -126,14 +126,26 @@ iScroll.prototype = {
 	},
 	
 	_start: function (e) {
-		if (e.touches.length > 1) return;
-
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
+			offsetLeft = offsetTop = 0, el,
 			matrix;
-		
+
 		e.preventDefault();
-		
+
+		if (e.touches.length == 2 && that.options.zoom && hasGesture) {
+			// As object position might change over time, we calculate the offset each time (overkill?)
+			el = that.wrapper;
+			do {
+				offsetLeft += el.offsetLeft;
+				offsetTop += el.offsetTop;
+			} while (el = el.offsetParent);
+
+			that.originX = abs(e.touches[0].pageX + e.touches[1].pageX - offsetLeft*2) / 2 - that.x;
+			that.originY = abs(e.touches[0].pageY + e.touches[1].pageY - offsetTop*2) / 2 - that.y;
+			return;
+		}
+
 		that.moved = false;
 		that.distX = 0;
 		that.distY = 0;
@@ -162,7 +174,7 @@ iScroll.prototype = {
 		that.startTime = e.timeStamp;
 
 		// Registering/unregistering of events is done to preserve resources on Android
-		that.unbind(START_EV);
+//		that.unbind(START_EV);
 		that.bind(MOVE_EV);
 		that.bind(END_EV);
 		that.bind(CANCEL_EV);
@@ -185,10 +197,10 @@ iScroll.prototype = {
 
 		// Slow down if outside of the boundaries
 		if (newX > 0 || newX < that.maxScrollX) {
-			newX = that.options.bounce ? that.x + Math.round(deltaX / 2.5) : newX > 0 ? 0 : that.maxScrollX;
+			newX = that.options.bounce ? that.x + round(deltaX / 2.5) : newX > 0 ? 0 : that.maxScrollX;
 		}
 		if (newY > 0 || newY < that.maxScrollY) { 
-			newY = that.options.bounce ? that.y + Math.round(deltaY / 2.5) : newY > 0 ? 0 : that.maxScrollY;
+			newY = that.options.bounce ? that.y + round(deltaY / 2.5) : newY > 0 ? 0 : that.maxScrollY;
 		}
 
 		if (that.absDistX < 4 && that.absDistY < 4) {
@@ -233,7 +245,7 @@ iScroll.prototype = {
 			newPosX = that.x, newPosY = that.y,
 			newDuration;
 
-		that.bind(START_EV);
+//		that.bind(START_EV);
 		that.unbind(MOVE_EV);
 		that.unbind(END_EV);
 		that.unbind(CANCEL_EV);
@@ -252,8 +264,8 @@ iScroll.prototype = {
 			if (momentumX.dist || momentumY.dist) {
 				newPosX = that.x + momentumX.dist;
 				newPosY = that.y + momentumY.dist;
-				newDuration = Math.max(Math.max(momentumX.time, momentumY.time), 10);
-				that.returnTime = Math.min(Math.round(newDuration / 2), 500);
+				newDuration = max(max(momentumX.time, momentumY.time), 10);
+				that.returnTime = min(round(newDuration / 2), 350);
 				that.bind('webkitTransitionEnd');
 				that.scrollTo(newPosX, newPosY, newDuration);
 			}
@@ -289,13 +301,13 @@ iScroll.prototype = {
 		// Proportinally reduce speed if we are outside of the boundaries 
 		if (dist > 0 && newDist > maxDistUpper) {
 			that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0,0,0.6,1)';
-//			maxDistUpper = maxDistUpper + (size / Math.max(8 / (newDist / (speed*2)), 3));
+//			maxDistUpper = maxDistUpper + (size / max(8 / (newDist / (speed*2)), 3));
 			maxDistUpper = maxDistUpper + (size / (7 / (newDist / speed)));
 			speed = speed * maxDistUpper / newDist;
 			newDist = maxDistUpper;
 		} else if (dist < 0 && newDist > maxDistLower) {
 			that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0,0,0.6,1)';
-//			maxDistLower = maxDistLower + (size / Math.max(8 / (newDist / (speed*2)), 3));
+//			maxDistLower = maxDistLower + (size / max(8 / (newDist / (speed*2)), 3));
 			maxDistLower = maxDistLower + (size / (7 / (newDist / speed)));
 			speed = speed * maxDistLower / newDist;
 			newDist = maxDistLower;
@@ -304,7 +316,7 @@ iScroll.prototype = {
 		newDist = newDist * (dist < 0 ? -1 : 1);
 		newTime = speed / deceleration;
 
-		return { dist: Math.round(newDist), time: Math.round(newTime) };
+		return { dist: round(newDist), time: round(newTime) };
 	},
 	
 	_transitionEnd: function (e) {
@@ -316,11 +328,6 @@ iScroll.prototype = {
 	
 	_gestStart: function (e) {
 		var that = this;
-		
-		e.preventDefault();
-
-		for (var i in e)
-		console.log(i + ': ' + e[i])
 
 		that._transitionTime(0);
 
@@ -331,20 +338,26 @@ iScroll.prototype = {
 	},
 
 	_gestChange: function (e) {
-		var that = this;
+		var that = this,
+			scale = min(4, max(1, that.scale * e.scale)),
+			x, y;
 
-		e.preventDefault();
-
-		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + Math.min(4, Math.max(1, that.scale * e.scale)) + ')';
+		if (scale > 1 && scale < 4) {
+			x = that.originX - that.originX * e.scale + that.x;
+			y = that.originY - that.originY * e.scale + that.y;
+			that.scroller.style.webkitTransform = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + scale + ')';
+		}
 	},
 
 	_gestEnd: function (e) {
 		var that = this;
 
-		that.scale = Math.min(4, Math.max(1, that.scale * e.scale));
-		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
+		that.scale = min(4, max(1, that.scale * e.scale));
+		that.x = that.originX - that.originX * e.scale + that.x;
+		that.y = that.originY - that.originY * e.scale + that.y;
+
 		that.refresh();
-		
+
 		that.bind('gesturestart')
 		that.unbind('gesturechange');
 		that.unbind('gestureend');
@@ -365,6 +378,10 @@ iScroll.prototype = {
 		that.unbind(MOVE_EV);
 		that.unbind(END_EV);
 		that.unbind(CANCEL_EV);
+		that.unbind('gesturestart')
+		that.unbind('gesturechange');
+		that.unbind('gestureend');
+		that.unbind('gesturecancel');
 	},
 	
 	bind: function (type, el) {
@@ -387,11 +404,8 @@ var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
 	END_EV = hasTouch ? 'touchend' : 'mouseup',
 	CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
 	trnOpen = 'translate' + (has3d ? '3d(' : '('),
-	trnClose = has3d ? ',0)' : ')';
-
-function abs (value) {	// Faster than Math.abs
-	return value < 0 ? -value : value;
-}
+	trnClose = has3d ? ',0)' : ')',
+	abs = Math.abs, round = Math.round, min = Math.min, max = Math.max;
 
 window.iScroll = iScroll;
 })();
