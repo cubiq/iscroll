@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Scrolling DIV demo on iPhone / iPod Touch / Android / iPad</title>
 
-<script type="text/javascript" src="../../src/iscroll.js?v4"></script>
+<link rel="stylesheet" type="text/css" href="../../style/iscroll.css">
+<script type="application/javascript" src="../../src/iscroll.js?v4"></script>
 
 <script type="text/javascript">
 
@@ -19,6 +20,7 @@ function loaded() {
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
 document.addEventListener('DOMContentLoaded', loaded, false);
+
 </script>
 
 <style type="text/css" media="all">
@@ -68,7 +70,6 @@ body {
 #wrapper {
 	position:absolute; z-index:1;
 	top:45px; bottom:48px; left:0;
-
 	width:100%;
 	background:#aaa;
 	overflow:auto;
@@ -106,6 +107,7 @@ body {
 #scroller li > a {
 	display:block;
 }
+
 </style>
 </head>
 <body>
@@ -114,7 +116,7 @@ body {
 <div id="wrapper">
 	<div id="scroller">
 		<ul id="thelist">
-			<li><a href="#" onclick="return false">Scroll to row 10 (default runtime)</a></li>
+			<li><input type="text"></li>
 			<li>Pretty content row 2</li>
 			<li>Pretty content row 3</li>
 			<li>Pretty content row 4</li>
@@ -123,7 +125,7 @@ body {
 			<li>Pretty content row 7</li>
 			<li>Pretty content row 8</li>
 			<li>Pretty content row 9</li>
-			<li id="row10"><a href="#" onclick="return false">Go to bottom (skip to, no animation)</a></li>
+			<li>Pretty content row 10</li>
 			<li>Pretty content row 11</li>
 			<li>Pretty content row 12</li>
 			<li>Pretty content row 13</li>
@@ -133,7 +135,7 @@ body {
 			<li>Pretty content row 17</li>
 			<li>Pretty content row 18</li>
 			<li>Pretty content row 19</li>
-			<li><a href="#" onclick="return false">Go back to top (1s runtime)</a></li>
+			<li>Pretty content row 20</li>
 			<li>Pretty content row 21</li>
 			<li>Pretty content row 22</li>
 			<li>Pretty content row 23</li>
@@ -154,6 +156,7 @@ body {
 			<li>Pretty content row 38</li>
 			<li>Pretty content row 39</li>
 			<li>Pretty content row 40</li>
+			<li><textarea></textarea></li>
 		</ul>
 	</div>
 </div>
