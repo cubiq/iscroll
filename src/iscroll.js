@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 dev.rel. - Last updated: 2010.12.20
+ * Version 4.0 dev.rel. - Last updated: 2011.01.26
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -30,9 +30,9 @@ function iScroll (el, options) {
 		zoom: false,
 		hScrollbar: true,
 		vScrollbar: true,
-		fixedScrollbar: !isIThing || !hasTouch,
-		fadeScrollbar: isIThing && has3d,
-		hideScrollbar: isIThing,
+		fixedScrollbar: !isIDevice || !hasTouch,
+		fadeScrollbar: isIDevice && has3d,
+		hideScrollbar: isIDevice,
 		scrollbarClass: '',
 	};
 
@@ -103,13 +103,17 @@ iScroll.prototype = {
 		that.maxScrollY = that.wrapperH - that.scrollerH;
 		that.dirX = 0;
 		that.dirY = 0;
+		
+		that._transitionTime(0);
 
 		that.hScroll = that.options.hScroll && that.maxScrollX < 0;
 		that.vScroll = that.options.vScroll && that.maxScrollY < 0;
 		that.hScrollbar = that.hScroll && that.options.hScrollbar;
 		that.vScrollbar = that.vScroll && that.options.vScrollbar;
-		if (that.hScrollbar) that._scrollbar('h');
-		if (that.vScrollbar) that._scrollbar('v');
+
+		// Prepare the scrollbars
+		that._scrollbar('h');
+		that._scrollbar('v');
 
 		that._resetPos();
 	},
@@ -119,15 +123,26 @@ iScroll.prototype = {
 			doc = document,
 			bar;
 
+		if (!that[dir + 'Scrollbar']) {
+			if (that[dir + 'ScrollbarWrapper']) {
+				that[dir + 'ScrollbarIndicator'].style.webkitTransform = '';	// Should free some mem
+				that[dir + 'ScrollbarWrapper'].parentNode.removeChild(that[dir + 'ScrollbarWrapper']);
+				that[dir + 'ScrollbarWrapper'] = null;
+				that[dir + 'ScrollbarIndicator'] = null;
+			}
+
+			return;
+		}
+
 		if (!that[dir + 'ScrollbarWrapper']) {
 			// Create the scrollbar wrapper
 			bar = doc.createElement('div');
 			if (that.options.scrollbarClass) {
 				bar.className = that.options.scrollbarClass;
 			} else {
-				bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:7px;bottom:1px;left:2px;right:7px;' : 'width:7px;bottom:7px;top:2px;right:1px;');
+				bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:7px;bottom:1px;left:2px;right:7px' : 'width:7px;bottom:7px;top:2px;right:1px');
 			}
-			bar.style.cssText += 'pointer-events:none;-webkit-transition-property:opacity;-webkit-transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:0';
+			bar.style.cssText += 'pointer-events:none;-webkit-transition-property:opacity;-webkit-transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
 
 			that.wrapper.appendChild(bar);
 			that[dir + 'ScrollbarWrapper'] = bar;
@@ -158,6 +173,9 @@ iScroll.prototype = {
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
 			that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
 		}
+
+		// Reset position
+		that._indicatorPos(dir);
 	},
 	
 	_orientChange: function () {
@@ -390,11 +408,11 @@ iScroll.prototype = {
 		else if (that.y < that.maxScrollY) resetY = that.maxScrollY;
 
 		if (resetX == that.x && resetY == that.y) {
-			if (that.hScrollbar) {
+			if (that.hScrollbar && that.options.hideScrollbar) {
 				that.hScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.hScrollbarWrapper.style.opacity = '0';
 			}
-			if (that.vScrollbar) {
+			if (that.vScrollbar && that.options.hideScrollbar) {
 				that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.vScrollbarWrapper.style.opacity = '0';
 			}
@@ -519,7 +537,7 @@ iScroll.prototype = {
 var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
 	hasTouch = 'ontouchstart' in window,
 	hasGesture = 'ongesturestart' in window,
-	isIThing = (/iphone|ipad/gi).test(navigator.appVersion),
+	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	ORIENT_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
 	START_EV = hasTouch ? 'touchstart' : 'mousedown',
