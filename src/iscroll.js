@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 dev.rel. - Last updated: 2011.01.26
+ * Version 4.0 dev.rel. - Last updated: 2011.01.28
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -34,6 +34,7 @@ function iScroll (el, options) {
 		fadeScrollbar: isIDevice && has3d,
 		hideScrollbar: isIDevice,
 		scrollbarClass: '',
+		snap: false
 	};
 
 	// User defined options
@@ -57,6 +58,8 @@ function iScroll (el, options) {
 
 iScroll.prototype = {
 	x: 0, y: 0,
+	currPageX: 0, currPageY: 0,
+	pagesX: [], pagesY: [],
 	scale: 1,
 	
 	handleEvent: function (e) {
@@ -93,7 +96,9 @@ iScroll.prototype = {
 	},
 
 	refresh: function () {
-		var that = this;
+		var that = this,
+			pos = page = 0,
+			i, l, els;
 		
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
@@ -114,6 +119,31 @@ iScroll.prototype = {
 		// Prepare the scrollbars
 		that._scrollbar('h');
 		that._scrollbar('v');
+
+		// Snap
+		if (typeof that.options.snap == 'string') {
+			els = that.scroller.querySelectorAll(that.options.snap);
+			for (i=0, l=els.length; i<l; i++) {
+				pos = that._offset(els[i]);
+				that.pagesX[i] = pos[0] < that.maxScrollX ? that.maxScrollX : pos[0];
+				that.pagesY[i] = pos[1] < that.maxScrollY ? that.maxScrollY : pos[1];
+			}
+		} else if (that.options.snap) {
+			while (pos >= that.maxScrollX) {
+				that.pagesX[page] = pos;
+				pos = pos - that.wrapperW;
+				page++;
+			}
+			if (that.maxScrollX%that.wrapperW) that.pagesX[that.pagesX.length] = that.maxScrollX - that.pagesX[that.pagesX.length-1] + that.pagesX[that.pagesX.length-1];
+
+			pos = page = 0;
+			while (pos >= that.maxScrollY) {
+				that.pagesY[page] = pos;
+				pos = pos - that.wrapperH;
+				page++;
+			}
+			if (that.maxScrollY%that.wrapperH) that.pagesY[that.pagesY.length] = that.maxScrollY - that.pagesY[that.pagesY.length-1] + that.pagesY[that.pagesY.length-1];
+		}
 
 		that._resetPos();
 	},
@@ -175,7 +205,7 @@ iScroll.prototype = {
 		}
 
 		// Reset position
-		that._indicatorPos(dir);
+		that._indicatorPos(dir, true);
 	},
 	
 	_orientChange: function () {
@@ -195,12 +225,12 @@ iScroll.prototype = {
 		that.y = that.vScroll ? y : 0;
 		
 		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
-		
+
 		that._indicatorPos('h');
 		that._indicatorPos('v');
 	},
 	
-	_indicatorPos: function (dir) {
+	_indicatorPos: function (dir, hidden) {
 		var that = this,
 			pos = dir == 'h' ? that.x : that.y;
 		
@@ -216,7 +246,7 @@ iScroll.prototype = {
 			if (that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - pos < 9) pos = that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - 8;
 		}
 		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
-		that[dir + 'ScrollbarWrapper'].style.opacity = '1';
+		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
 		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
 	},
 	
@@ -348,10 +378,12 @@ iScroll.prototype = {
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
 			target, ev,
-			momentumX = momentumY = { dist:0, time:0 },
+			momentumX = { dist:0, time:0 },
+			momentumY = { dist:0, time:0 },
 			duration = e.timeStamp - that.startTime,
 			newPosX = that.x, newPosY = that.y,
-			newDuration;
+			newDuration,
+			snap;
 
 //		that.bind(START_EV);
 		that.unbind(MOVE_EV);
@@ -389,24 +421,85 @@ iScroll.prototype = {
 			newPosX = that.x + momentumX.dist;
 			newPosY = that.y + momentumY.dist;
 			newDuration = max(max(momentumX.time, momentumY.time), 10);		// Minimum duration 10ms
+
+			// Do we need to snap?
+			if (that.options.snap) {
+				snap = that._snap(newPosX, newPosY);
+				newPosX = snap.x;
+				newPosY = snap.y;
+				newDuration = max(snap.time, newDuration);
+			}
+
 			that.bind('webkitTransitionEnd');
 			that.scrollTo(newPosX, newPosY, newDuration);
-		} else {
-			that._resetPos(200);
+			return;
 		}
+		
+		// Do we need to snap?
+		if (that.options.snap) {
+			snap = that._snap(that.x, that.y);
+			if (snap.x != that.x || snap.y != that.y) {
+				that.bind('webkitTransitionEnd');
+				that.scrollTo(snap.x, snap.y, snap.time);
+			}
+			return;
+		}
+
+		that._resetPos(200);
+	},
+	
+	_snap: function (x, y) {
+		var that = this,
+			i, l,
+			page, time,
+			sizeX, sizeY;
+
+		// Check page X
+		page = that.pagesX.length-1;
+		for (i=0, l=that.pagesX.length; i<l; i++) {
+			if (x >= that.pagesX[i]) {
+				page = i;
+				break;
+			}
+		}
+		if (page == that.currPageX && page > 0 && that.dirX < 0) page--;
+		x = that.pagesX[page];
+		sizeX = abs(x - that.pagesX[that.currPageX]);
+		sizeX = sizeX ? abs(that.x - x) / sizeX * 500 : 0;
+		that.currPageX = page;
+
+		// Check page Y
+		page = that.pagesY.length-1;
+		for (i=0; i<page; i++) {
+			if (y >= that.pagesY[i]) {
+				page = i;
+				break;
+			};
+		}
+		if (page == that.currPageY && page > 0 && that.dirY < 0) page--;
+		y = that.pagesY[page];
+		sizeY = abs(y - that.pagesY[that.currPageY]);
+		sizeY = sizeY ? abs(that.y - y) / sizeY * 500 : 0;
+		that.currPageY = page;
+
+		// Snap with constant speed (proportional duration)
+		time = round(max(sizeX, sizeY)) || 200;
+
+		return { x: x, y: y, time: time };
 	},
 	
 	_resetPos: function (time) {
 		var that = this,
 			resetX = that.x,
-			resetY = that.y;
-		
+			resetY = that.y,
+			snap;
+
 		if (that.x > 0) resetX = 0;
 		else if (that.x < that.maxScrollX) resetX = that.maxScrollX;
 
 		if (that.y > 0) resetY = 0;
 		else if (that.y < that.maxScrollY) resetY = that.maxScrollY;
-
+		
 		if (resetX == that.x && resetY == that.y) {
 			if (that.hScrollbar && that.options.hideScrollbar) {
 				that.hScrollbarWrapper.style.webkitTransitionDelay = '300ms';
@@ -501,6 +594,16 @@ iScroll.prototype = {
 		that.unbind('gestureend');
 		that.unbind('gesturecancel');
 	},
+	
+	_offset: function (el) {
+		var oLeft = oTop = 0;
+		do {
+			oLeft -= el.offsetLeft;
+			oTop -= el.offsetTop;
+		} while (el == this.scroller);
+
+		return [oLeft, oTop];
+	},
 
 	scrollTo: function (x, y, time) {
 		var that = this;
@@ -546,7 +649,7 @@ var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
 	CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
 	trnOpen = 'translate' + (has3d ? '3d(' : '('),
 	trnClose = has3d ? ',0)' : ')',
-	abs = Math.abs, round = Math.round, min = Math.min, max = Math.max;
+	abs = Math.abs, round = Math.round, floor = Math.floor, ceil = Math.ceil, min = Math.min, max = Math.max;
 
 window.iScroll = iScroll;
 })();

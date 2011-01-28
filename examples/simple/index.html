@@ -14,7 +14,7 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper', { zoom:1 });
+	myScroll = new iScroll('wrapper', { zoom:1, snap:true });
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
