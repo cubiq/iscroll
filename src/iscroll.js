@@ -125,8 +125,8 @@ iScroll.prototype = {
 			els = that.scroller.querySelectorAll(that.options.snap);
 			for (i=0, l=els.length; i<l; i++) {
 				pos = that._offset(els[i]);
-				that.pagesX[i] = pos[0] < that.maxScrollX ? that.maxScrollX : pos[0];
-				that.pagesY[i] = pos[1] < that.maxScrollY ? that.maxScrollY : pos[1];
+				that.pagesX[i] = pos.x < that.maxScrollX ? that.maxScrollX : pos.x;
+				that.pagesY[i] = pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
 			}
 		} else if (that.options.snap) {
 			while (pos >= that.maxScrollX) {
@@ -602,7 +602,7 @@ iScroll.prototype = {
 			oTop -= el.offsetTop;
 		} while (el == this.scroller);
 
-		return [oLeft, oTop];
+		return { x: oLeft, y: oTop };
 	},
 
 	scrollTo: function (x, y, time) {
@@ -610,6 +610,42 @@ iScroll.prototype = {
 		
 		that._transitionTime(time);
 		that._pos(x, y);
+	},
+	
+	scrollToPage: function (pageX, pageY, time) {
+		var that = this, x, y;
+		
+		if (that.options.snap) {
+			pageX = pageX == 'next' ? that.currPageX++ : pageX == 'prev' ? that.currPageX-- : pageX;
+			pageY = pageY == 'next' ? that.currPageY++ : pageY == 'prev' ? that.currPageY-- : pageY;
+			pageX = pageX < 0 ? 0 : pageX > that.pagesX.length ? that.pagesX.length : pageX;
+			pageY = pageY < 0 ? 0 : pageY > that.pagesY.length ? that.pagesY.length : pageY;
+			
+			that.currPageX = pageX;
+			that.currPageY = pageY;
+			x = that.pagesX[pageX];
+			y = that.pagesY[pageY];
+		} else {
+			x = -Math.round(that.wrapperW * pageX);
+			y = -Math.round(that.wrapperH * pageY);
+			if (x < that.maxScrollX) x = that.maxScrollX;
+			if (y < that.maxScrollY) y = that.maxScrollY;
+		}
+
+		that.bind('webkitTransitionEnd');
+		that.scrollTo(x, y, time || max(abs(x)*2, abs(y)*2));
+	},
+	
+	scrollToElement: function (el, time) {
+		var that = this, pos;
+		el = el.nodeType ? el : that.scroller.querySelector(el);
+		if (!el) return;
+		
+		pos = that._offset(el);
+		pos.x = pos.x > 0 ? 0 : pos.x < that.maxScrollX ? that.maxScrollX : pos.x;
+		pos.y = pos.y > 0 ? 0 : pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
+
+		that.scrollTo(pos.x, pos.y, time || max(abs(pos.x)*2, abs(pos.y)*2));
 	},
 	
 	destroy: function () {
