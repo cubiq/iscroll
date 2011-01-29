@@ -14,7 +14,28 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper', { zoom:1, snap:true });
+	myScroll = new iScroll('wrapper', {
+		pullToRefresh:true,
+		onPullDown:function () {
+			setTimeout(function () {
+				var el = document.getElementById('thelist'),
+					li = document.createElement('li');
+
+				li.innerText = 'Generated row 1';
+				el.insertBefore(li, el.childNodes[0]);
+
+				li = document.createElement('li');
+				li.innerText = 'Generated row 2';
+				el.insertBefore(li, el.childNodes[0]);
+
+				li = document.createElement('li');
+				li.innerText = 'Generated row 3';
+				el.insertBefore(li, el.childNodes[0]);
+
+				myScroll.refresh();		// IMPORTANT!
+			}, 1000);	// Simulate network congestion
+		}
+	});
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -117,7 +138,7 @@ body {
 	<div id="scroller">
 		<ul id="thelist">
 			<li><input type="text"></li>
-			<li onclick="myScroll.scrollToElement('li:nth-child(7)')">Pretty content row 2</li>
+			<li>Pretty content row 2</li>
 			<li>Pretty content row 3</li>
 			<li>Pretty content row 4</li>
 			<li>Pretty content row 5</li>

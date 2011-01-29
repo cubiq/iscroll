@@ -12,10 +12,9 @@
  * 
  */
 
-(function(){
-
+;(function(){
 function iScroll (el, options) {
-	var that = this, doc = document, div, i;
+	var that = this, doc = document, div, i, pos;
 
 	that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
 	that.scroller = that.wrapper.children[0];
@@ -34,7 +33,10 @@ function iScroll (el, options) {
 		fadeScrollbar: isIDevice && has3d,
 		hideScrollbar: isIDevice,
 		scrollbarClass: '',
-		snap: false
+		bounceLock: false,
+		snap: false,
+		pullToRefresh: false,
+		onPullDown: function () {}
 	};
 
 	// User defined options
@@ -44,6 +46,18 @@ function iScroll (el, options) {
 	
 	that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
 	that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
+
+	if (that.options.pullToRefresh) {
+		div = doc.createElement('div');
+		div.id = 'iScrollPullDownToRefresh';
+		div.innerText = 'Pull down to refresh...';
+		div.style.cssText += 'background:#fff;border-bottom:1px solid #aaa;height:48px;line-height:48px;padding:0 10px;font-size:14px;color:#999;font-weight:bold';
+		that.scroller.insertBefore(div, that.scroller.childNodes[0]);
+		that.options.bounce = true;
+		that.offsetBottom = div.offsetHeight;
+		that.scroller.style.marginTop = -that.offsetBottom + 'px';
+		that.pullDownLabel = div;
+	}
 
 	that.refresh();
 
@@ -61,6 +75,7 @@ iScroll.prototype = {
 	currPageX: 0, currPageY: 0,
 	pagesX: [], pagesY: [],
 	scale: 1,
+	contentReady: true,
 	
 	handleEvent: function (e) {
 		var that = this;
@@ -98,12 +113,22 @@ iScroll.prototype = {
 	refresh: function () {
 		var that = this,
 			pos = page = 0,
-			i, l, els;
-		
+			i, l, els,
+			oldHeight;
+
+		if (that.options.pullToRefresh && !that.contentReady) {
+			oldHeight = that.scrollerH;
+			that.contentReady = true;
+			that.pullDownLabel.className = '';
+			that.pullDownLabel.innerText = 'Pull down to refresh';
+			that.offsetBottom = that.pullDownLabel.offsetHeight;
+			that.scroller.style.marginTop = -that.offsetBottom + 'px';
+		}
+
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
 		that.scrollerW = round(that.scroller.offsetWidth * that.scale);
-		that.scrollerH = round(that.scroller.offsetHeight * that.scale);
+		that.scrollerH = round((that.scroller.offsetHeight - that.offsetBottom) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH;
 		that.dirX = 0;
@@ -144,7 +169,12 @@ iScroll.prototype = {
 			}
 			if (that.maxScrollY%that.wrapperH) that.pagesY[that.pagesY.length] = that.maxScrollY - that.pagesY[that.pagesY.length-1] + that.pagesY[that.pagesY.length-1];
 		}
-
+		
+		if (oldHeight) {
+			oldHeight = oldHeight - that.scrollerH;
+			that.scrollTo(0, oldHeight, 0);
+		}
+		
 		that._resetPos();
 	},
 	
@@ -335,10 +365,21 @@ iScroll.prototype = {
 
 		// Slow down if outside of the boundaries
 		if (newX > 0 || newX < that.maxScrollX) {
-			newX = that.options.bounce ? that.x + round(deltaX / 2.5) : newX > 0 ? 0 : that.maxScrollX;
+			newX = that.options.bounce ? that.x + round(deltaX / 2.5) : newX >= 0 ? 0 : that.maxScrollX;
 		}
 		if (newY > 0 || newY < that.maxScrollY) { 
-			newY = that.options.bounce ? that.y + round(deltaY / 2.5) : newY > 0 ? 0 : that.maxScrollY;
+			newY = that.options.bounce ? that.y + round(deltaY / 2.5) : newY >= 0 ? 0 : that.maxScrollY;
+
+			// Pull down to refresh
+			if (that.options.pullToRefresh && that.contentReady) {
+				if (newY > that.offsetBottom) {
+					that.pullDownLabel.className = 'flip';
+					that.pullDownLabel.innerText = 'Release to refresh...';
+				} else {
+					that.pullDownLabel.className = '';
+					that.pullDownLabel.innerText = 'Pull down to refresh...';
+				}
+			}
 		}
 
 		if (that.absDistX < 4 && that.absDistY < 4) {
@@ -389,6 +430,16 @@ iScroll.prototype = {
 		that.unbind(MOVE_EV);
 		that.unbind(END_EV);
 		that.unbind(CANCEL_EV);
+
+		if (that.options.pullToRefresh && that.contentReady && that.pullDownLabel.className == 'flip') {
+			that.pullDownLabel.className = 'loading';
+			that.pullDownLabel.innerText = 'Loading...';
+			that.scroller.style.marginTop = '0';
+			that.offsetBottom = 0;
+			that.refresh();
+			that.contentReady = false;
+			that.options.onPullDown();
+		}
 
 		if (!that.moved) {
 			if (hasTouch) {
@@ -636,20 +687,31 @@ iScroll.prototype = {
 		that.scrollTo(x, y, time || max(abs(x)*2, abs(y)*2));
 	},
 	
-	scrollToElement: function (el, time) {
+	scrollToElement: function (el, time, setOrigin) {
 		var that = this, pos;
 		el = el.nodeType ? el : that.scroller.querySelector(el);
 		if (!el) return;
-		
+
 		pos = that._offset(el);
 		pos.x = pos.x > 0 ? 0 : pos.x < that.maxScrollX ? that.maxScrollX : pos.x;
 		pos.y = pos.y > 0 ? 0 : pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
+		time = time === undefined ? max(abs(pos.x)*2, abs(pos.y)*2) : time;
 
-		that.scrollTo(pos.x, pos.y, time || max(abs(pos.x)*2, abs(pos.y)*2));
+		if (setOrigin) {
+			that.scroller.style.marginLeft = -pos.x + 'px';
+			that.scroller.style.marginTop = -pos.y + 'px';
+		}
+		
+		that.scrollTo(pos.x, pos.y, time);
 	},
 	
 	destroy: function () {
 		that.scroller.style.webkitTransform = '';
+		/**
+		 *
+		 * REMOVE SCROLLBARS!!!!!!!!!!!!!!!
+		 *
+		 */
 
 		that.unbind('webkitTransitionEnd');
 		that.unbind(ORIENT_EV);
@@ -676,6 +738,7 @@ iScroll.prototype = {
 var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
 	hasTouch = 'ontouchstart' in window,
 	hasGesture = 'ongesturestart' in window,
+	hasHashChange = 'onhashchange' in window,
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	ORIENT_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
