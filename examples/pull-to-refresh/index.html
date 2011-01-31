@@ -11,9 +11,24 @@
 
 <script type="text/javascript">
 
-var myScroll;
+var myScroll, generatedRows = 0;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', {
+		pullToRefresh: true,
+		onPullDown: function () {
+			setTimeout(function () {
+				var el, li, i;
+				for (i=0; i<3; i++) {
+					el = document.getElementById('thelist'),
+					li = document.createElement('li');
+					li.innerText = 'Generated row ' + (++generatedRows);
+					el.insertBefore(li, el.childNodes[0]);
+				}
+
+				myScroll.refresh();		// IMPORTANT!
+			}, 1000);	// Simulate network congestion
+		}
+	});
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -47,13 +62,9 @@ body {
 	color:#eee;
 	font-size:20px;
 	text-align:center;
-}
-
-#header a {
-	color:#f3f3f3;
-	text-decoration:none;
 	font-weight:bold;
 	text-shadow:0 -1px 0 rgba(0,0,0,0.5);
+	color:#f3f3f3;
 }
 
 #footer {
@@ -107,10 +118,61 @@ body {
 	display:block;
 }
 
+
+/**
+ *
+ * Styles specific to the pull down element
+ *
+ */
+.iScrollPullDown {
+	background:#fff;
+	border-bottom:1px solid #aaa;
+	height:40px;
+	line-height:40px;
+	padding:5px 10px;
+	font-size:14px;
+	color:#999;
+	font-weight:bold;
+	-webkit-transform:translate3d(0,0,0);	/* Put the element in the HW accelerated layer */
+}
+
+.iScrollPullDownIcon {
+	display:block; float:left;
+	width:40px; height:40px;
+	background:url(pull-icon.png) 0 0 no-repeat;
+	background-size:40px 80px;
+	margin-right:5px;
+	-webkit-transition-property:-webkit-transform;
+	-webkit-transition-duration:250ms;
+	-webkit-transform:translate3d(0,0,0);
+}
+
+.iScrollPullDown.flip .iScrollPullDownIcon {
+	-webkit-transform:rotate(-180deg);
+}
+
+.iScrollPullDown.loading .iScrollPullDownIcon {
+	background-position:0 100%;
+	-webkit-animation-name:loading;
+	-webkit-animation-duration:1.5s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:linear;
+}
+
+@-webkit-keyframes loading {
+	from { -webkit-transform:rotate(0deg); }
+	to { -webkit-transform:rotate(360deg); }
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:2) {
+	.iScrollPullDownIcon {
+		background-image:url(pull-icon@2x.png);
+	}
+}
 </style>
 </head>
 <body>
-<div id="header"><a href="http://cubiq.org/iscroll">iScroll</a></div>
+<div id="header">iScroll</div>
 
 <div id="wrapper">
 	<div id="scroller">
