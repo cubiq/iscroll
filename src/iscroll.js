@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 dev.rel. - Last updated: 2011.01.31
+ * Version 4.0 dev.rel. - Last updated: 2011.02.02
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -38,7 +38,9 @@ function iScroll (el, options) {
 		snap: false,
 		pullToRefresh: false,
 		pullDownLabel: ['Pull down to refresh...', 'Release to refresh...', 'Loading...'],
-		onPullDown: function () {},
+		pullUpLabel: ['Pull up to refresh...', 'Release to refresh...', 'Loading...'],
+		onPullDown: function () { that.refresh(); },
+		onPullUp: function () { that.refresh(); }
 	};
 
 	// User defined options
@@ -48,8 +50,11 @@ function iScroll (el, options) {
 	
 	that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
 	that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
-
-	if (that.options.pullToRefresh) {
+	
+	that.pullDownToRefresh = that.options.pullToRefresh == 'down' || that.options.pullToRefresh == 'both';
+	that.pullUpToRefresh = that.options.pullToRefresh == 'up' || that.options.pullToRefresh == 'both';
+	
+	if (that.pullDownToRefresh) {
 		div = doc.createElement('div');
 		div.className = 'iScrollPullDown';
 		div.innerHTML = '<span class="iScrollPullDownIcon"></span><span class="iScrollPullDownLabel">' + that.options.pullDownLabel[0] + '</span>\n';
@@ -59,6 +64,18 @@ function iScroll (el, options) {
 		that.scroller.style.marginTop = -that.offsetBottom + 'px';
 		that.pullDownEl = div;
 		that.pullDownLabel = div.getElementsByTagName('span')[1];
+	}
+	
+	if (that.pullUpToRefresh) {
+		div = doc.createElement('div');
+		div.className = 'iScrollPullUp';
+		div.innerHTML = '<span class="iScrollPullUpIcon"></span><span class="iScrollPullUpLabel">' + that.options.pullUpLabel[0] + '</span>\n';
+		that.scroller.appendChild(div);
+		that.options.bounce = true;
+		that.offsetTop = div.offsetHeight;
+		that.scroller.style.marginBottom = -that.offsetTop + 'px';
+		that.pullUpEl = div;
+		that.pullUpLabel = div.getElementsByTagName('span')[1];
 	}
 
 	that.refresh();
@@ -77,6 +94,7 @@ iScroll.prototype = {
 	currPageX: 0, currPageY: 0,
 	pagesX: [], pagesY: [],
 	offsetBottom: 0,
+	offsetTop: 0,
 	scale: 1,
 	contentReady: true,
 	
@@ -103,7 +121,7 @@ iScroll.prototype = {
 			i, l, els,
 			oldHeight;
 
-		if (that.options.pullToRefresh && !that.contentReady) {
+		if (that.pullDownToRefresh && that.pullDownEl.className.match('loading') && !that.contentReady) {
 			oldHeight = that.scrollerH;
 			that.contentReady = true;
 			that.pullDownEl.className = 'iScrollPullDown';
@@ -112,10 +130,20 @@ iScroll.prototype = {
 			that.scroller.style.marginTop = -that.offsetBottom + 'px';
 		}
 
+		if (that.pullUpToRefresh && that.pullUpEl.className.match('loading') && !that.contentReady) {
+			oldHeight = that.scrollerH;
+			that.contentReady = true;
+			that.pullUpEl.className = 'iScrollPullUp';
+			that.pullUpLabel.innerText = that.options.pullUpLabel[0];
+			that.offsetTop = that.pullUpEl.offsetHeight;
+			that.scroller.style.marginBottom = -that.offsetTop + 'px';
+		}
+
+
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
 		that.scrollerW = round(that.scroller.offsetWidth * that.scale);
-		that.scrollerH = round((that.scroller.offsetHeight - that.offsetBottom) * that.scale);
+		that.scrollerH = round((that.scroller.offsetHeight - that.offsetBottom - that.offsetTop) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH;
 		that.dirX = 0;
@@ -360,12 +388,20 @@ iScroll.prototype = {
 
 			// Pull down to refresh
 			if (that.options.pullToRefresh && that.contentReady) {
-				if (newY > that.offsetBottom) {
+				if (that.pullDownToRefresh && newY > that.offsetBottom) {
 					that.pullDownEl.className = 'iScrollPullDown flip';
 					that.pullDownLabel.innerText = that.options.pullDownLabel[1];
-				} else {
+				} else if (that.pullDownToRefresh && that.pullDownEl.className.match('flip')) {
 					that.pullDownEl.className = 'iScrollPullDown';
 					that.pullDownLabel.innerText = that.options.pullDownLabel[0];
+				}
+				
+				if (that.pullUpToRefresh && newY < that.maxScrollY - that.offsetTop) {
+					that.pullUpEl.className = 'iScrollPullUp flip';
+					that.pullUpLabel.innerText = that.options.pullUpLabel[1];
+				} else if (that.pullDownToRefresh && that.pullUpEl.className.match('flip')) {
+					that.pullUpEl.className = 'iScrollPullUp';
+					that.pullUpLabel.innerText = that.options.pullUpLabel[0];
 				}
 			}
 		}
@@ -441,7 +477,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		if (that.options.pullToRefresh && that.contentReady && that.pullDownEl.className.match(/flip/)) {
+		if (that.pullDownToRefresh && that.contentReady && that.pullDownEl.className.match('flip')) {
 			that.pullDownEl.className = 'iScrollPullDown loading';
 			that.pullDownLabel.innerText = that.options.pullDownLabel[2];
 			that.scroller.style.marginTop = '0';
@@ -449,6 +485,16 @@ iScroll.prototype = {
 			that.refresh();
 			that.contentReady = false;
 			that.options.onPullDown();
+		}
+
+		if (that.pullUpToRefresh && that.contentReady && that.pullUpEl.className.match('flip')) {
+			that.pullUpEl.className = 'iScrollPullUp loading';
+			that.pullUpLabel.innerText = that.options.pullUpLabel[2];
+			that.scroller.style.marginBottom = '0';
+			that.offsetTop = 0;
+			that.refresh();
+			that.contentReady = false;
+			that.options.onPullUp();
 		}
 
 		if (duration < 300 && that.options.momentum) {

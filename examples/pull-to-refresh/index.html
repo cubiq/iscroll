@@ -14,20 +14,36 @@
 var myScroll, generatedRows = 0;
 function loaded() {
 	myScroll = new iScroll('wrapper', {
-		pullToRefresh: true,
+		pullToRefresh: 'both',
 		onPullDown: function () {
 			setTimeout(function () {
 				var el, li, i;
+				el = document.getElementById('thelist'),
+
 				for (i=0; i<3; i++) {
-					el = document.getElementById('thelist'),
 					li = document.createElement('li');
 					li.innerText = 'Generated row ' + (++generatedRows);
 					el.insertBefore(li, el.childNodes[0]);
 				}
 
 				myScroll.refresh();		// IMPORTANT!
-			}, 1000);	// Simulate network congestion
+			}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
+		},
+		onPullUp: function () {
+			setTimeout(function () {
+				var el, li, i;
+				el = document.getElementById('thelist'),
+
+				for (i=0; i<3; i++) {
+					li = document.createElement('li');
+					li.innerText = 'Generated row ' + (++generatedRows);
+					el.appendChild(li);
+				}
+
+				myScroll.refresh();		// IMPORTANT!
+			}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
 		}
+
 	});
 }
 
@@ -121,10 +137,11 @@ body {
 
 /**
  *
- * Styles specific to the pull down element
+ * Styles specific to the pull down/up element
  *
  */
-.iScrollPullDown {
+.iScrollPullDown,
+.iScrollPullUp {
 	background:#fff;
 	border-bottom:1px solid #aaa;
 	height:40px;
@@ -136,7 +153,8 @@ body {
 	-webkit-transform:translate3d(0,0,0);	/* Put the element in the HW accelerated layer */
 }
 
-.iScrollPullDownIcon {
+.iScrollPullDownIcon,
+.iScrollPullUpIcon {
 	display:block; float:left;
 	width:40px; height:40px;
 	background:url(pull-icon.png) 0 0 no-repeat;
@@ -144,19 +162,32 @@ body {
 	margin-right:5px;
 	-webkit-transition-property:-webkit-transform;
 	-webkit-transition-duration:250ms;
-	-webkit-transform:translate3d(0,0,0);
+	-webkit-transform:rotate(0);
 }
 
 .iScrollPullDown.flip .iScrollPullDownIcon {
 	-webkit-transform:rotate(-180deg);
 }
 
-.iScrollPullDown.loading .iScrollPullDownIcon {
+.iScrollPullDown.loading .iScrollPullDownIcon,
+.iScrollPullUp.loading .iScrollPullUpIcon {
 	background-position:0 100%;
 	-webkit-animation-name:loading;
 	-webkit-animation-duration:1.5s;
 	-webkit-animation-iteration-count:infinite;
 	-webkit-animation-timing-function:linear;
+}
+
+.iScrollPullUp {
+	border-bottom:0;
+}
+
+.iScrollPullUpIcon {
+	-webkit-transform:rotate(-180deg);
+}
+
+.iScrollPullUp.flip .iScrollPullUpIcon {
+	-webkit-transform:rotate(0);
 }
 
 @-webkit-keyframes loading {
@@ -165,10 +196,12 @@ body {
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:2) {
-	.iScrollPullDownIcon {
+	.iScrollPullDownIcon,
+	.iScrollPullUpIcon {
 		background-image:url(pull-icon@2x.png);
 	}
 }
+
 </style>
 </head>
 <body>
