@@ -25,6 +25,7 @@ function iScroll (el, options) {
 		hScroll: true,
 		vScroll: true,
 		bounce: has3d,
+		bounceLock: false,
 		momentum: has3d,
 		lockDirection: true,
 		zoom: false,
@@ -34,7 +35,6 @@ function iScroll (el, options) {
 		fadeScrollbar: isIDevice && has3d,
 		hideScrollbar: isIDevice,
 		scrollbarClass: '',
-		bounceLock: false,
 		snap: false,
 		pullToRefresh: false,
 		pullDownLabel: ['Pull down to refresh...', 'Release to refresh...', 'Loading...'],
@@ -87,6 +87,8 @@ function iScroll (el, options) {
 		that.bind('gesturestart');
 		that.scroller.style.webkitTransform = that.scroller.style.webkitTransform + ' scale(1)';
 	}
+	
+	that.bind('click');
 }
 
 iScroll.prototype = {
@@ -102,6 +104,7 @@ iScroll.prototype = {
 		var that = this;
 		
 		switch(e.type) {
+			case 'click': console.log(e.target); break;
 			case START_EV: that._start(e); break;
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
@@ -152,9 +155,9 @@ iScroll.prototype = {
 		that._transitionTime(0);
 
 		that.hScroll = that.options.hScroll && that.maxScrollX < 0;
-		that.vScroll = that.options.vScroll && that.maxScrollY < 0;
+		that.vScroll = that.options.vScroll && (!that.options.bounceLock && !that.hScroll || that.scrollerH > that.wrapperH);
 		that.hScrollbar = that.hScroll && that.options.hScrollbar;
-		that.vScrollbar = that.vScroll && that.options.vScrollbar;
+		that.vScrollbar = that.vScroll && that.options.vScrollbar && that.scrollerH > that.wrapperH;
 
 		// Prepare the scrollbars
 		that._scrollbar('h');
@@ -184,7 +187,7 @@ iScroll.prototype = {
 			}
 			if (that.maxScrollY%that.wrapperH) that.pagesY[that.pagesY.length] = that.maxScrollY - that.pagesY[that.pagesY.length-1] + that.pagesY[that.pagesY.length-1];
 		}
-		
+
 		if (oldHeight && that.y == 0) {
 			oldHeight = oldHeight - that.scrollerH + that.y;
 			that.scrollTo(0, oldHeight, 0);
@@ -470,7 +473,7 @@ iScroll.prototype = {
 					0, null);
 				ev._fake = true;
 				target.dispatchEvent(ev);
-				target.focus();
+//				target.focus();
 			}
 
 			that._resetPos();
@@ -586,10 +589,10 @@ iScroll.prototype = {
 			resetY = that.y,
 			snap;
 
-		if (that.x > 0) resetX = 0;
+		if (that.x >= 0) resetX = 0;
 		else if (that.x < that.maxScrollX) resetX = that.maxScrollX;
 
-		if (that.y > 0) resetY = 0;
+		if (that.y >= 0 || that.maxScrollY > 0) resetY = 0;
 		else if (that.y < that.maxScrollY) resetY = that.maxScrollY;
 		
 		if (resetX == that.x && resetY == that.y) {
@@ -637,7 +640,7 @@ iScroll.prototype = {
 		return { dist: round(newDist), time: round(newTime) };
 	},
 	
-	_transitionEnd: function (e) {
+	_transitionEnd: function () {
 		var that = this;
 
 		that.unbind('webkitTransitionEnd');
@@ -785,7 +788,7 @@ iScroll.prototype = {
 };
 
 
-var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
+var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	hasTouch = 'ontouchstart' in window,
 	hasGesture = 'ongesturestart' in window,
 	hasHashChange = 'onhashchange' in window,
@@ -798,7 +801,7 @@ var has3d = ('WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix()),
 	CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
 	trnOpen = 'translate' + (has3d ? '3d(' : '('),
 	trnClose = has3d ? ',0)' : ')',
-	abs = Math.abs, round = Math.round, floor = Math.floor, ceil = Math.ceil, min = Math.min, max = Math.max;
+	m = Math, abs = m.abs, round = m.round, floor = m.floor, ceil = m.ceil, min = m.min, max = m.max;
 
 window.iScroll = iScroll;
 })();
