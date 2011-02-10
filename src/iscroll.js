@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 dev.rel. - Last updated: 2011.02.02
+ * Version 4.0 dev.rel. - Last updated: 2011.02.08
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -87,8 +87,6 @@ function iScroll (el, options) {
 		that.bind('gesturestart');
 		that.scroller.style.webkitTransform = that.scroller.style.webkitTransform + ' scale(1)';
 	}
-	
-	that.bind('click');
 }
 
 iScroll.prototype = {
@@ -97,14 +95,13 @@ iScroll.prototype = {
 	pagesX: [], pagesY: [],
 	offsetBottom: 0,
 	offsetTop: 0,
-	scale: 1,
+	scale: 1, lastScale: 1,
 	contentReady: true,
 	
 	handleEvent: function (e) {
 		var that = this;
 		
 		switch(e.type) {
-			case 'click': console.log(e.target); break;
 			case START_EV: that._start(e); break;
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
@@ -460,20 +457,30 @@ iScroll.prototype = {
 
 		if (!that.moved) {
 			if (hasTouch) {
-				// Find the last touched element
-				target = point.target;
-				while (target.nodeType != 1) {
-					target = target.parentNode;
-				}
+				if (that.doubleTapTimer && that.options.zoom) {
+					// Double tapped
+					clearTimeout(that.doubleTapTimer);
+					that.doubleTapTimer = null;
+					that.zoom(that.pointX, that.pointY, that.scale == 1 ? 2 : 1);
+				} else {
+					that.doubleTapTimer = setTimeout(function () {
+						that.doubleTapTimer = null;
 
-				ev = document.createEvent('MouseEvents');
-				ev.initMouseEvent('click', true, true, e.view, 1,
-					point.screenX, point.screenY, point.clientX, point.clientY,
-					e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-					0, null);
-				ev._fake = true;
-				target.dispatchEvent(ev);
-//				target.focus();
+						// Find the last touched element
+						target = point.target;
+						while (target.nodeType != 1) {
+							target = target.parentNode;
+						}
+
+						ev = document.createEvent('MouseEvents');
+						ev.initMouseEvent('click', true, true, e.view, 1,
+							point.screenX, point.screenY, point.clientX, point.clientY,
+							e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+							0, null);
+						ev._fake = true;
+						target.dispatchEvent(ev);
+					}, that.options.zoom ? 200 : 0);
+				}
 			}
 
 			that._resetPos();
@@ -525,7 +532,6 @@ iScroll.prototype = {
 				if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
 			}
 
-//			that.bind('webkitTransitionEnd');
 			that.scrollTo(newPosX, newPosY, newDuration);
 			return;
 		}
@@ -534,7 +540,6 @@ iScroll.prototype = {
 		if (that.options.snap) {
 			snap = that._snap(that.x, that.y);
 			if (snap.x != that.x || snap.y != that.y) {
-//				that.bind('webkitTransitionEnd');
 				that.scrollTo(snap.x, snap.y, snap.time);
 			}
 			return;
@@ -608,7 +613,6 @@ iScroll.prototype = {
 			return;
 		}
 
-//		if (time) that.bind('webkitTransitionEnd');
 		that.scrollTo(resetX, resetY, time || 0);
 	},
 	
@@ -652,8 +656,9 @@ iScroll.prototype = {
 		var that = this;
 
 		that._transitionTime(0);
+		that.lastScale = 1;
 
-		that.unbind('gesturestart');
+//		that.unbind('gesturestart');
 		that.bind('gesturechange');
 		that.bind('gestureend');
 		that.bind('gesturecancel');
@@ -661,29 +666,61 @@ iScroll.prototype = {
 
 	_gestChange: function (e) {
 		var that = this,
-			scale = min(4, max(1, that.scale * e.scale)),
+			scale = that.scale * e.scale,
 			x, y;
 
-		if (scale > 1 && scale < 4) {
-			x = that.originX - that.originX * e.scale + that.x;
-			y = that.originY - that.originY * e.scale + that.y;
-			that.scroller.style.webkitTransform = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + scale + ')';
-		}
+		if (scale < 1 || scale > 4) return;
+
+		x = that.originX - that.originX * e.scale + that.x;
+		y = that.originY - that.originY * e.scale + that.y;
+		that.scroller.style.webkitTransform = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + scale + ')';
+		that.lastScale = e.scale;
 	},
 
 	_gestEnd: function (e) {
 		var that = this;
 
-		that.scale = min(4, max(1, that.scale * e.scale));
-		that.x = that.originX - round(that.originX * e.scale) + that.x;
-		that.y = that.originY - round(that.originY * e.scale) + that.y;
+		that.scale = that.scale * that.lastScale;
+		if (that.scale < 1.05) that.scale = 1;
+		that.x = that.originX - that.originX * that.lastScale + that.x;
+		that.y = that.originY - that.originY * that.lastScale + that.y;
+		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
 
-		that.refresh();
+		setTimeout(function () {
+			that.refresh();
+		}, 0);
 
-		that.bind('gesturestart')
+//		that.bind('gesturestart')
 		that.unbind('gesturechange');
 		that.unbind('gestureend');
 		that.unbind('gesturecancel');
+	},
+	
+	zoom: function (x, y, scale) {
+		var that = this,
+			el = that.wrapper,
+			offsetLeft = offsetTop = 0,
+			relScale = scale / that.scale;
+
+		do {
+			offsetLeft += el.offsetLeft;
+			offsetTop += el.offsetTop;
+		} while (el = el.offsetParent);
+
+		x = x - offsetLeft - that.x;
+		y = y - offsetTop - that.y;
+		that.x = x - x * relScale + that.x;
+		that.y = y - y * relScale + that.y;
+
+		that.scale = scale;
+
+		that.refresh();
+		that.bind('webkitTransitionEnd');
+		that._transitionTime(200);
+
+		setTimeout(function () {
+			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
+		}, 0);
 	},
 	
 	_offset: function (el) {
@@ -695,7 +732,7 @@ iScroll.prototype = {
 
 		return { x: oLeft, y: oTop };
 	},
-
+	
 	scrollTo: function (x, y, time) {
 		var that = this;
 		time = time || 0;
@@ -727,7 +764,6 @@ iScroll.prototype = {
 			if (y < that.maxScrollY) y = that.maxScrollY;
 		}
 
-//		that.bind('webkitTransitionEnd');
 		that.scrollTo(x, y, time || max(abs(x)*2, abs(y)*2));
 	},
 	
@@ -750,12 +786,14 @@ iScroll.prototype = {
 	},
 	
 	destroy: function () {
-		/**
-		 *
-		 * REMOVE PULL DOWN!!!!!!!!!!!!!
-		 *
-		 */
-		
+		// Remove pull to refresh
+		if (that.pullDownToRefresh) {
+			that.pullDownEl.parentNode.removeChild(that.pullDownEl);
+		}
+		if (that.pullUpToRefresh) {
+			that.pullUpEl.parentNode.removeChild(that.pullUpEl);
+		}
+
 		// Remove the scrollbars
 		that.hScrollbar = false;
 		that.vScrollbar = false;
@@ -772,10 +810,13 @@ iScroll.prototype = {
 		that.unbind(MOVE_EV);
 		that.unbind(END_EV);
 		that.unbind(CANCEL_EV);
-		that.unbind('gesturestart')
-		that.unbind('gesturechange');
-		that.unbind('gestureend');
-		that.unbind('gesturecancel');
+		
+		if (that.options.zoom) {
+			that.unbind('gesturestart')
+			that.unbind('gesturechange');
+			that.unbind('gestureend');
+			that.unbind('gesturecancel');
+		}
 	},
 	
 	bind: function (type, el) {
