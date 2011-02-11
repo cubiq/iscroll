@@ -36,11 +36,12 @@ function iScroll (el, options) {
 		hideScrollbar: isIDevice,
 		scrollbarClass: '',
 		snap: false,
+		onScrollEnd: function () {},
 		pullToRefresh: false,
 		pullDownLabel: ['Pull down to refresh...', 'Release to refresh...', 'Loading...'],
 		pullUpLabel: ['Pull up to refresh...', 'Release to refresh...', 'Loading...'],
-		onPullDown: function () { that.refresh(); },
-		onPullUp: function () { that.refresh(); }
+		onPullDown: function () {},
+		onPullUp: function () {}
 	};
 
 	// User defined options
@@ -479,7 +480,7 @@ iScroll.prototype = {
 							0, null);
 						ev._fake = true;
 						target.dispatchEvent(ev);
-					}, that.options.zoom ? 200 : 0);
+					}, that.options.zoom ? 250 : 0);
 				}
 			}
 
@@ -601,6 +602,11 @@ iScroll.prototype = {
 		else if (that.y < that.maxScrollY) resetY = that.maxScrollY;
 		
 		if (resetX == that.x && resetY == that.y) {
+			if (that.moved) {
+				that.options.onScrollEnd.call(that);		// Execute custom code on scroll end
+				that.moved = false;
+			}
+
 			if (that.hScrollbar && that.options.hideScrollbar) {
 				that.hScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.hScrollbarWrapper.style.opacity = '0';
@@ -736,7 +742,8 @@ iScroll.prototype = {
 	scrollTo: function (x, y, time) {
 		var that = this;
 		time = time || 0;
-		
+
+		that.moved = true;
 		that._transitionTime(time);
 		that._pos(x, y);
 
@@ -748,11 +755,12 @@ iScroll.prototype = {
 		var that = this, x, y;
 		
 		if (that.options.snap) {
-			pageX = pageX == 'next' ? that.currPageX++ : pageX == 'prev' ? that.currPageX-- : pageX;
-			pageY = pageY == 'next' ? that.currPageY++ : pageY == 'prev' ? that.currPageY-- : pageY;
-			pageX = pageX < 0 ? 0 : pageX > that.pagesX.length ? that.pagesX.length : pageX;
-			pageY = pageY < 0 ? 0 : pageY > that.pagesY.length ? that.pagesY.length : pageY;
-			
+			pageX = pageX == 'next' ? that.currPageX+1 : pageX == 'prev' ? that.currPageX-1 : pageX;
+			pageY = pageY == 'next' ? that.currPageY+1 : pageY == 'prev' ? that.currPageY-1 : pageY;
+
+			pageX = pageX < 0 ? 0 : pageX > that.pagesX.length-1 ? that.pagesX.length-1 : pageX;
+			pageY = pageY < 0 ? 0 : pageY > that.pagesY.length-1 ? that.pagesY.length-1 : pageY;
+
 			that.currPageX = pageX;
 			that.currPageY = pageY;
 			x = that.pagesX[pageX];
@@ -764,7 +772,7 @@ iScroll.prototype = {
 			if (y < that.maxScrollY) y = that.maxScrollY;
 		}
 
-		that.scrollTo(x, y, time || max(abs(x)*2, abs(y)*2));
+		that.scrollTo(x, y, time || 400);
 	},
 	
 	scrollToElement: function (el, time, setOrigin) {
