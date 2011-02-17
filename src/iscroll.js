@@ -13,7 +13,8 @@
  */
 
 ;(function(){
-function iScroll (el, options) {
+
+var iScroll = function (el, options) {
 	var that = this, doc = document, div, i, pos;
 
 	that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
@@ -118,7 +119,7 @@ iScroll.prototype = {
 
 	refresh: function () {
 		var that = this,
-			pos = page = 0,
+			pos = 0, page = 0,
 			i, l, els,
 			oldHeight;
 
@@ -309,7 +310,7 @@ iScroll.prototype = {
 	_start: function (e) {
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
-			offsetLeft = offsetTop = 0, el,
+			offsetLeft = 0, offsetTop = 0, el,
 			matrix;
 
 		that.moved = false;
@@ -322,7 +323,7 @@ iScroll.prototype = {
 			do {
 				offsetLeft += el.offsetLeft;
 				offsetTop += el.offsetTop;
-			} while (el = el.offsetParent);
+			} while ((el = el.offsetParent));
 
 			that.originX = abs(e.touches[0].pageX + e.touches[1].pageX - offsetLeft*2) / 2 - that.x;
 			that.originY = abs(e.touches[0].pageY + e.touches[1].pageY - offsetTop*2) / 2 - that.y;
@@ -575,7 +576,7 @@ iScroll.prototype = {
 			if (y >= that.pagesY[i]) {
 				page = i;
 				break;
-			};
+			}
 		}
 		if (page == that.currPageY && page > 0 && that.dirY < 0) page--;
 		y = that.pagesY[page];
@@ -592,8 +593,7 @@ iScroll.prototype = {
 	_resetPos: function (time) {
 		var that = this,
 			resetX = that.x,
-			resetY = that.y,
-			snap;
+			resetY = that.y;
 
 		if (that.x >= 0) resetX = 0;
 		else if (that.x < that.maxScrollX) resetX = that.maxScrollX;
@@ -627,7 +627,7 @@ iScroll.prototype = {
 			deceleration = 0.0006,
 			speed = abs(dist) / time,
 			newDist = (speed * speed) / (2 * deceleration),
-			newTime = outsideDist = 0;
+			newTime = 0, outsideDist = 0;
 
 		// Proportinally reduce speed if we are outside of the boundaries 
 		if (dist > 0 && newDist > maxDistUpper) {
@@ -705,13 +705,13 @@ iScroll.prototype = {
 	zoom: function (x, y, scale) {
 		var that = this,
 			el = that.wrapper,
-			offsetLeft = offsetTop = 0,
+			offsetLeft = 0, offsetTop = 0,
 			relScale = scale / that.scale;
 
 		do {
 			offsetLeft += el.offsetLeft;
 			offsetTop += el.offsetTop;
-		} while (el = el.offsetParent);
+		} while ((el = el.offsetParent));
 
 		x = x - offsetLeft - that.x;
 		y = y - offsetTop - that.y;
@@ -730,7 +730,7 @@ iScroll.prototype = {
 	},
 	
 	_offset: function (el) {
-		var oLeft = oTop = 0;
+		var oLeft = 0, oTop = 0;
 		do {
 			oLeft -= el.offsetLeft;
 			oTop -= el.offsetTop;
@@ -794,6 +794,7 @@ iScroll.prototype = {
 	},
 	
 	destroy: function () {
+		var that = this;
 		// Remove pull to refresh
 		if (that.pullDownToRefresh) {
 			that.pullDownEl.parentNode.removeChild(that.pullDownEl);
@@ -833,7 +834,7 @@ iScroll.prototype = {
 	
 	unbind: function (type, el) {
 		(el || this.scroller).removeEventListener(type, this, false);
-	},
+	}
 };
 
 
