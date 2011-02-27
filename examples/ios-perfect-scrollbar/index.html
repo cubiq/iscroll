@@ -7,13 +7,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>iScroll demo: simple</title>
 
+<link rel="stylesheet" type="text/css" href="scrollbar.css">
+
 <script type="application/javascript" src="../../src/iscroll.js?v4"></script>
 
 <script type="text/javascript">
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', { scrollbarClass: 'myScrollbar' });
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -70,7 +72,7 @@ body {
 	position:absolute; z-index:1;
 	top:45px; bottom:48px; left:0;
 	width:100%;
-	background:#aaa;
+	background:#555;
 	overflow:auto;
 }
 
@@ -115,7 +117,7 @@ body {
 	<div id="scroller">
 		<ul id="thelist">
 			<li>Pretty row 1</li>
-			<li>Pretty row 2</li>
+			<li id="aaa">Pretty row 2</li>
 			<li>Pretty row 3</li>
 			<li>Pretty row 4</li>
 			<li>Pretty row 5</li>
@@ -132,7 +134,7 @@ body {
 			<li>Pretty row 16</li>
 			<li>Pretty row 17</li>
 			<li>Pretty row 18</li>
-			<li id="aaa">Pretty row 19</li>
+			<li>Pretty row 19</li>
 			<li>Pretty row 20</li>
 			<li>Pretty row 21</li>
 			<li>Pretty row 22</li>
