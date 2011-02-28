@@ -961,5 +961,9 @@ var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	trnClose = has3d ? ',0)' : ')',
 	m = Math;
 
-window.iScroll = iScroll;
+if (typeof exports !== 'undefined') {
+	exports.iScroll = iScroll;
+} else {
+	window.iScroll = iScroll;
+}
 })();
