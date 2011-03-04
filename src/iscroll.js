@@ -6,7 +6,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 Beta 1 - Last updated: 2011.02.27
+ * Version 4.0 Beta 1 - Last updated: 2011.03.04
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -352,7 +352,7 @@ iScroll.prototype = {
 				if (that.pullUpToRefresh && newY < that.maxScrollY - that.offsetTop) {
 					that.pullUpEl.className = 'iScrollPullUp flip';
 					that.pullUpLabel.innerText = that.options.pullUpLabel[1];
-				} else if (that.pullDownToRefresh && that.pullUpEl.className.match('flip')) {
+				} else if (that.pullUpToRefresh && that.pullUpEl.className.match('flip')) {
 					that.pullUpEl.className = 'iScrollPullUp';
 					that.pullUpLabel.innerText = that.options.pullUpLabel[0];
 				}
@@ -880,7 +880,7 @@ iScroll.prototype = {
 		else that._transitionEnd();
 	},
 
-	scrollToElement: function (el, time, setOrigin) {
+	scrollToElement: function (el, time) {
 		var that = this, pos;
 		el = el.nodeType ? el : that.scroller.querySelector(el);
 		if (!el) return;
@@ -890,11 +890,6 @@ iScroll.prototype = {
 		pos.y = pos.y > 0 ? 0 : pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
 		time = time === undefined ? m.max(m.abs(pos.x)*2, m.abs(pos.y)*2) : time;
 
-		if (setOrigin) {
-			that.scroller.style.marginLeft = -pos.x + 'px';
-			that.scroller.style.marginTop = -pos.y + 'px';
-		}
-		
 		that.scrollTo(pos.x, pos.y, time);
 	},
 

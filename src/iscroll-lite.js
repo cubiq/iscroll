@@ -527,7 +527,7 @@ iScroll.prototype = {
 		else that._transitionEnd();
 	},
 
-	scrollToElement: function (el, time, setOrigin) {
+	scrollToElement: function (el, time) {
 		var that = this, pos;
 		el = el.nodeType ? el : that.scroller.querySelector(el);
 		if (!el) return;
@@ -536,11 +536,6 @@ iScroll.prototype = {
 		pos.x = pos.x > 0 ? 0 : pos.x < that.maxScrollX ? that.maxScrollX : pos.x;
 		pos.y = pos.y > 0 ? 0 : pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
 		time = time === undefined ? m.max(m.abs(pos.x)*2, m.abs(pos.y)*2) : time;
-
-		if (setOrigin) {
-			that.scroller.style.marginLeft = -pos.x + 'px';
-			that.scroller.style.marginTop = -pos.y + 'px';
-		}
 
 		that.scrollTo(pos.x, pos.y, time);
 	}
