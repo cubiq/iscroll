@@ -295,15 +295,15 @@ iScroll.prototype = {
 			if (that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - pos < 9) pos = that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - 8;
 		}
 		
-		// TEMP HACK DEBUG sometimes this is undefined, causing an error...
-		if (!that[dir + 'ScrollbarWrapper']) {
-		    //console.log("uh oh! scrollbar bug! dir=" + dir);
-		    // every time i've seen this, dir = 'v'
+		// TEMP HACK try-catching this to prevent errors from propagating up
+		try {
+    		// TODO BUG the following line throws an error sometimes because vScrollWrapper is undefined:
+    		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
+    		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
+    		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
+		} catch (e) {
+		    console.warn(e);
 		}
-		
-		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
-		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
-		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
 	},
 	
 	_transitionTime: function (time) {
@@ -311,9 +311,15 @@ iScroll.prototype = {
 		
 		time += 'ms';
 		that.scroller.style.webkitTransitionDuration = time;
-
-		if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionDuration = time;
-		if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionDuration = time;
+        
+		// TEMP HACK try-catching this to prevent errors from propagating up
+		try {
+    		if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionDuration = time;
+    		// TODO BUG the following line throws an error sometimes because vScrollIndicator is undefined:
+    		if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionDuration = time;
+		} catch (e) {
+		    console.warn(e);
+		}
 	},
 	
 	_start: function (e) {
@@ -542,10 +548,17 @@ iScroll.prototype = {
 			}
 			
 			if (newPosX > 0 || newPosX < that.maxScrollX || newPosY > 0 || newPosY < that.maxScrollY) {
-				// Subtle change of scroller motion
-				that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
-				if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
-				if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+        		// TEMP HACK try-catching this to prevent errors from propagating up
+        		try {
+				    // Subtle change of scroller motion
+    				that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+    				if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+    				// TODO BUG the following line throws an error sometimes because vScrollbarIndicator is null:
+    				// (but strangely, hScrollIndicator was not, since the line above worked!)
+    				if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+				} catch (e) {
+				    console.warn(e);
+				}
 			}
 
 			that.scrollTo(newPosX, newPosY, newDuration);
@@ -622,9 +635,14 @@ iScroll.prototype = {
 				that.hScrollbarWrapper.style.opacity = '0';
 			}
 			if (that.vScrollbar && that.options.hideScrollbar) {
-			    // TODO BUG this sometimes throws an error because vScrollbarWrapper is null:
-				that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
-				that.vScrollbarWrapper.style.opacity = '0';
+        		// TEMP HACK try-catching this to prevent errors from propagating up
+        		try {
+    			    // TODO BUG this sometimes throws an error because vScrollbarWrapper is null:
+    				that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
+    				that.vScrollbarWrapper.style.opacity = '0';
+				} catch (e) {
+				    console.warn(e);
+				}
 			}
 		
 			return;
