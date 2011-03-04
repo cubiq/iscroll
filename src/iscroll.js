@@ -329,21 +329,10 @@ iScroll.prototype = {
 			matrix;
 
 		that.moved = false;
+		that.zoomed = false;
+		    // TEMP aseemk: keep track of whether a zoom took place also.
 
 		e.preventDefault();
-
-		if (e.touches && e.touches.length == 2 && that.options.zoom && hasGesture) {
-			// As object position might change over time, we calculate the offset each time (overkill?)
-			el = that.wrapper;
-			do {
-				offsetLeft += el.offsetLeft;
-				offsetTop += el.offsetTop;
-			} while (el = el.offsetParent);
-
-			that.originX = abs(e.touches[0].pageX + e.touches[1].pageX - offsetLeft*2) / 2 - that.x;
-			that.originY = abs(e.touches[0].pageY + e.touches[1].pageY - offsetTop*2) / 2 - that.y;
-			return;
-		}
 
 		that.moved = false;
 		that.distX = 0;
@@ -379,10 +368,31 @@ iScroll.prototype = {
 		that.bind(MOVE_EV);
 		that.bind(END_EV);
 		that.bind(CANCEL_EV);
+		
+		// TEMP aseemk: setting zoom calculations *after* event listeners have been bound.
+		// remember that a multi-touch can begin both via *one* touchstart (with 2 touches)
+		// or via *two* touchstarts (first with 1 touch, second with 2 touches). we want to
+		// be consistent in both cases, i.e. setting the same properties, etc.
+		
+		if (e.touches && e.touches.length >= 2 && that.options.zoom && hasGesture) {
+			// As object position might change over time, we calculate the offset each time (overkill?)
+			el = that.wrapper;
+			do {
+				offsetLeft += el.offsetLeft;
+				offsetTop += el.offsetTop;
+			} while (el = el.offsetParent);
+            
+			that.originX = abs(e.touches[0].pageX + e.touches[1].pageX - offsetLeft*2) / 2 - that.x;
+			that.originY = abs(e.touches[0].pageY + e.touches[1].pageY - offsetTop*2) / 2 - that.y;
+		}
 	},
 	
 	_move: function (e) {
-		if (e.touches && e.touches.length > 1) return;
+	    if (e.touches && e.touches.length > 1) {
+	        // TEMP aseemk: remember that zooming happened
+	        this.zoomed = true;
+	        return;
+	    }
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -457,7 +467,7 @@ iScroll.prototype = {
 	},
 	
 	_end: function (e) {
-		if (e.touches && e.touches.length != 0) return;
+	    if (e.touches && e.touches.length > 0) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -473,8 +483,22 @@ iScroll.prototype = {
 		that.unbind(MOVE_EV);
 		that.unbind(END_EV);
 		that.unbind(CANCEL_EV);
-
-		if (!that.moved) {
+		
+		// TEMP aseemk: short-circuiting touchend calculations -- including momentum --
+		// if this was at all a multi-touch interaction. this is suboptimal because the
+		// user can start panning (single-touch) after zooming (multi-touch), which
+		// should use momentum, etc., but that calculation is broken -- it doesn't
+		// properly track fingers, which can change between start and end. note that
+		// unfortunately this also prevents clamping if panned beyond the boundaries.
+		// TODO track individual fingers so we can calculate momentum correctly for
+		// flicks after multi-touch pinch zooms, and also clamp/bounce on release.
+		if (that.zoomed) {
+		    return;
+		}
+		
+		// TEMP aseemk: if we fix momentum for post-multi-touch and remove the
+		// short-circuit above, we still shouldn't execute this block if zoomed.
+		if (!that.moved && !that.zoomed) {
 			if (hasTouch) {
 				if (that.doubleTapTimer && that.options.zoom) {
 					// Double tapped
