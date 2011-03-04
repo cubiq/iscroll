@@ -297,12 +297,12 @@ iScroll.prototype = {
 		
 		// TEMP HACK try-catching this to prevent errors from propagating up
 		try {
-    		// TODO BUG the following line throws an error sometimes because vScrollWrapper is undefined:
-    		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
-    		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
-    		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
+			// TODO BUG the following line throws an error sometimes because vScrollWrapper is undefined:
+			that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
+			that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
+			that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
 		} catch (e) {
-		    console.warn(e);
+			console.warn(e);
 		}
 	},
 	
@@ -311,14 +311,14 @@ iScroll.prototype = {
 		
 		time += 'ms';
 		that.scroller.style.webkitTransitionDuration = time;
-        
+		
 		// TEMP HACK try-catching this to prevent errors from propagating up
 		try {
-    		if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionDuration = time;
-    		// TODO BUG the following line throws an error sometimes because vScrollIndicator is undefined:
-    		if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionDuration = time;
+			if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionDuration = time;
+			// TODO BUG the following line throws an error sometimes because vScrollIndicator is undefined:
+			if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionDuration = time;
 		} catch (e) {
-		    console.warn(e);
+			console.warn(e);
 		}
 	},
 	
@@ -330,7 +330,7 @@ iScroll.prototype = {
 
 		that.moved = false;
 		that.zoomed = false;
-		    // TEMP aseemk: keep track of whether a zoom took place also.
+			// TEMP aseemk: keep track of whether a zoom took place also.
 
 		e.preventDefault();
 
@@ -381,18 +381,18 @@ iScroll.prototype = {
 				offsetLeft += el.offsetLeft;
 				offsetTop += el.offsetTop;
 			} while (el = el.offsetParent);
-            
+			
 			that.originX = abs(e.touches[0].pageX + e.touches[1].pageX - offsetLeft*2) / 2 - that.x;
 			that.originY = abs(e.touches[0].pageY + e.touches[1].pageY - offsetTop*2) / 2 - that.y;
 		}
 	},
 	
 	_move: function (e) {
-	    if (e.touches && e.touches.length > 1) {
-	        // TEMP aseemk: remember that zooming happened
-	        this.zoomed = true;
-	        return;
-	    }
+		if (e.touches && e.touches.length > 1) {
+			// TEMP aseemk: remember that zooming happened
+			this.zoomed = true;
+			return;
+		}
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -467,7 +467,7 @@ iScroll.prototype = {
 	},
 	
 	_end: function (e) {
-	    if (e.touches && e.touches.length > 0) return;
+		if (e.touches && e.touches.length > 0) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -493,7 +493,7 @@ iScroll.prototype = {
 		// TODO track individual fingers so we can calculate momentum correctly for
 		// flicks after multi-touch pinch zooms, and also clamp/bounce on release.
 		if (that.zoomed) {
-		    return;
+			return;
 		}
 		
 		// TEMP aseemk: if we fix momentum for post-multi-touch and remove the
@@ -572,16 +572,16 @@ iScroll.prototype = {
 			}
 			
 			if (newPosX > 0 || newPosX < that.maxScrollX || newPosY > 0 || newPosY < that.maxScrollY) {
-        		// TEMP HACK try-catching this to prevent errors from propagating up
-        		try {
-				    // Subtle change of scroller motion
-    				that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
-    				if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
-    				// TODO BUG the following line throws an error sometimes because vScrollbarIndicator is null:
-    				// (but strangely, hScrollIndicator was not, since the line above worked!)
-    				if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+				// TEMP HACK try-catching this to prevent errors from propagating up
+				try {
+					// Subtle change of scroller motion
+					that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+					if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
+					// TODO BUG the following line throws an error sometimes because vScrollbarIndicator is null:
+					// (but strangely, hScrollIndicator was not, since the line above worked!)
+					if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.88,1)';
 				} catch (e) {
-				    console.warn(e);
+					console.warn(e);
 				}
 			}
 
@@ -659,13 +659,13 @@ iScroll.prototype = {
 				that.hScrollbarWrapper.style.opacity = '0';
 			}
 			if (that.vScrollbar && that.options.hideScrollbar) {
-        		// TEMP HACK try-catching this to prevent errors from propagating up
-        		try {
-    			    // TODO BUG this sometimes throws an error because vScrollbarWrapper is null:
-    				that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
-    				that.vScrollbarWrapper.style.opacity = '0';
+				// TEMP HACK try-catching this to prevent errors from propagating up
+				try {
+					// TODO BUG this sometimes throws an error because vScrollbarWrapper is null:
+					that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
+					that.vScrollbarWrapper.style.opacity = '0';
 				} catch (e) {
-				    console.warn(e);
+					console.warn(e);
 				}
 			}
 		
@@ -730,10 +730,10 @@ iScroll.prototype = {
 		
 		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
 		//if (scale < 1) {
-		//    scale = 1;
+		//	  scale = 1;
 		//} else 
 		//if (scale > 4) {
-		//    scale = 4;
+		//	  scale = 4;
 		//}
 		
 		relScale = scale / that.scale;
@@ -745,12 +745,12 @@ iScroll.prototype = {
 
 	_gestEnd: function (e) {
 		var that = this,
-		    origScale = that.scale,
-		    lastScale = that.lastScale;
+			origScale = that.scale,
+			lastScale = that.lastScale;
 
 		that.scale = origScale * lastScale;
 		if (that.scale < 1.05) that.scale = 1;
-		if (that.scale > 3.95) that.scale = 4;      // clamp max zoom here
+		if (that.scale > 3.95) that.scale = 4;		// clamp max zoom here
 		lastScale = that.scale / origScale;
 		that.x = that.originX - that.originX * lastScale + that.x;
 		that.y = that.originY - that.originY * lastScale + that.y;
