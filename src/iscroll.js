@@ -7,6 +7,7 @@
  * http://cubiq.org/dropbox/mit-license.txt
  * 
  * Version 4.0 dev.rel. - Last updated: 2011.02.08
+ * Forked by Aseem Kishore in order to improve zooming.
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -315,7 +316,7 @@ iScroll.prototype = {
 
 		e.preventDefault();
 
-		if (e.touches.length == 2 && that.options.zoom && hasGesture) {
+		if (e.touches && e.touches.length == 2 && that.options.zoom && hasGesture) {
 			// As object position might change over time, we calculate the offset each time (overkill?)
 			el = that.wrapper;
 			do {
@@ -365,7 +366,7 @@ iScroll.prototype = {
 	},
 	
 	_move: function (e) {
-		if (e.touches.length > 1) return;
+		if (e.touches && e.touches.length > 1) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -438,7 +439,7 @@ iScroll.prototype = {
 	},
 	
 	_end: function (e) {
-		if (e.touches.length != 0) return;
+		if (e.touches && e.touches.length != 0) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
