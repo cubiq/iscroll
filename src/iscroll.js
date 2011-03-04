@@ -191,7 +191,10 @@ iScroll.prototype = {
 			that.scrollTo(0, oldHeight, 0);
 		}
 		
-		that._resetPos();
+		// TEMP aseemk: passing a transition time because refresh() is called on zoom end,
+		// and it effectively resets the transform to within the min/max zoom constraints,
+		// so now this reset/clamp is done smoothly instead of in one jerk.
+		that._resetPos(200);
 	},
 	
 	_scrollbar: function (dir) {
@@ -291,6 +294,13 @@ iScroll.prototype = {
 			pos = that.options.fixedScrollbar ? that[dir + 'ScrollbarMaxScroll'] : pos + (pos - that[dir + 'ScrollbarMaxScroll'])*3;
 			if (that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - pos < 9) pos = that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - 8;
 		}
+		
+		// TEMP HACK DEBUG sometimes this is undefined, causing an error...
+		if (!that[dir + 'ScrollbarWrapper']) {
+		    //console.log("uh oh! scrollbar bug! dir=" + dir);
+		    // every time i've seen this, dir = 'v'
+		}
+		
 		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
 		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
 		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
@@ -381,11 +391,13 @@ iScroll.prototype = {
 		that.pointY = point.pageY;
 
 		// Slow down if outside of the boundaries
+		// TEMP aseemk: changing drag beyond boundaries to 1/2 instead of 1/2.4;
+		// seems to match the native behavior on iPhone.
 		if (newX > 0 || newX < that.maxScrollX) {
-			newX = that.options.bounce ? that.x + round(deltaX / 2.4) : newX >= 0 ? 0 : that.maxScrollX;
+			newX = that.options.bounce ? that.x + round(deltaX * 0.5) : newX >= 0 ? 0 : that.maxScrollX;
 		}
 		if (newY > 0 || newY < that.maxScrollY) { 
-			newY = that.options.bounce ? that.y + round(deltaY / 2.4) : newY >= 0 ? 0 : that.maxScrollY;
+			newY = that.options.bounce ? that.y + round(deltaY * 0.5) : newY >= 0 ? 0 : that.maxScrollY;
 
 			// Pull down to refresh
 			if (that.options.pullToRefresh && that.contentReady) {
@@ -507,7 +519,10 @@ iScroll.prototype = {
 			that.contentReady = false;
 			that.options.onPullUp();
 		}
-
+		
+		// TODO aseemk: improve the "bounce" momentum calculation.
+		// TODO aseemk: alternately (or in addition), add a drag/dampener if bounce is disabled
+		// and you're approaching the boundaries, so that it's not jarring to lift your finger.
 		if (duration < 300 && that.options.momentum) {
 			momentumX = newPosX ? that._momentum(newPosX - that.startX, duration, -that.x, that.scrollerW - that.wrapperW + that.x, that.options.bounce ? that.wrapperW : 0) : momentumX;
 			momentumY = newPosY ? that._momentum(newPosY - that.startY, duration, -that.y, that.scrollerH - that.wrapperH + that.y, that.options.bounce ? that.wrapperH : 0) : momentumY;
@@ -607,6 +622,7 @@ iScroll.prototype = {
 				that.hScrollbarWrapper.style.opacity = '0';
 			}
 			if (that.vScrollbar && that.options.hideScrollbar) {
+			    // TODO BUG this sometimes throws an error because vScrollbarWrapper is null:
 				that.vScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.vScrollbarWrapper.style.opacity = '0';
 			}
@@ -668,23 +684,35 @@ iScroll.prototype = {
 	_gestChange: function (e) {
 		var that = this,
 			scale = that.scale * e.scale,
-			x, y;
-
-		if (scale < 1 || scale > 4) return;
-
-		x = that.originX - that.originX * e.scale + that.x;
-		y = that.originY - that.originY * e.scale + that.y;
+			x, y, relScale;
+		
+		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
+		//if (scale < 1) {
+		//    scale = 1;
+		//} else 
+		//if (scale > 4) {
+		//    scale = 4;
+		//}
+		
+		relScale = scale / that.scale;
+		x = that.originX - that.originX * relScale + that.x;
+		y = that.originY - that.originY * relScale + that.y;
 		that.scroller.style.webkitTransform = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + scale + ')';
-		that.lastScale = e.scale;
+		that.lastScale = relScale;
 	},
 
 	_gestEnd: function (e) {
-		var that = this;
+		var that = this,
+		    origScale = that.scale,
+		    lastScale = that.lastScale;
 
-		that.scale = that.scale * that.lastScale;
+		that.scale = origScale * lastScale;
 		if (that.scale < 1.05) that.scale = 1;
-		that.x = that.originX - that.originX * that.lastScale + that.x;
-		that.y = that.originY - that.originY * that.lastScale + that.y;
+		if (that.scale > 3.95) that.scale = 4;      // clamp max zoom here
+		lastScale = that.scale / origScale;
+		that.x = that.originX - that.originX * lastScale + that.x;
+		that.y = that.originY - that.originY * lastScale + that.y;
+		that._transitionTime(200);
 		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
 
 		setTimeout(function () {
