@@ -1,12 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * iScroll Lite Edition based on iScroll v4.0 Beta 2
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * iScroll Lite Edition, based on iScroll 4.0 Beta 1 - Last updated: 2011.02.27
+ * Last updated: 2011.03.05
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -329,12 +331,16 @@ iScroll.prototype = {
 		if (duration < 300 && that.options.momentum) {
 			momentumX = newPosX ? that._momentum(newPosX - that.startX, duration, -that.x, that.scrollerW - that.wrapperW + that.x, that.options.bounce ? that.wrapperW : 0) : momentumX;
 			momentumY = newPosY ? that._momentum(newPosY - that.startY, duration, -that.y, (that.maxScrollY < 0 ? that.scrollerH - that.wrapperH + that.y : 0), that.options.bounce ? that.wrapperH : 0) : momentumY;
+
+			newPosX = that.x + momentumX.dist;
+			newPosY = that.y + momentumY.dist;
+
+ 			if ((that.x > 0 && newPosX > 0) || (that.x < that.maxScrollX && newPosX < that.maxScrollX)) momentumX = { dist:0, time:0 };
+ 			if ((that.y > 0 && newPosY > 0) || (that.y < that.maxScrollY && newPosY < that.maxScrollY)) momentumY = { dist:0, time:0 };
 		}
 
 		if (momentumX.dist || momentumY.dist) {
-			newPosX = that.x + momentumX.dist;
-			newPosY = that.y + momentumY.dist;
-			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);		// Minimum duration 10ms
+			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);
 
 /*			if (newPosX > 0 || newPosX < that.maxScrollX || newPosY > 0 || newPosY < that.maxScrollY) {
 				// Subtle change of scroller motion
@@ -511,20 +517,20 @@ iScroll.prototype = {
 
 	scrollTo: function (x, y, time, relative) {
 		var that = this;
-		time = time || 0;
 
 		if (relative) {
 			x = that.x - x;
 			y = that.y - y;
 		}
 
+		time = !time || (m.round(that.x) == m.round(x) && m.round(that.y) == m.round(y)) ? 0 : time;
+
 		that.moved = true;
 
+		if (time) that._bind('webkitTransitionEnd');
 		that._transitionTime(time);
 		that._pos(x, y);
-
-		if (time) that._bind('webkitTransitionEnd');
-		else that._transitionEnd();
+		if (!time) setTimeout(function () { that._transitionEnd(); }, 0);
 	},
 
 	scrollToElement: function (el, time) {
