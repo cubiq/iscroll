@@ -1,12 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * iScroll v4.0 Beta 2
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Version 4.0 Beta 1 - Last updated: 2011.02.27
+ * Last updated: 2011.03.05
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -108,6 +110,10 @@ function iScroll (el, options) {
 		that._bind('gesturestart');
 		that.scroller.style.webkitTransform = that.scroller.style.webkitTransform + ' scale(1)';
 	}
+	
+	if (!hasTouch) {
+		that._bind('mousewheel');
+	}
 }
 
 iScroll.prototype = {
@@ -121,7 +127,7 @@ iScroll.prototype = {
 	
 	handleEvent: function (e) {
 		var that = this;
-		
+
 		switch(e.type) {
 			case START_EV: that._start(e); break;
 			case MOVE_EV: that._move(e); break;
@@ -133,6 +139,7 @@ iScroll.prototype = {
 			case 'gesturechange': that._gestChange(e); break;
 			case 'gestureend':
 			case 'gesturecancel': that._gestEnd(e); break;
+			case 'mousewheel': that._wheel(e); break;
 		}
 	},
 	
@@ -352,7 +359,7 @@ iScroll.prototype = {
 				if (that.pullUpToRefresh && newY < that.maxScrollY - that.offsetTop) {
 					that.pullUpEl.className = 'iScrollPullUp flip';
 					that.pullUpLabel.innerText = that.options.pullUpLabel[1];
-				} else if (that.pullDownToRefresh && that.pullUpEl.className.match('flip')) {
+				} else if (that.pullUpToRefresh && that.pullUpEl.className.match('flip')) {
 					that.pullUpEl.className = 'iScrollPullUp';
 					that.pullUpLabel.innerText = that.options.pullUpLabel[0];
 				}
@@ -463,12 +470,16 @@ iScroll.prototype = {
 		if (duration < 300 && that.options.momentum) {
 			momentumX = newPosX ? that._momentum(newPosX - that.startX, duration, -that.x, that.scrollerW - that.wrapperW + that.x, that.options.bounce ? that.wrapperW : 0) : momentumX;
 			momentumY = newPosY ? that._momentum(newPosY - that.startY, duration, -that.y, (that.maxScrollY < 0 ? that.scrollerH - that.wrapperH + that.y : 0), that.options.bounce ? that.wrapperH : 0) : momentumY;
+
+			newPosX = that.x + momentumX.dist;
+			newPosY = that.y + momentumY.dist;
+
+ 			if ((that.x > 0 && newPosX > 0) || (that.x < that.maxScrollX && newPosX < that.maxScrollX)) momentumX = { dist:0, time:0 };
+ 			if ((that.y > 0 && newPosY > 0) || (that.y < that.maxScrollY && newPosY < that.maxScrollY)) momentumY = { dist:0, time:0 };
 		}
 
 		if (momentumX.dist || momentumY.dist) {
-			newPosX = that.x + momentumX.dist;
-			newPosY = that.y + momentumY.dist;
-			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);		// Minimum duration 10ms
+			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);
 
 			// Do we need to snap?
 			if (that.options.snap) {
@@ -674,6 +685,20 @@ iScroll.prototype = {
 		that._unbind('gestureend');
 		that._unbind('gesturecancel');
 	},
+	
+	_wheel: function (e) {
+		var that = this,
+			deltaX = that.x + e.wheelDeltaX / 12,
+			deltaY = that.y + e.wheelDeltaY / 12;
+
+		if (deltaX > 0) deltaX = 0;
+		else if (deltaX < that.maxScrollX) deltaX = that.maxScrollX;
+
+		if (deltaY > 0) deltaY = 0;
+		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
+
+		that.scrollTo(deltaX, deltaY, 0);
+	},
 
 	
 	/**
@@ -860,12 +885,13 @@ iScroll.prototype = {
 
 	scrollTo: function (x, y, time, relative) {
 		var that = this;
-		time = time || 0;
 
 		if (relative) {
 			x = that.x - x;
 			y = that.y - y;
 		}
+
+		time = !time || (m.round(that.x) == m.round(x) && m.round(that.y) == m.round(y)) ? 0 : time;
 
 		that.moved = true;
 
@@ -874,13 +900,13 @@ iScroll.prototype = {
 			return;
 		}
 
+		if (time) that._bind('webkitTransitionEnd');
 		that._transitionTime(time);
 		that._pos(x, y);
-		if (time) that._bind('webkitTransitionEnd');
-		else that._transitionEnd();
+		if (!time) setTimeout(function () { that._transitionEnd(); }, 0);
 	},
 
-	scrollToElement: function (el, time, setOrigin) {
+	scrollToElement: function (el, time) {
 		var that = this, pos;
 		el = el.nodeType ? el : that.scroller.querySelector(el);
 		if (!el) return;
@@ -890,11 +916,6 @@ iScroll.prototype = {
 		pos.y = pos.y > 0 ? 0 : pos.y < that.maxScrollY ? that.maxScrollY : pos.y;
 		time = time === undefined ? m.max(m.abs(pos.x)*2, m.abs(pos.y)*2) : time;
 
-		if (setOrigin) {
-			that.scroller.style.marginLeft = -pos.x + 'px';
-			that.scroller.style.marginTop = -pos.y + 'px';
-		}
-		
 		that.scrollTo(pos.x, pos.y, time);
 	},
 
@@ -947,7 +968,7 @@ iScroll.prototype = {
 var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	hasTouch = 'ontouchstart' in window,
 	hasGesture = 'ongesturestart' in window,
-	hasHashChange = 'onhashchange' in window,
+//	hasHashChange = 'onhashchange' in window,
 //	hasTransitionEnd = 'onwebkittransitionend' in window,
 	hasCompositing = 'WebKitTransitionEvent' in window,
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
