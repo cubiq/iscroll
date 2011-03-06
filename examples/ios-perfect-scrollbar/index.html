@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>iScroll demo: simple</title>
+<title>iScroll demo: iOS Perfect Scrollbar</title>
+
+<link rel="stylesheet" type="text/css" href="scrollbar.css">
 
 <script type="application/javascript" src="../../src/iscroll.js?v4"></script>
 
@@ -13,7 +15,7 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', { scrollbarClass: 'myScrollbar' });
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -37,7 +39,7 @@ body {
 }
 
 #header {
-	position:absolute; z-index:2;
+	position:absolute;
 	top:0; left:0;
 	width:100%;
 	height:45px;
@@ -57,7 +59,7 @@ body {
 }
 
 #footer {
-	position:absolute; z-index:2;
+	position:absolute;
 	bottom:0; left:0;
 	width:100%;
 	height:48px;
@@ -70,19 +72,22 @@ body {
 	position:absolute; z-index:1;
 	top:45px; bottom:48px; left:0;
 	width:100%;
-	background:#aaa;
+	background:#555;
 	overflow:auto;
 }
 
 #scroller {
-	position:absolute; z-index:1;
+	position:relative;
 /*	-webkit-touch-callout:none;*/
 	-webkit-tap-highlight-color:rgba(0,0,0,0);
+
+	float:left;
 	width:100%;
 	padding:0;
 }
 
 #scroller ul {
+	position:relative;
 	list-style:none;
 	padding:0;
 	margin:0;
@@ -100,6 +105,10 @@ body {
 	font-size:14px;
 }
 
+#scroller li > a {
+	display:block;
+}
+
 </style>
 </head>
 <body>
@@ -108,7 +117,7 @@ body {
 	<div id="scroller">
 		<ul id="thelist">
 			<li>Pretty row 1</li>
-			<li>Pretty row 2</li>
+			<li id="aaa">Pretty row 2</li>
 			<li>Pretty row 3</li>
 			<li>Pretty row 4</li>
 			<li>Pretty row 5</li>
