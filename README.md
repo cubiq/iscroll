@@ -1,4 +1,4 @@
-iScroll v4.0 Beta 2
+iScroll v4.0 Beta 3
 ======================
 
 Please note that this is a *Beta version*. I'm making this public to receive your feedback and bug fixes. If you are looking for a stable version please check [my blog](http://cubiq.org/iscroll).
