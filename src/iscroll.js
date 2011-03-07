@@ -8,7 +8,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.06
+ * Last updated: 2011.03.07
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -824,10 +824,11 @@ iScroll.prototype = {
 		var that = this,
 			pos = 0, page = 0,
 			i, l, els,
-			oldHeight, offsets;
+			oldHeight, offsets,
+			loading;
 
 		if (that.pullDownToRefresh) {
-			var loading = that.pullDownEl.className.match('loading');
+			loading = that.pullDownEl.className.match('loading');
 			if (loading && !that.contentReady) {
 				oldHeight = that.scrollerH;
 				that.contentReady = true;
@@ -842,7 +843,7 @@ iScroll.prototype = {
 		}
 
 		if (that.pullUpToRefresh) {
-			var loading = that.pullUpEl.className.match('loading');
+			loading = that.pullUpEl.className.match('loading');
 			if (loading && !that.contentReady) {
 				oldHeight = that.scrollerH;
 				that.contentReady = true;

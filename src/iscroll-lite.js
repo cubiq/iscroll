@@ -1,14 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll Lite Edition based on iScroll v4.0 Beta 2
+ * iScroll Lite Edition based on iScroll v4.0 Beta 3
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.05
+ * Last updated: 2011.03.07
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
