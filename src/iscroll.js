@@ -1,21 +1,23 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll v4.0 Beta 2
+ * iScroll v4.0 Beta 3
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.05
- * Forked by Aseem Kishore in order to improve zooming.
+ * Last updated: 2011.03.07
+
+ * Modified by Aseem Kishore in order to improve zooming:
+ * https://github.com/aseemk/iscroll
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  */
 
-;(function(){
+(function(){
 function iScroll (el, options) {
 	var that = this, doc = document, div, i;
 
@@ -29,17 +31,19 @@ function iScroll (el, options) {
 		HWCompositing: true,	// Experimental, internal use only
 		hScroll: true,
 		vScroll: true,
-		bounce: has3d,
-		bounceLock: false,
-		momentum: has3d,
-		lockDirection: true,
-		zoom: false,
 		hScrollbar: true,
 		vScrollbar: true,
 		fixedScrollbar: isAndroid,
 		fadeScrollbar: (isIDevice && has3d) || !hasTouch,
 		hideScrollbar: isIDevice || !hasTouch,
 		scrollbarClass: '',
+		bounce: has3d,
+		bounceLock: false,
+		momentum: has3d,
+		lockDirection: true,
+		zoom: false,
+		zoomMin: 1,
+		zoomMax: 4,
 		snap: false,
 		pullToRefresh: false,
 		pullDownLabel: ['Pull down to refresh...', 'Release to refresh...', 'Loading...'],
@@ -48,6 +52,7 @@ function iScroll (el, options) {
 		onPullUp: function () {},
 		onScrollStart: null,
 		onScrollEnd: null,
+		onZoomStart: null,
 		onZoomEnd: null
 	};
 
@@ -81,8 +86,6 @@ function iScroll (el, options) {
 		div.innerHTML = '<span class="iScrollPullDownIcon"></span><span class="iScrollPullDownLabel">' + that.options.pullDownLabel[0] + '</span>\n';
 		that.scroller.insertBefore(div, that.scroller.children[0]);
 		that.options.bounce = true;
-		that.offsetBottom = div.offsetHeight;
-		that.scroller.style.marginTop = -that.offsetBottom + 'px';
 		that.pullDownEl = div;
 		that.pullDownLabel = div.getElementsByTagName('span')[1];
 	}
@@ -93,8 +96,6 @@ function iScroll (el, options) {
 		div.innerHTML = '<span class="iScrollPullUpIcon"></span><span class="iScrollPullUpLabel">' + that.options.pullUpLabel[0] + '</span>\n';
 		that.scroller.appendChild(div);
 		that.options.bounce = true;
-		that.offsetTop = div.offsetHeight;
-		that.scroller.style.marginBottom = -that.offsetTop + 'px';
 		that.pullUpEl = div;
 		that.pullUpLabel = div.getElementsByTagName('span')[1];
 	}
@@ -275,10 +276,13 @@ iScroll.prototype = {
 			matrix;
 
 		that.moved = false;
-		that.zoomed = false;
-			// TEMP aseemk: keep track of whether a zoom took place also.
 
 		e.preventDefault();
+
+		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture) {
+			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
+			that.originY = m.abs(e.touches[0].pageY + e.touches[1].pageY - that.wrapperOffsetTop*2) / 2 - that.y;
+		}
 
 		that.moved = false;
 		that.distX = 0;
@@ -307,7 +311,7 @@ iScroll.prototype = {
 				matrix = window.getComputedStyle(that.scroller, null);
 				if (that.x + 'px' != matrix.left || that.y + 'px' != matrix.top) {
 					that._unbind('webkitTransitionEnd');
-					that._pos(matrix.left.replace(/[^0-9]/g)*1, matrix.top.replace(/[^0-9]/g)*1)
+					that._pos(matrix.left.replace(/[^0-9]/g)*1, matrix.top.replace(/[^0-9]/g)*1);
 				}
 			}
 			
@@ -332,21 +336,11 @@ iScroll.prototype = {
 			that._bind(END_EV);
 			that._bind(CANCEL_EV);
 		}, 0);
-		
-		// TEMP aseemk: setting zoom calculations *after* event listeners have been bound.
-		// remember that a multi-touch can begin both via *one* touchstart (with 2 touches)
-		// or via *two* touchstarts (first with 1 touch, second with 2 touches). we want to
-		// be consistent in both cases, i.e. setting the same properties, etc.
-		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture) {
-			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
-			that.originY = m.abs(e.touches[0].pageY + e.touches[1].pageY - that.wrapperOffsetTop*2) / 2 - that.y;
-		}
 	},
 	
 	_move: function (e) {
 		if (hasTouch && e.touches.length > 1) {
-			// TEMP aseemk: remember that zooming happened
-			this.zoomed = true;
+//			this.zoomed = true;
 			return;
 		}
 
@@ -440,21 +434,9 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 		
-		// TEMP aseemk: short-circuiting touchend calculations -- including momentum --
-		// if this was at all a multi-touch interaction. this is suboptimal because the
-		// user can start panning (single-touch) after zooming (multi-touch), which
-		// should use momentum, etc., but that calculation is broken -- it doesn't
-		// properly track fingers, which can change between start and end. note that
-		// unfortunately this also prevents clamping if panned beyond the boundaries.
-		// TODO track individual fingers so we can calculate momentum correctly for
-		// flicks after multi-touch pinch zooms, and also clamp/bounce on release.
-		if (that.zoomed) {
-			return;
-		}
-		
-		// TEMP aseemk: if we fix momentum for post-multi-touch and remove the
-		// short-circuit above, we still shouldn't execute this block if zoomed.
-		if (!that.moved && !that.zoomed) {
+		if (that.zoomed) return;
+
+		if (!that.moved) {
 			if (hasTouch) {
 				if (that.doubleTapTimer && that.options.zoom) {
 					// Double tapped
@@ -558,7 +540,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos(200);
+		that._resetPos();
 	},
 	
 	_snap: function (x, y) {
@@ -618,6 +600,11 @@ iScroll.prototype = {
 				that.moved = false;
 			}
 
+			if (that.zoomed) {
+				if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on scroll end
+				that.zoomed = false;
+			}
+
 			if (that.hScrollbar && that.options.hideScrollbar) {
 				that.hScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.hScrollbarWrapper.style.opacity = '0';
@@ -636,6 +623,8 @@ iScroll.prototype = {
 			return;
 		}
 
+		if (time === undefined) time = 200;
+
 		// Invert ease
 		if (time) {
 			that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.0,0.33,1)';
@@ -643,7 +632,7 @@ iScroll.prototype = {
 			if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.0,0.33,1)';
 		}
 
-		that.scrollTo(resetX, resetY, time || 0);
+		that.scrollTo(resetX, resetY, time);
 	},
 	
 	_timedScroll: function (destX, destY, runtime) {
@@ -702,8 +691,11 @@ iScroll.prototype = {
 
 		that._transitionTime(0);
 		that.lastScale = 1;
+		that.zoomed = false;
 
-//		that._unbind('gesturestart');
+		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+
+		that._unbind('gesturestart');
 		that._bind('gesturechange');
 		that._bind('gestureend');
 		that._bind('gesturecancel');
@@ -713,15 +705,12 @@ iScroll.prototype = {
 		var that = this,
 			scale = that.scale * e.scale,
 			x, y, relScale;
-		
+
+		that.zoomed = true;
+
 		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
-		//if (scale < 1) {
-		//	  scale = 1;
-		//} else 
-		//if (scale > 4) {
-		//	  scale = 4;
-		//}
-		
+		//if (scale < that.options.zoomMin) scale = that.options.zoomMin;
+		//else if (scale > that.options.zoomMax) scale = that.options.zoomMax;
 		relScale = scale / that.scale;
 		x = that.originX - that.originX * relScale + that.x;
 		y = that.originY - that.originY * relScale + that.y;
@@ -731,13 +720,13 @@ iScroll.prototype = {
 
 	_gestEnd: function (e) {
 		var that = this,
-			origScale = that.scale,
+			scale = that.scale,
 			lastScale = that.lastScale;
 
-		that.scale = origScale * lastScale;
-		if (that.scale < 1.05) that.scale = 1;
-		if (that.scale > 3.95) that.scale = 4;		// clamp max zoom here
-		lastScale = that.scale / origScale;
+		that.scale = scale * lastScale;
+		if (that.scale < that.options.zoomMin + 0.05) that.scale = that.options.zoomMin;
+		else if (that.scale > that.options.zoomMax - 0.05) that.scale = that.options.zoomMax;
+		lastScale = that.scale / scale;
 		that.x = that.originX - that.originX * lastScale + that.x;
 		that.y = that.originY - that.originY * lastScale + that.y;
 		that._transitionTime(200);
@@ -747,7 +736,7 @@ iScroll.prototype = {
 			that.refresh();
 		}, 0);
 
-//		that._bind('gesturestart')
+		that._bind('gesturestart');
 		that._unbind('gesturechange');
 		that._unbind('gestureend');
 		that._unbind('gesturecancel');
@@ -858,7 +847,7 @@ iScroll.prototype = {
 		that._unbind(CANCEL_EV);
 
 		if (that.options.zoom) {
-			that._unbind('gesturestart')
+			that._unbind('gesturestart');
 			that._unbind('gesturechange');
 			that._unbind('gestureend');
 			that._unbind('gesturecancel');
@@ -869,26 +858,38 @@ iScroll.prototype = {
 		var that = this,
 			pos = 0, page = 0,
 			i, l, els,
-			oldHeight, offsets;
+			oldHeight, offsets,
+			loading;
 
-		if (that.pullDownToRefresh && that.pullDownEl.className.match('loading') && !that.contentReady) {
-			oldHeight = that.scrollerH;
-			that.contentReady = true;
-			that.pullDownEl.className = 'iScrollPullDown';
-			that.pullDownLabel.innerText = that.options.pullDownLabel[0];
-			that.offsetBottom = that.pullDownEl.offsetHeight;
-			that.scroller.style.marginTop = -that.offsetBottom + 'px';
+		if (that.pullDownToRefresh) {
+			loading = that.pullDownEl.className.match('loading');
+			if (loading && !that.contentReady) {
+				oldHeight = that.scrollerH;
+				that.contentReady = true;
+				that.pullDownEl.className = 'iScrollPullDown';
+				that.pullDownLabel.innerText = that.options.pullDownLabel[0];
+				that.offsetBottom = that.pullDownEl.offsetHeight;
+				that.scroller.style.marginTop = -that.offsetBottom + 'px';
+			} else if (!loading) {
+				that.offsetBottom = that.pullDownEl.offsetHeight;
+				that.scroller.style.marginTop = -that.offsetBottom + 'px';
+			}
 		}
 
-		if (that.pullUpToRefresh && that.pullUpEl.className.match('loading') && !that.contentReady) {
-			oldHeight = that.scrollerH;
-			that.contentReady = true;
-			that.pullUpEl.className = 'iScrollPullUp';
-			that.pullUpLabel.innerText = that.options.pullUpLabel[0];
-			that.offsetTop = that.pullUpEl.offsetHeight;
-			that.scroller.style.marginBottom = -that.offsetTop + 'px';
+		if (that.pullUpToRefresh) {
+			loading = that.pullUpEl.className.match('loading');
+			if (loading && !that.contentReady) {
+				oldHeight = that.scrollerH;
+				that.contentReady = true;
+				that.pullUpEl.className = 'iScrollPullUp';
+				that.pullUpLabel.innerText = that.options.pullUpLabel[0];
+				that.offsetTop = that.pullUpEl.offsetHeight;
+				that.scroller.style.marginBottom = -that.offsetTop + 'px';
+			} else if (!loading) {
+				that.offsetTop = that.pullUpEl.offsetHeight;
+				that.scroller.style.marginBottom = -that.offsetTop + 'px';
+			}
 		}
-
 
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
@@ -938,8 +939,8 @@ iScroll.prototype = {
 		// Recalculate wrapper offsets
 		if (that.options.zoom) {
 			offsets = that._offset(that.wrapper, true);
-			that.wrapperOffsetLeft = offsets.x;
-			that.wrapperOffsetTop = offsets.y;
+			that.wrapperOffsetLeft = -offsets.x;
+			that.wrapperOffsetTop = -offsets.y;
 		}
 
 		if (oldHeight && that.y == 0) {
@@ -1024,14 +1025,18 @@ iScroll.prototype = {
 
 		that.scale = scale;
 
+		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+
 		that.refresh();
+
 		that._bind('webkitTransitionEnd');
 		that._transitionTime(200);
 
 		setTimeout(function () {
+			that.zoomed = true;
 			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
 		}, 0);
-	},
+	}
 };
 
 
@@ -1052,5 +1057,7 @@ var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	trnClose = has3d ? ',0)' : ')',
 	m = Math;
 
-window.iScroll = iScroll;
+if (typeof exports !== 'undefined') exports.iScroll = iScroll;
+else window.iScroll = iScroll;
+
 })();

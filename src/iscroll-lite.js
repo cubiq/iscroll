@@ -1,14 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll Lite Edition based on iScroll v4.0 Beta 2
+ * iScroll Lite Edition based on iScroll v4.0 Beta 3
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.05
+ * Last updated: 2011.03.07
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -561,5 +561,7 @@ var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	trnClose = has3d ? ',0)' : ')',
 	m = Math;
 
-window.iScroll = iScroll;
+if (typeof exports !== 'undefined') exports.iScroll = iScroll;
+else window.iScroll = iScroll;
+
 })();
