@@ -1,14 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll Lite Edition based on iScroll v4.0 Beta 3
+ * iScroll Lite Edition based on iScroll v4.0 Beta 4
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.07
+ * Last updated: 2011.03.08
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -171,7 +171,7 @@ iScroll.prototype = {
 			if (that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - pos < 9) pos = that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - 8;
 		}
 		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
-		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
+		that[dir + 'ScrollbarWrapper'].style.opacity = hidden && that.options.hideScrollbar ? '0' : '1';
 		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
 	},
 	
