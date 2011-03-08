@@ -8,7 +8,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.06
+ * Last updated: 2011.03.07
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -83,8 +83,6 @@ function iScroll (el, options) {
 		div.innerHTML = '<span class="iScrollPullDownIcon"></span><span class="iScrollPullDownLabel">' + that.options.pullDownLabel[0] + '</span>\n';
 		that.scroller.insertBefore(div, that.scroller.children[0]);
 		that.options.bounce = true;
-		that.offsetBottom = div.offsetHeight;
-		that.scroller.style.marginTop = -that.offsetBottom + 'px';
 		that.pullDownEl = div;
 		that.pullDownLabel = div.getElementsByTagName('span')[1];
 	}
@@ -95,8 +93,6 @@ function iScroll (el, options) {
 		div.innerHTML = '<span class="iScrollPullUpIcon"></span><span class="iScrollPullUpLabel">' + that.options.pullUpLabel[0] + '</span>\n';
 		that.scroller.appendChild(div);
 		that.options.bounce = true;
-		that.offsetTop = div.offsetHeight;
-		that.scroller.style.marginBottom = -that.offsetTop + 'px';
 		that.pullUpEl = div;
 		that.pullUpLabel = div.getElementsByTagName('span')[1];
 	}
@@ -299,7 +295,7 @@ iScroll.prototype = {
 				matrix = window.getComputedStyle(that.scroller, null);
 				if (that.x + 'px' != matrix.left || that.y + 'px' != matrix.top) {
 					that._unbind('webkitTransitionEnd');
-					that._pos(matrix.left.replace(/[^0-9]/g)*1, matrix.top.replace(/[^0-9]/g)*1)
+					that._pos(matrix.left.replace(/[^0-9]/g)*1, matrix.top.replace(/[^0-9]/g)*1);
 				}
 			}
 			
@@ -706,7 +702,7 @@ iScroll.prototype = {
 			that.refresh();
 		}, 0);
 
-		that._bind('gesturestart')
+		that._bind('gesturestart');
 		that._unbind('gesturechange');
 		that._unbind('gestureend');
 		that._unbind('gesturecancel');
@@ -817,7 +813,7 @@ iScroll.prototype = {
 		that._unbind(CANCEL_EV);
 
 		if (that.options.zoom) {
-			that._unbind('gesturestart')
+			that._unbind('gesturestart');
 			that._unbind('gesturechange');
 			that._unbind('gestureend');
 			that._unbind('gesturecancel');
@@ -828,26 +824,38 @@ iScroll.prototype = {
 		var that = this,
 			pos = 0, page = 0,
 			i, l, els,
-			oldHeight, offsets;
+			oldHeight, offsets,
+			loading;
 
-		if (that.pullDownToRefresh && that.pullDownEl.className.match('loading') && !that.contentReady) {
-			oldHeight = that.scrollerH;
-			that.contentReady = true;
-			that.pullDownEl.className = 'iScrollPullDown';
-			that.pullDownLabel.innerText = that.options.pullDownLabel[0];
-			that.offsetBottom = that.pullDownEl.offsetHeight;
-			that.scroller.style.marginTop = -that.offsetBottom + 'px';
+		if (that.pullDownToRefresh) {
+			loading = that.pullDownEl.className.match('loading');
+			if (loading && !that.contentReady) {
+				oldHeight = that.scrollerH;
+				that.contentReady = true;
+				that.pullDownEl.className = 'iScrollPullDown';
+				that.pullDownLabel.innerText = that.options.pullDownLabel[0];
+				that.offsetBottom = that.pullDownEl.offsetHeight;
+				that.scroller.style.marginTop = -that.offsetBottom + 'px';
+			} else if (!loading) {
+				that.offsetBottom = that.pullDownEl.offsetHeight;
+				that.scroller.style.marginTop = -that.offsetBottom + 'px';
+			}
 		}
 
-		if (that.pullUpToRefresh && that.pullUpEl.className.match('loading') && !that.contentReady) {
-			oldHeight = that.scrollerH;
-			that.contentReady = true;
-			that.pullUpEl.className = 'iScrollPullUp';
-			that.pullUpLabel.innerText = that.options.pullUpLabel[0];
-			that.offsetTop = that.pullUpEl.offsetHeight;
-			that.scroller.style.marginBottom = -that.offsetTop + 'px';
+		if (that.pullUpToRefresh) {
+			loading = that.pullUpEl.className.match('loading');
+			if (loading && !that.contentReady) {
+				oldHeight = that.scrollerH;
+				that.contentReady = true;
+				that.pullUpEl.className = 'iScrollPullUp';
+				that.pullUpLabel.innerText = that.options.pullUpLabel[0];
+				that.offsetTop = that.pullUpEl.offsetHeight;
+				that.scroller.style.marginBottom = -that.offsetTop + 'px';
+			} else if (!loading) {
+				that.offsetTop = that.pullUpEl.offsetHeight;
+				that.scroller.style.marginBottom = -that.offsetTop + 'px';
+			}
 		}
-
 
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
@@ -991,7 +999,7 @@ iScroll.prototype = {
 			that.zoomed = true;
 			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
 		}, 0);
-	},
+	}
 };
 
 
@@ -1012,5 +1020,7 @@ var has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	trnClose = has3d ? ',0)' : ')',
 	m = Math;
 
-window.iScroll = iScroll;
+if (typeof exports !== 'undefined') exports.iScroll = iScroll;
+else window.iScroll = iScroll;
+
 })();
