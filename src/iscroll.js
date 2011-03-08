@@ -1,14 +1,14 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll v4.0 Beta 3
+ * iScroll v4.0 Beta 4
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2010 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.07
+ * Last updated: 2011.03.08
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
@@ -50,7 +50,8 @@ function iScroll (el, options) {
 		onScrollStart: null,
 		onScrollEnd: null,
 		onZoomStart: null,
-		onZoomEnd: null
+		onZoomEnd: null,
+		checkDOMChange: false		// Experimental
 	};
 
 	// User defined options
@@ -60,7 +61,7 @@ function iScroll (el, options) {
 
 	that.options.HWCompositing = that.options.HWCompositing && hasCompositing;
 	that.options.HWTransition = that.options.HWTransition && hasCompositing;
-	
+
 	if (that.options.HWCompositing) {
 		that.scroller.style.cssText += '-webkit-transition-property:-webkit-transform;-webkit-transform-origin:0 0;-webkit-transform:' + trnOpen + '0,0' + trnClose;
 	} else {
@@ -112,6 +113,10 @@ function iScroll (el, options) {
 	
 	if (!hasTouch) {
 		that._bind('mousewheel');
+	}
+	
+	if (that.options.checkDOMChange) {
+		that.DOMChangeInterval = setInterval(function () { that._checkSize(); }, 250);
 	}
 }
 
@@ -210,6 +215,21 @@ iScroll.prototype = {
 		}, 0);
 	},
 	
+	_checkSize: function () {
+		var that = this,
+			scrollerW,
+			scrollerH;
+
+		if (that.moved || that.zoomed || !that.contentReady) return;
+
+		scrollerW = m.round(that.scroller.offsetWidth * that.scale),
+		scrollerH = m.round((that.scroller.offsetHeight - that.offsetBottom - that.offsetTop) * that.scale);
+
+		if (scrollerW == that.scrollerW && scrollerH == that.scrollerH) return;
+
+		that.refresh();
+	},
+	
 	_pos: function (x, y) {
 		var that = this;
 
@@ -240,7 +260,7 @@ iScroll.prototype = {
 			if (that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - pos < 9) pos = that[dir + 'ScrollbarIndicatorSize'] + that[dir + 'ScrollbarMaxScroll'] - 8;
 		}
 		that[dir + 'ScrollbarWrapper'].style.webkitTransitionDelay = '0';
-		that[dir + 'ScrollbarWrapper'].style.opacity = hidden ? '0' : '1';
+		that[dir + 'ScrollbarWrapper'].style.opacity = hidden && that.options.hideScrollbar ? '0' : '1';
 		that[dir + 'ScrollbarIndicator'].style.webkitTransform = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
 	},
 	
@@ -263,7 +283,7 @@ iScroll.prototype = {
 
 		e.preventDefault();
 
-		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture) {
+		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
 			that.originY = m.abs(e.touches[0].pageY + e.touches[1].pageY - that.wrapperOffsetTop*2) / 2 - that.y;
 		}
@@ -323,10 +343,7 @@ iScroll.prototype = {
 	},
 	
 	_move: function (e) {
-		if (hasTouch && e.touches.length > 1) {
-//			this.zoomed = true;
-			return;
-		}
+		if (hasTouch && e.touches.length > 1) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -515,46 +532,6 @@ iScroll.prototype = {
 		that._resetPos();
 	},
 	
-	_snap: function (x, y) {
-		var that = this,
-			i, l,
-			page, time,
-			sizeX, sizeY;
-
-		// Check page X
-		page = that.pagesX.length-1;
-		for (i=0, l=that.pagesX.length; i<l; i++) {
-			if (x >= that.pagesX[i]) {
-				page = i;
-				break;
-			}
-		}
-		if (page == that.currPageX && page > 0 && that.dirX < 0) page--;
-		x = that.pagesX[page];
-		sizeX = m.abs(x - that.pagesX[that.currPageX]);
-		sizeX = sizeX ? m.abs(that.x - x) / sizeX * 500 : 0;
-		that.currPageX = page;
-
-		// Check page Y
-		page = that.pagesY.length-1;
-		for (i=0; i<page; i++) {
-			if (y >= that.pagesY[i]) {
-				page = i;
-				break;
-			}
-		}
-		if (page == that.currPageY && page > 0 && that.dirY < 0) page--;
-		y = that.pagesY[page];
-		sizeY = m.abs(y - that.pagesY[that.currPageY]);
-		sizeY = sizeY ? m.abs(that.y - y) / sizeY * 500 : 0;
-		that.currPageY = page;
-
-		// Snap with constant speed (proportional duration)
-		time = m.round(m.max(sizeX, sizeY)) || 200;
-
-		return { x: x, y: y, time: time };
-	},
-	
 	_resetPos: function (time) {
 		var that = this,
 			resetX = that.x,
@@ -657,8 +634,7 @@ iScroll.prototype = {
 
 		that._transitionTime(0);
 		that.lastScale = 1;
-		that.zoomed = false;
-
+		
 		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
 
 		that._unbind('gesturestart');
@@ -695,7 +671,7 @@ iScroll.prototype = {
 		lastScale = that.scale / scale;
 		that.x = that.originX - that.originX * lastScale + that.x;
 		that.y = that.originY - that.originY * lastScale + that.y;
-//		that._transitionTime(200);
+
 		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
 
 		setTimeout(function () {
@@ -770,6 +746,46 @@ iScroll.prototype = {
 		return { x: left, y: top };
 	},
 
+	_snap: function (x, y) {
+		var that = this,
+			i, l,
+			page, time,
+			sizeX, sizeY;
+
+		// Check page X
+		page = that.pagesX.length-1;
+		for (i=0, l=that.pagesX.length; i<l; i++) {
+			if (x >= that.pagesX[i]) {
+				page = i;
+				break;
+			}
+		}
+		if (page == that.currPageX && page > 0 && that.dirX < 0) page--;
+		x = that.pagesX[page];
+		sizeX = m.abs(x - that.pagesX[that.currPageX]);
+		sizeX = sizeX ? m.abs(that.x - x) / sizeX * 500 : 0;
+		that.currPageX = page;
+
+		// Check page Y
+		page = that.pagesY.length-1;
+		for (i=0; i<page; i++) {
+			if (y >= that.pagesY[i]) {
+				page = i;
+				break;
+			}
+		}
+		if (page == that.currPageY && page > 0 && that.dirY < 0) page--;
+		y = that.pagesY[page];
+		sizeY = m.abs(y - that.pagesY[that.currPageY]);
+		sizeY = sizeY ? m.abs(that.y - y) / sizeY * 500 : 0;
+		that.currPageY = page;
+
+		// Snap with constant speed (proportional duration)
+		time = m.round(m.max(sizeX, sizeY)) || 200;
+
+		return { x: x, y: y, time: time };
+	},
+
 	_bind: function (type, el) {
 		(el || this.scroller).addEventListener(type, this, false);
 	},
@@ -819,7 +835,7 @@ iScroll.prototype = {
 			that._unbind('gesturecancel');
 		}
 	},
-
+	
 	refresh: function () {
 		var that = this,
 			pos = 0, page = 0,
@@ -879,6 +895,8 @@ iScroll.prototype = {
 
 		// Snap
 		if (typeof that.options.snap == 'string') {
+			that.pagesX = [];
+			that.pagesY = [];
 			els = that.scroller.querySelectorAll(that.options.snap);
 			for (i=0, l=els.length; i<l; i++) {
 				pos = that._offset(els[i]);
@@ -886,6 +904,7 @@ iScroll.prototype = {
 				that.pagesY[i] = pos.y < that.maxScrollY ? that.maxScrollY : pos.y * that.scale;
 			}
 		} else if (that.options.snap) {
+			that.pagesX = [];
 			while (pos >= that.maxScrollX) {
 				that.pagesX[page] = pos;
 				pos = pos - that.wrapperW;
@@ -893,7 +912,9 @@ iScroll.prototype = {
 			}
 			if (that.maxScrollX%that.wrapperW) that.pagesX[that.pagesX.length] = that.maxScrollX - that.pagesX[that.pagesX.length-1] + that.pagesX[that.pagesX.length-1];
 
-			pos = page = 0;
+			pos = 0;
+			page = 0;
+			that.pagesY = [];
 			while (pos >= that.maxScrollY) {
 				that.pagesY[page] = pos;
 				pos = pos - that.wrapperH;
