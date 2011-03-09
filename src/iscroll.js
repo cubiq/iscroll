@@ -190,19 +190,25 @@ iScroll.prototype = {
 			that[dir + 'ScrollbarWrapper'].appendChild(bar);
 			that[dir + 'ScrollbarIndicator'] = bar;
 		}
-
-		if (dir == 'h') {
-			that.hScrollbarSize = that.hScrollbarWrapper.clientWidth;
-			that.hScrollbarIndicatorSize = m.max(m.round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
-			that.hScrollbarIndicator.style.width = that.hScrollbarIndicatorSize + 'px';
-			that.hScrollbarMaxScroll = that.hScrollbarSize - that.hScrollbarIndicatorSize;
-			that.hScrollbarProp = that.hScrollbarMaxScroll / that.maxScrollX;
-		} else {
-			that.vScrollbarSize = that.vScrollbarWrapper.clientHeight;
-			that.vScrollbarIndicatorSize = m.max(m.round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
-			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
-			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
-			that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
+		
+		// TEMP HACK try-catching this to prevent errors from propagating up
+		try {
+			if (dir == 'h') {
+				that.hScrollbarSize = that.hScrollbarWrapper.clientWidth;
+				that.hScrollbarIndicatorSize = m.max(m.round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
+				// TODO BUG the following line throws an error sometimes because hScrollarIndicator is null:
+				that.hScrollbarIndicator.style.width = that.hScrollbarIndicatorSize + 'px';
+				that.hScrollbarMaxScroll = that.hScrollbarSize - that.hScrollbarIndicatorSize;
+				that.hScrollbarProp = that.hScrollbarMaxScroll / that.maxScrollX;
+			} else {
+				that.vScrollbarSize = that.vScrollbarWrapper.clientHeight;
+				that.vScrollbarIndicatorSize = m.max(m.round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
+				that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
+				that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
+				that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
+			}
+		} catch (e) {
+			console.warn(e);
 		}
 
 		// Reset position
