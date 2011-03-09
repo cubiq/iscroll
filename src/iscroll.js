@@ -721,33 +721,21 @@ iScroll.prototype = {
 	},
 	
 	_wheel: function (e) {
-		var that = this;
+		var that = this,
+			deltaScale = that.scale * (1 + e.wheelDelta / 1080),
+			deltaX = that.x + e.wheelDeltaX / 12,
+			deltaY = that.y + e.wheelDeltaY / 12;
 		
 		// TEMP aseemk: adding mousewheel zoom support
 		if (that.options.zoomWheel) {
 			
-			var lastScale = that.scale,
-				newScale = lastScale * (1 + e.wheelDelta / 1080);
+			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
+			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
 			
-			/*
-			// TEMP another approach: snap to 1x, 2x and 4x!
-			// TEMP this assumes zoomMin and zoomMax are powers of 2.
-			var logLastScale = Math.round(Math.log(lastScale) / Math.LN2),
-				logNewScale = logLastScale + Math.ceil(e.wheelDelta / 360);
-
-			newScale = Math.pow(2, logNewScale);
-			*/
-			
-			if (newScale < that.options.zoomMin) newScale = that.options.zoomMin;
-			if (newScale > that.options.zoomMax) newScale = that.options.zoomMax;
-			
-			that.zoom(e.pageX, e.pageY, newScale, 400);
+			that.zoom(e.pageX, e.pageY, deltaScale, 400);
 			return;
 			
 		}
-		
-		var deltaX = that.x + e.wheelDeltaX / 12,
-			deltaY = that.y + e.wheelDeltaY / 12;
 
 		if (deltaX > 0) deltaX = 0;
 		else if (deltaX < that.maxScrollX) deltaX = that.maxScrollX;
