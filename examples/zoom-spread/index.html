@@ -106,14 +106,11 @@
             (viewportWidth / scale - spreadWidth) / 2 + "px, " +
             (viewportHeight / scale - spreadHeight) / 2 + "px)";
         
-        var scroller = new iScroll(document.body, {    
-			    
-		    // TEMP HACK DEBUG for debugging purposes, experiment with bounce:
-		    bounce: !location.search.match(/bounce=0/),
-		    
+        var scroller = new iScroll(document.body, {
 		    bounceLock: true,
 			lockDirection: false,
-			zoom: true
+			zoom: true,
+			zoomWheel: true
         });
     </script>
     
