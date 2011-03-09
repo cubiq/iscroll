@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <title>iScroll Zoom Test</title>
+
+    <!--
+        For convenience and prototyping purposes, the CSS below uses LESS syntax ( http://lesscss.org/ ).
+        To be server-agnostic, we're using the client-side JS compiler.
+    -->
+    <style type="text/less">
+        html, body {
+    	    height: 100%;
+        	padding: 0;
+        	margin: 0;
+        	overflow: hidden;
+        }
+
+        body {
+        	font-size:12px;
+        	-webkit-user-select:none;
+            -webkit-text-size-adjust:none;
+        	font-family:helvetica;
+        	background-color: black;
+        }
+        
+        #spread-scaled {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        @PAGE_WIDTH: 617px;
+        @PAGE_HEIGHT: 840px;
+        @PADDING: 1px;
+        
+        #spread {
+            position: absolute;
+            background-color: white;
+            width: 2 * @PAGE_WIDTH + 3 * @PADDING;
+            height: @PAGE_HEIGHT + 2 * @PADDING;
+        }
+        
+        #page-a, #page-b {
+            position: absolute;
+            width: @PAGE_WIDTH;
+            height: @PAGE_HEIGHT;
+            top: @PADDING;
+            
+            // in case iOS's Mobile Safari downsamples our image on the fly,
+            // ensure that it stretches to fill this container exactly.
+            // only worrying about webkit for now; for details, see:
+            // https://developer.mozilla.org/en/CSS/background-size
+            -webkit-background-size: 100%;
+        }
+        
+        #page-a {
+            background-image: url(38.jpg);
+            left: @PADDING;
+        }
+        
+        #page-b {
+            background-image: url(39.jpg);
+            right: @PADDING;
+        }
+    </style>
+    <script src="less-1.0.41.min.js"></script>
+    
+</head>
+<body>
+    
+    <div id="spread-scaled"><!--
+        --><div id="spread"><!--
+            --><div id="page-a"></div><!--
+            --><div id="page-b"></div><!--
+        --></div><!--
+    --></div>
+    
+    <script src="../../src/iscroll.js"></script>
+    <script>
+        document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+        
+        var spread = document.getElementById("spread"),
+            spreadWidth = spread.clientWidth,
+            spreadHeight = spread.clientHeight,
+            viewportWidth = window.innerWidth,
+            viewportHeight = window.innerHeight,
+            scaleWidth = viewportWidth / spreadWidth,
+            scaleHeight = viewportHeight / spreadHeight,
+            scale = Math.min(scaleWidth, scaleHeight);
+        
+        // TODO figure out the right origin x/y values! tricky
+        spread.style.webkitTransform = "scale(" + scale + ")";
+        spread.style.webkitTransformOrigin =
+            ((scaleWidth < scaleHeight) ? "0" : ("100%")) + " " +
+            ((scaleWidth > scaleHeight) ? "0" : ("100%"));
+        
+        // TEMP HACK it seems to work to just translate!
+        spread.style.webkitTransformOrigin = "0 0";
+        spread.style.webkitTransform += " translate(" +
+            (viewportWidth / scale - spreadWidth) / 2 + "px, " +
+            (viewportHeight / scale - spreadHeight) / 2 + "px)";
+        
+        var scroller = new iScroll(document.body, {
+		    bounceLock: true,
+			lockDirection: false,
+			zoom: true,
+			zoomWheel: true
+        });
+    </script>
+    
+</body>
+</html>
