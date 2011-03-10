@@ -8,7 +8,7 @@
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
  * 
- * Last updated: 2011.03.08
+ * Last updated: 2011.03.10
  * 
  * Modified by Aseem Kishore in order to improve zooming:
  * https://github.com/aseemk/iscroll
@@ -357,12 +357,12 @@ iScroll.prototype = {
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that);
 
 		// Registering/unregistering of events is done to preserve resources on Android
-		setTimeout(function () {
+//		setTimeout(function () {
 //			that._unbind(START_EV);
 			that._bind(MOVE_EV);
 			that._bind(END_EV);
 			that._bind(CANCEL_EV);
-		}, 0);
+//		}, 0);
 	},
 	
 	_move: function (e) {
@@ -856,6 +856,8 @@ iScroll.prototype = {
 	 */
 	destroy: function () {
 		var that = this;
+
+		if (that.options.checkDOMChange) clearTimeout(that.DOMChangeInterval);
 
 		// Remove pull to refresh
 		if (that.pullDownToRefresh) {
