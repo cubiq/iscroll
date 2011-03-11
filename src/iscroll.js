@@ -728,12 +728,16 @@ iScroll.prototype = {
 	
 	_wheel: function (e) {
 		var that = this,
-			deltaScale = that.scale * (1 + e.wheelDelta / 1080),
+			deltaScale,
 			deltaX = that.x + e.wheelDeltaX / 12,
 			deltaY = that.y + e.wheelDeltaY / 12;
 		
 		// TEMP aseemk: adding mousewheel zoom support
 		if (that.options.zoomWheel) {
+			
+			// this means three zooms change your scale by 2x, e.g. 6 zoom-ins go from 1x to 4x
+			deltaScale = that.scale * (Math.pow(2, 1/3 * (
+				e.wheelDelta ? e.wheelDelta / Math.abs(e.wheelDelta) : 0)));
 			
 			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
 			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
