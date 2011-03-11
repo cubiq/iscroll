@@ -354,8 +354,6 @@ iScroll.prototype = {
 		
 		that.startTime = e.timeStamp;
 
-		if (that.options.onScrollStart) that.options.onScrollStart.call(that);
-
 		// Registering/unregistering of events is done to preserve resources on Android
 //		setTimeout(function () {
 //			that._unbind(START_EV);
@@ -428,7 +426,11 @@ iScroll.prototype = {
 			}
 		}
 		
-		that.moved = true;
+		if (!that.moved) {
+			if (that.options.onScrollStart) that.options.onScrollStart.call(that);
+			that.moved = true;
+		}
+		
 		that._pos(newX, newY);
 		that.dirX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		that.dirY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
@@ -585,7 +587,7 @@ iScroll.prototype = {
 			}
 
 			if (that.zoomed) {
-				if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on scroll end
+				if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
 				that.zoomed = false;
 			}
 
@@ -675,8 +677,6 @@ iScroll.prototype = {
 
 		that._transitionTime(0);
 		that.lastScale = 1;
-		
-		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
 
 		that._unbind('gesturestart');
 		that._bind('gesturechange');
@@ -689,7 +689,10 @@ iScroll.prototype = {
 			scale = that.scale * e.scale,
 			x, y, relScale;
 
-		that.zoomed = true;
+		if (!that.zoomed) {
+			if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+			that.zoomed = true;
+		}
 
 		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
 		//if (scale < that.options.zoomMin) scale = that.options.zoomMin;
@@ -995,10 +998,7 @@ iScroll.prototype = {
 			that.scrollTo(0, oldHeight, 0);
 		}
 		
-		// TEMP aseemk: passing a transition time because refresh() is called on zoom end,
-		// and it effectively resets the transform to within the min/max zoom constraints,
-		// so now this reset/clamp is done smoothly instead of in one jerk.
-		that._resetPos(200);
+		that._resetPos();
 	},
 
 	scrollTo: function (x, y, time, relative) {
@@ -1072,15 +1072,16 @@ iScroll.prototype = {
 
 		that.scale = scale;
 
-		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
-
 		that.refresh();
 
 		that._bind('webkitTransitionEnd');
 		that._transitionTime(200);
 
 		setTimeout(function () {
-			that.zoomed = true;
+			if (!that.zoomed) {
+				if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+				that.zoomed = true;
+			}
 			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
 		}, 0);
 	}

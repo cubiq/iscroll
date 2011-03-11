@@ -106,11 +106,21 @@
             (viewportWidth / scale - spreadWidth) / 2 + "px, " +
             (viewportHeight / scale - spreadHeight) / 2 + "px)";
         
+        function onZoomStart() {
+        	console.log("Zoom started; initial scale is " + this.scale);
+        }
+        
+        function onZoomEnd() {
+        	console.log("Zoom ended; final scale is " + this.scale);
+        }
+        
         var scroller = new iScroll(document.body, {
 		    bounceLock: true,
 			lockDirection: false,
 			zoom: true,
-			zoomWheel: true
+			zoomWheel: true,
+			onZoomStart: onZoomStart,
+			onZoomEnd: onZoomEnd,
         });
     </script>
     
