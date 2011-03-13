@@ -302,8 +302,6 @@ iScroll.prototype = {
 			point = hasTouch ? e.changedTouches[0] : e,
 			matrix;
 
-		that.moved = false;
-
 		e.preventDefault();
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
@@ -459,8 +457,16 @@ iScroll.prototype = {
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
-		
-		if (that.zoomed) return;
+
+		// TEMP aseemk: if we zoomed at all, call the onZoomEnd callback here and return right away.
+		// we lose momentum if you ended with a single-finger drag, but we need to do that right now
+		// because the momentum implementation currently causes the image to fly off in these cases.
+		// TODO we should eventually improve momentum so that it takes a running average instead.
+		if (that.zoomed) {
+			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
+			that.zoomed = false;
+			return;
+		}
 
 		if (!that.moved) {
 			if (hasTouch) {
@@ -586,11 +592,6 @@ iScroll.prototype = {
 				that.moved = false;
 			}
 
-			if (that.zoomed) {
-				if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
-				that.zoomed = false;
-			}
-
 			if (that.hScrollbar && that.options.hideScrollbar) {
 				that.hScrollbarWrapper.style.webkitTransitionDelay = '300ms';
 				that.hScrollbarWrapper.style.opacity = '0';
@@ -661,6 +662,14 @@ iScroll.prototype = {
 		if (e) e.stopPropagation();
 
 		that._unbind('webkitTransitionEnd');
+
+		// TEMP aseemk: the public zoom() method relies on _transitionEnd to signal the end of the
+		// zoom, so call onZoomEnd here. we moved it out of _resetPos because that can cause timing
+		// errors with actual pinch zoom (if touchend fires after _resetPos).
+		if (that.zoomed) {
+			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
+			that.zoomed = false;
+		}
 
 		that._resetPos(that.returnTime);
 		that.returnTime = 0;
@@ -1065,11 +1074,20 @@ iScroll.prototype = {
 		var that = this,
 			relScale = scale / that.scale;
 
+		// TEMP aseemk: hort-circuit if this won't do anything. also prevents extraneous onZoomStart.
+		if (scale === that.scale) return;
+
 		x = x - that.wrapperOffsetLeft - that.x;
 		y = y - that.wrapperOffsetTop - that.y;
 		that.x = x - x * relScale + that.x;
 		that.y = y - y * relScale + that.y;
 
+		// TEMP aseemk: calling onZoomStart before we update that.scale to the final scale!
+		if (!that.zoomed) {
+			if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+			that.zoomed = true;
+		}
+		
 		that.scale = scale;
 
 		that.refresh();
@@ -1078,10 +1096,6 @@ iScroll.prototype = {
 		that._transitionTime(200);
 
 		setTimeout(function () {
-			if (!that.zoomed) {
-				if (that.options.onZoomStart) that.options.onZoomStart.call(that);
-				that.zoomed = true;
-			}
 			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
 		}, 0);
 	}
