@@ -230,7 +230,7 @@ iScroll.prototype = {
 			scrollerW,
 			scrollerH;
 
-		if (that.moved || that.zoomed || !that.contentReady) return;
+		if (that.moved || that.zooming || !that.contentReady) return;
 
 		scrollerW = m.round(that.scroller.offsetWidth * that.scale),
 		scrollerH = m.round((that.scroller.offsetHeight - that.offsetBottom - that.offsetTop) * that.scale);
@@ -304,12 +304,18 @@ iScroll.prototype = {
 
 		e.preventDefault();
 
-		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
+		// TEMP aseemk: taking out the check for !that.zoomed (or !that.zooming), since touchstart
+		// can fire both before *or* after gesturestart! (if both fingers touch at the same time,
+		// it fires *before* gesturestart, but if one finger touches after another, it's *after*.)
+		// also, this has the added benefit of updating the zoom origin if you do a zoom, lift only
+		// one finger, pan, and start another zoom. (previously, this used to use the old origin.)
+		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture) {
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
 			that.originY = m.abs(e.touches[0].pageY + e.touches[1].pageY - that.wrapperOffsetTop*2) / 2 - that.y;
 		}
 
 		that.moved = false;
+		that.multitouch = hasTouch && e.touches.length > 1;
 		that.distX = 0;
 		that.distY = 0;
 		that.absDistX = 0;
@@ -466,13 +472,11 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 
-		// TEMP aseemk: if we zoomed at all, call the onZoomEnd callback here and return right away.
-		// we lose momentum if you ended with a single-finger drag, but we need to do that right now
-		// because the momentum implementation currently causes the image to fly off in these cases.
-		// TODO we should eventually improve momentum so that it takes a running average instead.
-		if (that.zoomed) {
-			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
-			that.zoomed = false;
+		// TEMP aseemk: if this was multi-touch at all, return right away. we lose momentum at the
+		// end of flicks after zooms this way, but the current momentum implementation causes the
+		// image to sometimes fly off in these cases, so this is fine as a temporary measure.
+		// TODO we should eventually improve momentum for flicks after zooms.
+		if (that.multitouch) {
 			return;
 		}
 
@@ -674,9 +678,9 @@ iScroll.prototype = {
 		// TEMP aseemk: the public zoom() method relies on _transitionEnd to signal the end of the
 		// zoom, so call onZoomEnd here. we moved it out of _resetPos because that can cause timing
 		// errors with actual pinch zoom (if touchend fires after _resetPos).
-		if (that.zoomed) {
+		if (that.zooming) {
+			that.zooming = false;
 			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);			// Execute custom code on zoom end
-			that.zoomed = false;
 		}
 
 		that._resetPos(that.returnTime);
@@ -692,6 +696,9 @@ iScroll.prototype = {
 	_gestStart: function (e) {
 		var that = this;
 
+		that.zooming = true;
+		if (that.options.onZoomStart) that.options.onZoomStart.call(that);
+
 		that._transitionTime(0);
 		that.lastScale = 1;
 
@@ -705,11 +712,6 @@ iScroll.prototype = {
 		var that = this,
 			scale = that.scale * e.scale,
 			x, y, relScale;
-
-		if (!that.zoomed) {
-			if (that.options.onZoomStart) that.options.onZoomStart.call(that);
-			that.zoomed = true;
-		}
 
 		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
 		//if (scale < that.options.zoomMin) scale = that.options.zoomMin;
@@ -735,6 +737,9 @@ iScroll.prototype = {
 		that.y = that.originY - that.originY * lastScale + that.y;
 		that._transitionTime(200);
 		that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
+
+		that.zooming = false;
+		if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);
 
 		setTimeout(function () {
 			that.refresh();
@@ -1091,9 +1096,9 @@ iScroll.prototype = {
 		that.y = y - y * relScale + that.y;
 
 		// TEMP aseemk: calling onZoomStart before we update that.scale to the final scale!
-		if (!that.zoomed) {
+		if (!that.zooming) {
+			that.zooming = true;
 			if (that.options.onZoomStart) that.options.onZoomStart.call(that);
-			that.zoomed = true;
 		}
 		
 		that.scale = scale;
