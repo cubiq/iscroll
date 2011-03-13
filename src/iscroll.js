@@ -343,8 +343,16 @@ iScroll.prototype = {
 		}
 
 		that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.66,1)';
-		if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.66,1)';
-		if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.66,1)';
+
+		// TEMP HACK try-catching this to prevent errors from propagating up
+		try {
+			if (that.hScrollbar) that.hScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.66,1)';
+			// TODO BUG the following line throws an error sometimes because vScrollbarIndicator is null:
+			if (that.vScrollbar) that.vScrollbarIndicator.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.66,1)';
+		} catch (e) {
+			console.warn(e);
+		}
+		
 		that.startX = that.x;
 		that.startY = that.y;
 		that.pointX = point.pageX;
@@ -1074,7 +1082,7 @@ iScroll.prototype = {
 		var that = this,
 			relScale = scale / that.scale;
 
-		// TEMP aseemk: hort-circuit if this won't do anything. also prevents extraneous onZoomStart.
+		// TEMP aseemk: short-circuit if this won't do anything. also prevents extraneous onZoomStart.
 		if (scale === that.scale) return;
 
 		x = x - that.wrapperOffsetLeft - that.x;
