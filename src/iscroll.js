@@ -587,13 +587,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		// TEMP aseemk: calling refresh -- which calls _resetPos -- instead of _resetPos directly,
-		// because refresh updates the boundiares (which _resetPos relies on) based on scale, and
-		// scale can change during zoom. this prevents a timing error where refresh() may not have
-		// been called yet from the timeout set in _gestEnd. BUT i'm not sure if there are other
-		// consequences or any downsides to calling refresh() here. hopefully not!
-		//that._resetPos();
-		that.refresh();
+		that._resetPos();
 	},
 	
 	_resetPos: function (time) {
@@ -756,9 +750,14 @@ iScroll.prototype = {
 		that.startY = that.y;
 		that.startTime = e.timeStamp;
 
-		setTimeout(function () {
+		// TEMP aseemk: calling refresh() right away to prevent timing errors, e.g. to make sure it
+		// gets a chance to update the boundaries before the final touchend event is called, since
+		// _end() calls _resetPos() which relies on those boundaries. i'm not sure if there are any
+		// negative consequences or downsides to calling refresh() immediately. i notice that the
+		// public zoom() method calls it immediately, so hopefully this is okay!
+//		setTimeout(function () {
 			that.refresh();
-		}, 0);
+//		}, 0);
 
 		that._bind('gesturestart');
 		that._unbind('gesturechange');
