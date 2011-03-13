@@ -315,7 +315,6 @@ iScroll.prototype = {
 		}
 
 		that.moved = false;
-		that.multitouch = hasTouch && e.touches.length > 1;
 		that.distX = 0;
 		that.distY = 0;
 		that.absDistX = 0;
@@ -323,6 +322,12 @@ iScroll.prototype = {
 		that.dirX = 0;
 		that.dirY = 0;
 		that.returnTime = 0;
+		
+		// TEMP aseemk: keep track of whether this session ever involved more than one finger.
+		// this works because the very first touchstart will always reset this to false if it has
+		// only one finger, whereas it will set it to true if it has more than one finger, and all
+		// subsequent touchstarts will always set it to true.
+		that.multitouch = hasTouch && e.touches.length > 1;
 		
 		that._transitionTime(0);
 		
@@ -455,7 +460,13 @@ iScroll.prototype = {
 	},
 	
 	_end: function (e) {
-		if (hasTouch && e.touches.length != 0) return;
+		// TEMP aseemk: if this isn't the final touchend in a multi-touch gesture, update the saved
+		// finger's position. this makes it robust to the finger changing before and after zoom.
+		if (hasTouch && e.touches.length != 0) {
+			this.pointX = e.touches[0].pageX;
+			this.pointY = e.touches[0].pageY;
+			return;
+		}
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -472,15 +483,7 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 
-		// TEMP aseemk: if this was multi-touch at all, return right away. we lose momentum at the
-		// end of flicks after zooms this way, but the current momentum implementation causes the
-		// image to sometimes fly off in these cases, so this is fine as a temporary measure.
-		// TODO we should eventually improve momentum for flicks after zooms.
-		if (that.multitouch) {
-			return;
-		}
-
-		if (!that.moved) {
+		if (!that.moved && !that.multitouch) {
 			if (hasTouch) {
 				if (that.doubleTapTimer && that.options.zoom) {
 					// Double tapped
@@ -584,7 +587,13 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos();
+		// TEMP aseemk: calling refresh -- which calls _resetPos -- instead of _resetPos directly,
+		// because refresh updates the boundiares (which _resetPos relies on) based on scale, and
+		// scale can change during zoom. this prevents a timing error where refresh() may not have
+		// been called yet from the timeout set in _gestEnd. BUT i'm not sure if there are other
+		// consequences or any downsides to calling refresh() here. hopefully not!
+		//that._resetPos();
+		that.refresh();
 	},
 	
 	_resetPos: function (time) {
@@ -740,6 +749,12 @@ iScroll.prototype = {
 
 		that.zooming = false;
 		if (that.options.onZoomEnd) that.options.onZoomEnd.call(that);
+		
+		// TEMP aseemk: on zoom end, reset the "start" state for panning. this leads to much more
+		// robust flicks after zooming and fixes bugs where the content would fly off to a side.
+		that.startX = that.x;
+		that.startY = that.y;
+		that.startTime = e.timeStamp;
 
 		setTimeout(function () {
 			that.refresh();
