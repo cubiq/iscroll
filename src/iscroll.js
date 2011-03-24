@@ -714,11 +714,25 @@ iScroll.prototype = {
 	_gestChange: function (e) {
 		var that = this,
 			scale = that.scale * e.scale,
+			scaleMin = that.options.zoomMin,
+			scaleMax = that.options.zoomMax,
 			x, y, relScale;
-
-		// don't clamp zoom *during* a pinch. to clamp, uncomment this:
-		//if (scale < that.options.zoomMin) scale = that.options.zoomMin;
-		//else if (scale > that.options.zoomMax) scale = that.options.zoomMax;
+		
+		// 50% logarithmic drag for zooming beyond limits, just like 50% linear drag for panning beyond limits:
+		if (scale < scaleMin) scale = 0.5 * scaleMin * Math.pow(2.0, scale / scaleMin);
+		if (scale > scaleMax) scale = 2.0 * scaleMax * Math.pow(0.5, scaleMax / scale);
+		
+		// for comparison, here's a linear 50% drag:
+		//if (scale < scaleMin) scale = scaleMin - 0.5 * (scaleMin - scale);
+		//if (scale > scaleMax) scale = scaleMax + 0.5 * (scale - scaleMax);
+		
+		// and a hybrid 50% drag (logarithmic but with a linear limit of one scale factor):
+		//if (scale < scaleMin) scale = scaleMin - 1 + Math.pow(2, scale - scaleMin);
+		//if (scale > scaleMax) scale = 1 + scaleMax - Math.pow(2, scaleMax - scale);
+		
+		// but if you just want to clamp zooming completely (not recommended *during* pinch):
+		//if (scale < scaleMin) scale = scaleMin;
+		//else if (scale > scaleMax) scale = scaleMax;
 
 		relScale = scale / that.scale;
 		x = that.originX - that.originX * relScale + that.x;
