@@ -192,7 +192,9 @@ iScroll.prototype = {
 
 		that.moved = false;
 
-		e.preventDefault();
+		if(e.target.tagName != "INPUT" && e.target.tagName != "SELECT") {
+			e.preventDefault();
+		}
 
 		that.moved = false;
 		that.distX = 0;
@@ -244,7 +246,9 @@ iScroll.prototype = {
 			newX = that.x + deltaX,
 			newY = that.y + deltaY;
 
-		e.preventDefault();
+		if(e.target.tagName != "INPUT" && e.target.tagName != "SELECT") {
+			e.preventDefault();
+		}
 
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
