@@ -960,6 +960,7 @@ iScroll.prototype = {
 		if (time) that._bind('webkitTransitionEnd');
 		that._transitionTime(time);
 		that._pos(x, y);
+		that._resetPos();
 		if (!time) setTimeout(function () { that._transitionEnd(); }, 0);
 	},
 
