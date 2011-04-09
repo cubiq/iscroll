@@ -51,7 +51,8 @@ function iScroll (el, options) {
 		onScrollEnd: null,
 		onZoomStart: null,
 		onZoomEnd: null,
-		checkDOMChange: false		// Experimental
+		checkDOMChange: false,		// Experimental
+		longpresstime: 500
 	};
 
 	// User defined options
@@ -281,6 +282,13 @@ iScroll.prototype = {
 
 		that.moved = false;
 
+		if (that.options['longpress']) {
+			that.longpress = setTimeout(
+				that.options['longpress'],
+				that.options['longpresstime'],
+				e);
+		}
+
 		e.preventDefault();
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
@@ -351,6 +359,8 @@ iScroll.prototype = {
 			deltaY = point.pageY - that.pointY,
 			newX = that.x + deltaX,
 			newY = that.y + deltaY;
+
+		that.longpress && clearTimeout(that.longpress);
 
 		e.preventDefault();
 
@@ -427,6 +437,8 @@ iScroll.prototype = {
 			newPosX = that.x, newPosY = that.y,
 			newDuration,
 			snap;
+
+		that.longpress && clearTimeout(that.longpress);
 
 //		that._bind(START_EV);
 		that._unbind(MOVE_EV);
