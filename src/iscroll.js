@@ -960,7 +960,7 @@ iScroll.prototype = {
 		if (time) that._bind('webkitTransitionEnd');
 		that._transitionTime(time);
 		that._pos(x, y);
-		if (!time) setTimeout(function () { that._transitionEnd(); }, 0);
+		if (!time) setTimeout(function () { that._transitionEnd(); }, 300);
 	},
 
 	scrollToElement: function (el, time) {
