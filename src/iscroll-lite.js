@@ -192,9 +192,11 @@ iScroll.prototype = {
 
 		that.moved = false;
 
-		if(e.target.tagName != "INPUT" && e.target.tagName != "SELECT") {
-			e.preventDefault();
+		if (e.target.tagName == "SELECT" || e.target.tagName == "INPUT" ||
+		e.target.tagName == "BUTTON" || e.target.tagName == "TEXTAREA") {
+			return true;
 		}
+		e.preventDefault();
 
 		that.moved = false;
 		that.distX = 0;

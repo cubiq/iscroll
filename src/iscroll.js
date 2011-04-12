@@ -281,9 +281,11 @@ iScroll.prototype = {
 
 		that.moved = false;
 
-		if(e.target.tagName != "INPUT" && e.target.tagName != "SELECT") {
-			e.preventDefault();
+		if (e.target.tagName == "SELECT" || e.target.tagName == "INPUT" ||
+		e.target.tagName == "BUTTON" || e.target.tagName == "TEXTAREA") {
+			return true;
 		}
+		e.preventDefault();
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
