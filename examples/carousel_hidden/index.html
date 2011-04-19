@@ -15,7 +15,6 @@ var myScroll;
 function loaded() {
 	myScroll = new iScroll('wrapper', {
 		snap: true,
-		momentum: false,
 		hScrollbar: false,
 		onScrollEnd: function () {
 			document.querySelector('#indicator > li.active').className = '';
@@ -26,17 +25,16 @@ function loaded() {
 
 function show(){
   document.getElementById('wrapper').style.display = 'block';
-  loaded();
+  myScroll.refresh();
   return false;
 }
 
 function hide(){ 
-  myScroll.destroy();
-  myScroll = null;
   document.getElementById('wrapper').style.display = 'none';
   return false;
  }
 
+document.addEventListener('DOMContentLoaded', loaded, false);
 </script>
 
 <style type="text/css" media="all">
