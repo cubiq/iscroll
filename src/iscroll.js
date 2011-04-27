@@ -137,6 +137,7 @@ iScroll.prototype = {
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
+			case 'mouseout': that._out(e); break;
 			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 			case RESIZE_EV: that._resize(); break;
 			case 'gesturestart': that._gestStart(e); break;
@@ -333,17 +334,26 @@ iScroll.prototype = {
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that);
 
+		if (hasTouch && e.touches.length > 1) {
+			that.scrolling = false;
+			that.resetPosition();
+		}
+
 		// Registering/unregistering of events is done to preserve resources on Android
 //		setTimeout(function () {
 //			that._unbind(START_EV);
 			that._bind(MOVE_EV);
 			that._bind(END_EV);
 			that._bind(CANCEL_EV);
+			if (!hasTouch) {
+			  document.addEventListener('mouseout', this, false);
+			}
 //		}, 0);
 	},
 	
 	_move: function (e) {
 		if (hasTouch && e.touches.length > 1) return;
+		if (!hasTouch && e.ctrlKey) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -414,7 +424,18 @@ iScroll.prototype = {
 			that.startY = that.y;
 		}
 	},
-	
+
+	_out: function (e) {
+		var that = this;
+
+		// chickenSandwich @stackoverflow
+		e = e? e : window.event;
+		var from = e.relatedTarget || e.toElement;
+		if (!from || from.nodeName == "HTML") {
+			that._end(e);
+		}
+	},
+
 	_end: function (e) {
 		if (hasTouch && e.touches.length != 0) return;
 
@@ -508,7 +529,7 @@ iScroll.prototype = {
 				newPosY = snap.y;
 				newDuration = m.max(snap.time, newDuration);
 			}
-			
+
 /*			if (newPosX > 0 || newPosX < that.maxScrollX || newPosY > 0 || newPosY < that.maxScrollY) {
 				// Subtle change of scroller motion
 				that.scroller.style.webkitTransitionTimingFunction = 'cubic-bezier(0.33,0.66,0.5,1)';
