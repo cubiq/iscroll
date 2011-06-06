@@ -51,7 +51,8 @@ function iScroll (el, options) {
 		onScrollEnd: null,
 		onZoomStart: null,
 		onZoomEnd: null,
-		checkDOMChange: false		// Experimental
+		checkDOMChange: false,		// Experimental,
+		preventDefault: true
 	};
 
 	// User defined options
@@ -281,7 +282,8 @@ iScroll.prototype = {
 
 		that.moved = false;
 
-		e.preventDefault();
+		// Do we want to prevent the default event ?
+		if(!!that.options.preventDefault) e.preventDefault();
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
@@ -352,7 +354,8 @@ iScroll.prototype = {
 			newX = that.x + deltaX,
 			newY = that.y + deltaY;
 
-		e.preventDefault();
+		// Do we want to prevent the default event ?
+		if(!!that.options.preventDefault) e.preventDefault();
 
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
