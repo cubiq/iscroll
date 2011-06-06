@@ -12,6 +12,8 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
+ * Small modifications by Tom Melamed of Calvium, calvium.com 
+ * 
  */
 
 (function(){
@@ -51,7 +53,8 @@ function iScroll (el, options) {
 		onScrollEnd: null,
 		onZoomStart: null,
 		onZoomEnd: null,
-		checkDOMChange: false		// Experimental
+		checkDOMChange: false,		// Experimental
+        preventDefaultEvents: true
 	};
 
 	// User defined options
@@ -281,7 +284,9 @@ iScroll.prototype = {
 
 		that.moved = false;
 
-		e.preventDefault();
+        if(that.preventDefaultEvents) {
+		    e.preventDefault();
+        }
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft*2) / 2 - that.x;
@@ -336,9 +341,17 @@ iScroll.prototype = {
 		// Registering/unregistering of events is done to preserve resources on Android
 //		setTimeout(function () {
 //			that._unbind(START_EV);
+        if(hasTouch) {
 			that._bind(MOVE_EV);
 			that._bind(END_EV);
 			that._bind(CANCEL_EV);
+        } else {
+            var body = window.document.body;
+
+            that._bind(MOVE_EV, body);
+            that._bind(END_EV, body);
+            that._bind(CANCEL_EV, body);
+        }
 //		}, 0);
 	},
 	
@@ -352,7 +365,9 @@ iScroll.prototype = {
 			newX = that.x + deltaX,
 			newY = that.y + deltaY;
 
-		e.preventDefault();
+        if(that.preventDefaultEvents) {
+		    e.preventDefault();
+        }
 
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
@@ -429,9 +444,19 @@ iScroll.prototype = {
 			snap;
 
 //		that._bind(START_EV);
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+
+
+        if(hasTouch) {
+			that._unbind(MOVE_EV);
+            that._unbind(END_EV);
+		    that._unbind(CANCEL_EV);
+        } else {
+            var body = window.document.body;
+
+            that._unbind(MOVE_EV, body);
+            that._unbind(END_EV, body);
+            that._unbind(CANCEL_EV, body);
+        }
 		
 		if (that.zoomed) return;
 
@@ -783,6 +808,13 @@ iScroll.prototype = {
 		// Snap with constant speed (proportional duration)
 		time = m.round(m.max(sizeX, sizeY)) || 200;
 
+        var event;
+        event = document.createEvent("HTMLEvents");
+        event.initEvent("snapping", true, true);
+        event.eventName = "snapping";
+        event.memo = {};
+        that.scroller.dispatchEvent(event);
+
 		return { x: x, y: y, time: time };
 	},
 
@@ -826,10 +858,19 @@ iScroll.prototype = {
 		that._unbind('webkitTransitionEnd');
 		that._unbind(RESIZE_EV);
 		that._unbind(START_EV);
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+        
+        if(hasTouch) {
+			that._unbind(MOVE_EV);
+            that._unbind(END_EV);
+		    that._unbind(CANCEL_EV);
+        } else {
+            var body = window.document.body;
 
+            that._unbind(MOVE_EV, body);
+            that._unbind(END_EV, body);
+            that._unbind(CANCEL_EV, body);
+        }
+		
 		if (that.options.zoom) {
 			that._unbind('gesturestart');
 			that._unbind('gesturechange');
