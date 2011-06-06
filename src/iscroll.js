@@ -877,6 +877,11 @@ iScroll.prototype = {
 
 		that.wrapperW = that.wrapper.clientWidth;
 		that.wrapperH = that.wrapper.clientHeight;
+    if(that.wrapperW == 0 || that.wrapperH == 0){
+      // Bail out - the wrapper has no size and that will screw up
+      // calculations. Best way to handle this?
+      return false;
+    }
 		that.scrollerW = m.round(that.scroller.offsetWidth * that.scale);
 		that.scrollerH = m.round((that.scroller.offsetHeight - that.offsetBottom - that.offsetTop) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
