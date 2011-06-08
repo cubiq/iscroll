@@ -3,17 +3,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * iScroll v4.1.1
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
+ * Last updated: 2011.06.08 
+ */
+/*!
  * Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/
  * Released under MIT license
  * http://cubiq.org/dropbox/mit-license.txt
- * 
- * Last updated: 2011.06.08
- * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * 
  */
-
 (function(){
 var m = Math,
 	vendor = (/webkit/i).test(navigator.appVersion) ? 'webkit' :
