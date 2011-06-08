@@ -281,6 +281,10 @@ iScroll.prototype = {
 
 		that.moved = false;
 
+		if (e.target.tagName == "SELECT" || e.target.tagName == "INPUT" ||
+		e.target.tagName == "BUTTON" || e.target.tagName == "TEXTAREA") {
+			return true;
+		}
 		e.preventDefault();
 
 		if (hasTouch && e.touches.length == 2 && that.options.zoom && hasGesture && !that.zoomed) {
@@ -352,7 +356,9 @@ iScroll.prototype = {
 			newX = that.x + deltaX,
 			newY = that.y + deltaY;
 
-		e.preventDefault();
+		if(e.target.tagName != "INPUT" && e.target.tagName != "SELECT") {
+			e.preventDefault();
+		}
 
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;

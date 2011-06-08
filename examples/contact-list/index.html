@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>iScroll demo: Contact List</title>
+
+<script type="application/javascript" src="../../src/iscroll.js?v4"></script>
+
+<script type="text/javascript">
+
+/**
+ * 
+ * Find more about the ABC control at
+ * http: //cubiq.org/contact-list-on-webkit-for-iphone/8
+ *
+ * Copyright (c) 2009 Matteo Spinelli
+ * Released under the MIT license
+ * http: //cubiq.org/dropbox/mit-license.txt
+ * 
+ * Version 1.0 - Last updated: 2009.02.12
+ * Version 3.9999 - 2011-02-21 DataZombies
+ */
+/*jslint white: true, onevar: true, undef: true, nomen: true, regexp: true, plusplus: true, bitwise: true, browser: true, devel: true, maxerr: 50, indent: 0 */
+/*global iScroll */
+
+var myScroll;
+
+function abc(el) {
+  this.element = el;
+  this.element.addEventListener('touchstart', this, false);
+}
+
+abc.prototype = {
+  handleEvent: function (e) {
+    switch (e.type) {
+    case 'touchstart':
+      this.onTouchStart(e);
+      break;
+    case 'touchmove':
+      this.onTouchMove(e);
+      break;
+    case 'touchend':
+      this.onTouchEnd(e);
+      break;
+    }
+  },
+
+  onTouchStart: function (e) {
+    e.preventDefault();
+    this.element.className = 'hover';
+
+    var theTarget = e.target;
+    if (theTarget.nodeType === 3) {
+      theTarget = theTarget.parentNode;
+    }
+    theTarget = theTarget.innerText;
+
+    if (document.getElementById(theTarget)) {
+      myScroll.scrollTo(0, -document.getElementById(theTarget).offsetTop, 0);
+    }
+    this.element.addEventListener('touchmove', this, false);
+    this.element.addEventListener('touchend', this, false);
+
+    return false;
+  },
+
+  onTouchEnd: function (e) {
+    e.preventDefault();
+    this.element.className = '';
+
+    this.element.removeEventListener('touchmove', this, false);
+    this.element.removeEventListener('touchend', this, false);
+
+    return false;
+  },
+
+  onTouchMove: function (e) {
+    e.preventDefault();
+
+    var theTarget = document.elementFromPoint(e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+    if (theTarget.nodeType === 3) {
+      theTarget = theTarget.parentNode;
+    }
+    theTarget = theTarget.innerText;
+
+    if (document.getElementById(theTarget)) {
+			theTarget = -document.getElementById(theTarget).offsetTop;
+      if(theTarget < myScroll.maxScroll) {
+        theTarget = myScroll.maxScroll;
+      }
+
+      myScroll.scrollTo(0, theTarget, 0);
+    }
+
+    return false;
+  }
+};
+
+function loaded() {
+  myScroll = new iScroll('wrapper', {hScrollbar: false, vScrollbar: false});
+  alphaIndex = new abc(document.getElementById('abc'));
+}
+
+document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+document.addEventListener('DOMContentLoaded', loaded, false);
+
+</script>
+
+<style type="text/css" media="all">
+body,ul,li {
+  border: 0;
+  font-family: "Helvetica Neue", Helvetic;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 12px;
+  -webkit-text-size-adjust: none;
+  -webkit-user-select: none;
+}
+
+#header {
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #fe96c9), color-stop(0.05, #d51875), color-stop(1, #7b0a2e));
+  color: #eee;
+  font-size: 20px;
+  height: 45px;
+  left: 0;
+  line-height: 45px;
+  padding: 0;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 100%;
+}
+
+#header a {
+  color: #f3f3f3;
+  font-weight: bold;
+  text-decoration: none;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+}
+
+#footer {
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #999), color-stop(0.02, #666), color-stop(1, #222));
+  border-top: 1px solid #444;
+  bottom: 0;
+  height: 48px;
+  left: 0;
+  padding: 0;
+  position: absolute;
+  width: 100%;
+}
+
+#wrapper {
+  background: #aaa;
+  bottom: 48px;
+  left: 0;
+  overflow: auto;
+  position: absolute;
+  top: 45px;
+  width: 100%;
+  z-index: 1;
+}
+
+#scroller {
+  float: left;
+  padding: 0;
+  position: relative;
+  width: 100%;
+/*  -webkit-touch-callout: none;*/
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#scroller ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  text-align: left;
+  width: 100%;
+}
+
+#scroller li {
+  background-color: #fafafa;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #fff;
+  font-size: 14px;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px;
+}
+
+#scroller li > a {
+  display: block;
+}
+
+#scroller li.heading {
+  border-bottom: 1px solid #989ea4;
+  color: #fff;
+  font-size: 19px;
+  font-weight: bold;
+  height: 21px;
+  line-height: 21px;
+  padding-left: 12px;
+  text-shadow: rgba(0,0,0,0.6) 0 1px 0;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #7b0a2e), color-stop(0.05, #d51875), color-stop(1, #fe96c9));
+}
+
+#abc {
+  color: #6a737d;
+  font-size: 11px;
+  height: 364px;
+  line-height: 1;
+  position: absolute;
+  right: 4px;
+  text-align: center;
+  top: 48px;
+  width: 28px;
+  z-index: 1000;
+  -webkit-border-radius: 14px;
+}
+
+#abc li {
+  font-weight: bold;
+  padding-top: 2px;
+  list-style: none;
+}
+
+#abc li: first-child {
+  padding-top: 6px;
+}
+
+#abc.hover {
+  background: rgba(106,115,125,0.5);
+}
+
+</style>
+</head>
+<body>
+<div>
+  <ul id="abc">
+    <li>#</li>
+    <li>A</li>
+    <li>B</li>
+    <li>C</li>
+    <li>D</li>
+    <li>E</li>
+    <li>F</li>
+    <li>G</li>
+    <li>H</li>
+    <li>I</li>
+    <li>J</li>
+    <li>K</li>
+    <li>L</li>
+    <li>M</li>
+    <li>N</li>
+    <li>O</li>
+    <li>P</li>
+    <li>Q</li>
+    <li>R</li>
+    <li>S</li>
+    <li>T</li>
+    <li>U</li>
+    <li>V</li>
+    <li>W</li>
+    <li>X</li>
+    <li>Y</li>
+    <li>Z</li>
+  </ul>
+</div>
+<div id="header"><a href="http://cubiq.org/iscroll">iScroll</a></div>
+<div id="wrapper">
+  <div id="scroller">
+    <ul id="thelist">
+      <li class="heading" id="#">#</li>
+      <li class="heading" id="A">A</li>
+        <li><b>Acme Corporation</b></li>
+        <li><b>Acvbqdf</b>, Qefhwg</li>
+        <li><b>Afuzdpvp</b>, Nbuwnwywl</li>
+        <li><b>Apjlfji</b>, Gaohdrg</li>
+        <li><b>Aqwfxqe</b>, Vtdux</li>
+        <li><b>Aubrzh</b>, Vam</li>
+      <li class="heading" id="B">B</li>
+        <li><b>Big Kahuna Burger</b></li>
+        <li><b>Bjyflwo</b>, Fcabkttf</li>
+        <li><b>Brawndo</b></li>
+        <li><b>Bslycqo</b>, Buamkom</li>
+        <li><b>Bzgqruvbf</b>, Ijlebiga</li>
+      <li class="heading" id="C">C</li>
+        <li><b>Casly</b>, Vpuakokdi</li>
+        <li><b>Cgxlqar</b>, Ahdinrqdl</li>
+        <li><b>Chne</b>, Jobzrm</li>
+        <li><b>Cjptf</b>, Kri</li>
+        <li><b>Csa</b>, Awvpw</li>
+        <li><b>cubiq.org</b></li>
+        <li><b>Cuzotyp</b>, Zanvp</li>
+        <li><b>Cwqjta</b>, Dldghjlky</li>
+        <li><b>Cwvv</b>, Ynk</li>
+        <li><b>Cxapyqm</b>, Nhgtqnc</li>
+        <li><b>Cxfveswpw</b>, Zesor</li>
+      <li class="heading" id="D">D</li>
+        <li><b>DataZombies</b></li>
+        <li><b>Dkdtcmeb</b>, Drwf</li>
+        <li><b>Dmdentfr</b>, Bngvcav</li>
+        <li><b>Dnpw</b>, Ubqx</li>
+        <li><b>Dofgcbzi</b>, Xkvo</li>
+        <li><b>Dohlnov</b>, Kilnkfm</li>
+        <li><b>Dpo</b>, Dun</li>
+        <li><b>Duff Beer</b></li>
+        <li><b>Dycsqdnu</b>, Xddaztiv</li>
+        <li><b>Dyk</b>, Meao</li>
+      <li class="heading" id="E">E</li>
+        <li><b>Edj</b>, Qtoulfqit</li>
+        <li><b>Elpjpslu</b>, Nojv</li>
+        <li><b>Epnnpwgs</b>, Apjxfcz</li>
+        <li><b>Evhpxypb</b>, Psyk</li>
+        <li><b>Ewehygkug</b>, Jdlxquhz</li>
+        <li><b>Ewlirxx</b>, Lbwyv</li>
+        <li><b>Ewy</b>, Xieuji</li>
+      <li class="heading" id="F">F</li>
+        <li><b>Fbjgucb</b>, Ssrwbsym</li>
+        <li><b>Felvyabxf</b>, Wuekqswcq</li>
+        <li><b>Fhjdc</b>, Zptiapxa</li>
+        <li><b>Finder-Spyder</b></li>
+        <li><b>Fqw</b>, Ezfoxle</li>
+        <li><b>Fuvd</b>, Dlzuwjf</li>
+        <li><b>Fvlfeyjxa</b>, Vozzsx</li>
+      <li class="heading" id="G">G</li>
+        <li><b>Gafa</b>, Gquemf</li>
+        <li><b>Gaufx</b>, Ltv</li>
+        <li><b>Gcjebz</b>, Bavxxg</li>
+        <li><b>Gcr</b>, Jzo</li>
+        <li><b>Geytwv</b>, Ilften</li>
+        <li><b>Gjcqup</b>, Ejcoyh</li>
+        <li><b>Gpntefvqi</b>, Pjczs</li>
+        <li><b>Grxt</b>, Fob</li>
+        <li><b>Gsbpezp</b>, Eyfeu</li>
+        <li><b>Gwta</b>, Pabyni</li>
+        <li><b>Gztljfqk</b>, Ybit</li>
+      <li class="heading" id="H">H</li>
+        <li><b>HAL Laboratories</b></li>
+        <li><b>Hbd</b>, Ofsjokt</li>
+        <li><b>Hccbtw</b>, Wtzpo</li>
+        <li><b>Heisler Beer</b></li>
+        <li><b>Heyimvfcx</b>, Xpndvayav</li>
+        <li><b>Hfj</b>, Irtb</li>
+        <li><b>Hiwczop</b>, Bvgah</li>
+        <li><b>Hkeo</b>, Owao</li>
+        <li><b>Hls</b>, Gninplvk</li>
+        <li><b>Hmaal</b>, Mzlo</li>
+        <li><b>Hnbsiiikf</b>, Appn</li>
+        <li><b>Hrbeitmc</b>, Vly</li>
+        <li><b>Htfgf</b>, Tpmplx</li>
+        <li><b>Hwcgh</b>, Apbggvex</li>
+        <li><b>Hzeycwtu</b>, Dhb</li>
+        <li><b>Hzjljgbcm</b>, Xhynivhw</li>
+      <li class="heading" id="I">I</li>
+        <li><b>Idbrfj</b>, Wujqftz</li>
+        <li><b>Idgmmf</b>, Xgrrsqc</li>
+        <li><b>Ifvnkp</b>, Gsrl</li>
+        <li><b>Imgt</b>, Ysskdsddg</li>
+        <li><b>Inkbi</b>, Bqjn</li>
+        <li><b>Irkfche</b>, Kluicul</li>
+        <li><b>Irwlbfiu</b>, Bkniiiv</li>
+        <li><b>Iueilkvv</b>, Vaasg</li>
+        <li><b>Iulfwlt</b>, Spzf</li>
+      <li class="heading" id="J">J</li>
+        <li><b>Jbjmmfxhi</b>, Frzgok</li>
+        <li><b>Jcijpnxpj</b>, Hweoaso</li>
+        <li><b>Jebjpwz</b>, Vtcpf</li>
+        <li><b>Jnalhosda</b>, Amjxy</li>
+        <li><b>Jqvnhi</b>, Kfkz</li>
+        <li><b>Jtivcohzn</b>, Vaedq</li>
+        <li><b>Juiwokc</b>, Xpaicntvv</li>
+      <li class="heading" id="K">K</li>
+        <li><b>Kakaxj</b>, Yzk</li>
+        <li><b>Kbppfgk</b>, Ipjmd</li>
+        <li><b>Kczaykof</b>, Vpv</li>
+        <li><b>Kczsa</b>, Qjxv</li>
+        <li><b>Kesbxnhr</b>, Cdgntwf</li>
+        <li><b>Kjf</b>, Vbs</li>
+        <li><b>Kjkjibu</b>, Ysgsvdq</li>
+        <li><b>Ksycv</b>, Dbeubfgfy</li>
+      <li class="heading" id="L">L</li>
+        <li><b>Lelzfanvj</b>, Pxqjpgwd</li>
+        <li><b>Lixsnlrjv</b>, Vafyyogg</li>
+        <li><b>Llsd</b>, Jngk</li>
+        <li><b>Lvlbzbrz</b>, Ist</li>
+        <li><b>Lxn</b>, Niyqwkmwt</li>
+        <li><b>Lzd</b>, Znuwplah</li>
+      <li class="heading" id="M">M</li>
+        <li><b>Maf</b>, Sykb</li>
+        <li><b>Makmwjtf</b>, Odie</li>
+        <li><b>Mdjju</b>, Xiwbvirnz</li>
+        <li><b>Mdyob</b>, Nnvnsn</li>
+        <li><b>Mjjcx</b>, Apddt</li>
+        <li><b>Mok</b>, Suhnwglvw</li>
+        <li><b>Mooby&rsquo;s</b></li>
+        <li><b>Morley Cigarettes</b></li>
+        <li><b>Mpsloy</b>, Tazqbbdto</li>
+        <li><b>Mulmruah</b>, Wmekxib</li>
+        <li><b>Mvqdqbk</b>, Yeabou</li>
+      <li class="heading" id="N">N</li>
+        <li><b>Nbfalp</b>, Dtbr</li>
+        <li><b>Nhe</b>, Zgrnkqukk</li>
+        <li><b>Noz</b>, Gmuek</li>
+        <li><b>Npftlhf</b>, Ehmishise</li>
+        <li><b>Ntkufzrf</b>, Sshh</li>
+        <li><b>Nwoyjrpu</b>, Kffsqqo</li>
+      <li class="heading" id="O">O</li>
+        <li><b>Oceanic Airlines</b></li>
+        <li><b>Odvqdkbxm</b>, Gouxala</li>
+        <li><b>Oke</b>, Vfjpriif</li>
+        <li><b>Onaqar</b>, Bfhb</li>
+        <li><b>Orvfsvs</b>, Tbmbyu</li>
+        <li><b>Otjedojbw</b>, Mqh</li>
+        <li><b>Otrujxskq</b>, Vxhaatrh</li>
+        <li><b>Ouubxced</b>, Bsoqy</li>
+        <li><b>Owjtlnwe</b>, Ogivthpd</li>
+      <li class="heading" id="P">P</li>
+        <li><b>Pahm</b>, Ruxbfzglz</li>
+        <li><b>Pdl</b>, Prws</li>
+        <li><b>Pfsple</b>, Cmqfotiaz</li>
+        <li><b>Pilpfyg</b>, Jnkckbfn</li>
+        <li><b>Pimxyjd</b>, Ugaz</li>
+        <li><b>Pnajuhbt</b>, Mzyjzqkr</li>
+        <li><b>Poawflee</b>, Lyri</li>
+        <li><b>Pzmxte</b>, Ktppfjygs</li>
+      <li class="heading" id="Q">Q</li>
+        <li><b>Qhzgsik</b>, Nnhsngch</li>
+        <li><b>Qikg</b>, Nkekwg</li>
+        <li><b>Qjmhpwdeq</b>, Yrncjkqdj</li>
+        <li><b>Qljwj</b>, Rsaomc</li>
+        <li><b>Qnjvdbbf</b>, Dalmgzx</li>
+        <li><b>Qxrd</b>, Kamv</li>
+      <li class="heading" id="R">R</li>
+        <li><b>Ratolq</b>, Qazjozaqq</li>
+        <li><b>Rayni</b>, Ztiix</li>
+        <li><b>Rbkx</b>, Wcvgjfr</li>
+        <li><b>Reuk</b>, Iqe</li>
+        <li><b>Rjrge</b>, Uchgzmkit</li>
+        <li><b>Rkeyvcbpa</b>, Eakp</li>
+        <li><b>Rkwplqsqs</b>, Twtvdp</li>
+        <li><b>Rlvw</b>, Rlvz</li>
+        <li><b>Rwczstpj</b>, Fnsvlchhu</li>
+        <li><b>Rzenhq</b>, Yhwfh</li>
+      <li class="heading" id="S">S</li>
+        <li><b>Sallwyva</b>, Gxuwaca</li>
+        <li><b>Sbjt</b>, Cdridcyl</li>
+        <li><b>Scb</b>, Thberwok</li>
+        <li><b>Schyqj</b>, Tdqb</li>
+        <li><b>Sgoqh</b>, Uihmwin</li>
+        <li><b>Sgwqhkx</b>, Llqvgqlb</li>
+        <li><b>Skvzhksrl</b>, Tptkmr</li>
+        <li><b>Snwv</b>, Jyozn</li>
+        <li><b>Svtmcqt</b>, Ofoko</li>
+        <li><b>Sxsynhgoh</b>, Jczf</li>
+        <li><b>Syzp</b>, Bsmz</li>
+      <li class="heading" id="T">T</li>
+        <li><b>Tcyjb</b>, Ixvzylpzm</li>
+        <li><b>Thct</b>, Drvezur</li>
+        <li><b>Thlh</b>, Rmfepef</li>
+        <li><b>Tvl</b>, Jdiljiyx</li>
+      <li class="heading" id="U">U</li>
+        <li><b>Ubl</b>, Wewmjvsu</li>
+        <li><b>Ucczqt</b>, Tnuox</li>
+        <li><b>Ucopaj</b>, Eup</li>
+        <li><b>Ucrkwxhoq</b>, Dgxeimb</li>
+        <li><b>Ueemwgeid</b>, Hrwpce</li>
+        <li><b>Uklhqf</b>, Bovsik</li>
+        <li><b>Unwzqca</b>, Hlltw</li>
+        <li><b>Uoi</b>, Notnv</li>
+      <li class="heading" id="V">V</li>
+        <li><b>Vio</b>, Ebe</li>
+        <li><b>Vlcda</b>, Plzagxtp</li>
+        <li><b>Vmyxxogxm</b>, Dpumrn</li>
+        <li><b>Vpogaeru</b>, Hkj</li>
+        <li><b>Vwrrc</b>, Iavbh</li>
+        <li><b>Vwsr</b>, Vumwrasv</li>
+      <li class="heading" id="W">W</li>
+        <li><b>Wipruojed</b>, Iuak</li>
+        <li><b>Wknhcaz</b>, Ztut</li>
+        <li><b>Wlarfsrni</b>, Rmoahqf</li>
+        <li><b>Wnjex</b>, Tuajuu</li>
+        <li><b>Woks</b>, Aoc</li>
+        <li><b>Worp</b>, Gkhjfvg</li>
+        <li><b>Wuwkep</b>, Ipefdnr</li>
+        <li><b>Wvm</b>, Tovs</li>
+        <li><b>Wxturz</b>, Ibgjzpyi</li>
+      <li class="heading" id="X">X</li>
+      <li><b>Xdyzsgy</b>, Cdu</li>
+        <li><b>Xekffgj</b>, Bylrpaeyq</li>
+        <li><b>Xilj</b>, Jzjysu</li>
+        <li><b>Xmvomfne</b>, Uxrge</li>
+        <li><b>Xni</b>, Vvu</li>
+        <li><b>Xoovxwh</b>, Irwowdkhx</li>
+        <li><b>Xurjiu</b>, Yrfzgu</li>
+        <li><b>Xweoumw</b>, Bslzbt</li>
+      <li class="heading" id="Y">Y</li>
+        <li><b>Yckxzb</b>, Laxuenx</li>
+        <li><b>Ygsfehpvt</b>, Kxbyqflav</li>
+        <li><b>Ykppil</b>, Zczfbco</li>
+        <li><b>Yoocdkgs</b>, Kktrdmch</li>
+        <li><b>Ypiiiciac</b>, Excppatdz</li>
+        <li><b>Yyfeyva</b>, Ouxni</li>
+      <li class="heading" id="Z">Z</li>
+        <li><b>Zaawk</b>, Cur</li>
+        <li><b>Zaba</b>, Pix</li>
+        <li><b>Zfx</b>, Lvyeqoet</li>
+        <li><b>Zhydgl</b>, Woqoaxo</li>
+        <li><b>Zmxsb</b>, Fvoznayg</li>
+        <li><b>Zqdgqwxt</b>, Volpcmsz</li>
+        <li><b>Zxkqxjqm</b>, Scex</li>
+    </ul>
+  </div>
+</div>
+
+<div id="footer"></div>
+
+</body>
+</html>
