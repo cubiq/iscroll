@@ -379,7 +379,7 @@ iScroll.prototype = {
 				target = point.target;
 				while (target.nodeType != 1) target = target.parentNode;
 
-				if (!target.tagName == 'SELECT' && !target.tagName == 'INPUT' && !target.tagName == 'TEXTAREA') {
+				if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA') {
 					ev = document.createEvent('MouseEvents');
 					ev.initMouseEvent('click', true, true, e.view, 1,
 						point.screenX, point.screenY, point.clientX, point.clientY,
