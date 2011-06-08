@@ -1,7 +1,7 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll Lite based on iScroll v4.1
+ * iScroll Lite based on iScroll v4.1.1
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/
@@ -653,9 +653,9 @@ iScroll.prototype = {
 		this.enabled = false;
 
 		// If disabled after touchstart we make sure that there are no left over events
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+		this._unbind(MOVE_EV);
+		this._unbind(END_EV);
+		this._unbind(CANCEL_EV);
 	},
 	
 	enable: function () {
