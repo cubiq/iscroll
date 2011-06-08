@@ -1,7 +1,7 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll Lite based on iScroll v4.1
+ * iScroll Lite based on iScroll v4.1.1
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/

@@ -1,7 +1,7 @@
 /**
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll v4.1
+ * iScroll v4.1.1
  * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  * Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/
