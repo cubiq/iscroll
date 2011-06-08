@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>iScroll demo: Carousel</title>
 
-<script type="text/javascript" src="../../src/iscroll.js?v4"></script>
+<script type="text/javascript" src="../../src/iscroll.js"></script>
 
 <script type="text/javascript">
 var myScroll;
@@ -40,24 +40,6 @@ body {
 	font-family:helvetica;
 }
 
-#header {
-	width:100%;
-	height:45px;
-	line-height:45px;
-	background-image:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #fe96c9), color-stop(0.05, #d51875), color-stop(1, #7b0a2e));
-	padding:0;
-	color:#eee;
-	font-size:20px;
-	text-align:center;
-}
-
-#header a {
-	color:#f3f3f3;
-	text-decoration:none;
-	font-weight:bold;
-	text-shadow:0 -1px 0 rgba(0,0,0,0.5);
-}
-
 #wrapper {
 	width:300px;
 	height:160px;
@@ -69,6 +51,9 @@ body {
 
 	background:#aaa;
 	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px;
+	border-radius:10px;
 	background:#e3e3e3;
 }
 
@@ -92,6 +77,9 @@ body {
 
 #scroller li {
 	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-o-box-sizing:border-box;
+	box-sizing:border-box;
 	display:block; float:left;
 	width:300px; height:160px;
 	text-align:center;
@@ -133,6 +121,9 @@ body {
 	text-indent:-9999em;
 	width:8px; height:8px;
 	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	-o-border-radius:4px;
+	border-radius:4px;
 	background:#ddd;
 	overflow:hidden;
 	margin-right:4px;

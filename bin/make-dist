@@ -1,4 +1,4 @@
 #!/bin/sh
 
-java -jar /usr/local/bin/yuicompressor-2.4.2.jar -v --charset utf-8 ../src/iscroll.js -o ../dist/iscroll-min.js
-java -jar /usr/local/bin/yuicompressor-2.4.2.jar -v --charset utf-8 ../src/iscroll-lite.js -o ../dist/iscroll-lite-min.js
+java -jar /usr/local/bin/yuicompressor-2.4.6.jar -v --charset utf-8 ../src/iscroll.js -o ../dist/iscroll-min.js
+java -jar /usr/local/bin/yuicompressor-2.4.6.jar -v --charset utf-8 ../src/iscroll-lite.js -o ../dist/iscroll-lite-min.js
