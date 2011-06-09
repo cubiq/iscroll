@@ -747,14 +747,9 @@ iScroll.prototype = {
 			page = 0;
 
 		if (that.scale < that.options.zoomMin) that.scale = that.options.zoomMin;
-		that.wrapperW = that.wrapper.clientWidth;
-		that.wrapperH = that.wrapper.clientHeight;
-		
-		if (!that.wrapperW || !that.wrapperH) {
-			that.disable();
-			return;
-		}
-		
+		that.wrapperW = that.wrapper.clientWidth || 1;
+		that.wrapperH = that.wrapper.clientHeight || 1;
+
 		that.scrollerW = m.round(that.scroller.offsetWidth * that.scale);
 		that.scrollerH = m.round(that.scroller.offsetHeight * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
