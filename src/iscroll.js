@@ -1,17 +1,6 @@
-/**
- * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * iScroll v4.1.1
- * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- * Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/
- * Released under MIT license
- * http://cubiq.org/dropbox/mit-license.txt
- * 
- * Last updated: 2011.06.08
- * 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * 
+/*!
+ * iScroll v4.1.2 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * Released under MIT license, http://cubiq.org/license
  */
 
 (function(){
@@ -32,7 +21,15 @@ var m = Math,
 			|| window.mozRequestAnimationFrame
 			|| window.oRequestAnimationFrame
 			|| window.msRequestAnimationFrame
-			|| function(callback) { window.setTimeout(callback, 17); }
+			|| function(callback) { return setTimeout(callback, 17); }
+	})(),
+	cancelFrame = (function () {
+	    return window.cancelRequestAnimationFrame
+			|| window.webkitCancelRequestAnimationFrame
+			|| window.mozCancelRequestAnimationFrame
+			|| window.oCancelRequestAnimationFrame
+			|| window.msCancelRequestAnimationFrame
+			|| clearTimeout
 	})(),
 
 	// Events
@@ -132,6 +129,7 @@ iScroll.prototype = {
 	scale: 1,
 	currPageX: 0, currPageY: 0,
 	pagesX: [], pagesY: [],
+	aniTime: null,
 	
 	handleEvent: function (e) {
 		var that = this;
@@ -301,6 +299,7 @@ iScroll.prototype = {
 			}
 			
 			if (x != that.x || y != that.y) {
+				cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
 			}
@@ -524,10 +523,10 @@ iScroll.prototype = {
 
 		if (resetX == that.x && resetY == that.y) {
 			if (that.moved) {
-				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);		// Execute custom code on scroll end
 				that.moved = false;
+				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);		// Execute custom code on scroll end
 			}
-			
+
 			if (that.hScrollbar && that.options.hideScrollbar) {
 				if (vendor == 'webkit') that.hScrollbarWrapper.style[vendor + 'TransitionDelay'] = '300ms';
 				that.hScrollbarWrapper.style.opacity = '0';
@@ -595,7 +594,7 @@ iScroll.prototype = {
 		if (that.animating) return;
 		
 		if (!that.steps.length) {
-			that._resetPos(200);
+			that._resetPos(400);
 			return;
 		}
 		
@@ -623,7 +622,7 @@ iScroll.prototype = {
 			newX = (step.x - startX) * easeOut + startX;
 			newY = (step.y - startY) * easeOut + startY;
 			that._pos(newX, newY);
-			if (that.animating) nextFrame(animate);
+			if (that.animating) that.aniTime = nextFrame(animate);
 		})();
 	},
 
@@ -818,7 +817,9 @@ iScroll.prototype = {
 		var that = this,
 			step = x,
 			i, l;
-		
+
+		that.stop();
+
 		if (!step.length) step = [{ x: x, y: y, time: time, relative: relative }];
 		
 		for (i=0, l=step.length; i<l; i++) {
@@ -840,7 +841,7 @@ iScroll.prototype = {
 
 		pos.left = pos.left > 0 ? 0 : pos.left < that.maxScrollX ? that.maxScrollX : pos.left;
 		pos.top = pos.top > 0 ? 0 : pos.top < that.maxScrollY ? that.maxScrollY : pos.top;
-		time = time === undefined ? m.max(m.abs(pos.x)*2, m.abs(pos.y)*2) : time;
+		time = time === undefined ? m.max(m.abs(pos.left)*2, m.abs(pos.top)*2) : time;
 
 		that.scrollTo(pos.left, pos.top, time);
 	},
@@ -870,6 +871,8 @@ iScroll.prototype = {
 	},
 
 	disable: function () {
+		this.stop();
+		this._resetPos(0);
 		this.enabled = false;
 
 		// If disabled after touchstart we make sure that there are no left over events
@@ -883,10 +886,10 @@ iScroll.prototype = {
 	},
 	
 	stop: function () {
+		cancelFrame(this.aniTime);
 		this.steps = [];
 		this.moved = false;
 		this.animating = false;
-		this._resetPos(200);
 	},
 	
 	zoom: function (x, y, scale, time) {
