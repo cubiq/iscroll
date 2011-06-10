@@ -15,6 +15,8 @@ var m = Math,
 	hasTransform = vendor + 'Transform' in document.documentElement.style,
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
+	isPlaybook = (/playbook/gi).test(navigator.appVersion),
+	hasTransitionEnd = (isIDevice || isPlaybook) && 'onwebkittransitionend' in window,
 	nextFrame = (function() {
 	    return window.requestAnimationFrame
 			|| window.webkitRequestAnimationFrame
@@ -63,6 +65,7 @@ var m = Math,
 			momentum: true,
 			lockDirection: true,
 			useTransform: true,
+			useTransition: false,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -102,22 +105,27 @@ var m = Math,
 		that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
 		that.options.zoom = that.options.useTransform && that.options.zoom;
-
+		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+		
 		// Set some default styles
 		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
+		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
 		else that.scroller.style.cssText += ';top:0;left:0';
-				
+
+		if (that.options.useTransition) that.options.fixedScrollbar = true;
+
 		that.refresh();
 
 		that._bind(RESIZE_EV, window);
-		if (!hasTouch) that._bind('mouseout', that.wrapper);
 		that._bind(START_EV);
-		that._bind(WHEEL_EV);
-//		document.onmousewheel = that._wheel;
+		if (!hasTouch) {
+			that._bind('mouseout', that.wrapper);
+			that._bind(WHEEL_EV);
+		}
 	};
 
 // Prototype
@@ -141,6 +149,7 @@ iScroll.prototype = {
 			case RESIZE_EV: that._resize(); break;
 			case WHEEL_EV: that._wheel(e); break;
 			case 'mouseout': that._mouseout(e); break;
+			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 		}
 	},
 	
@@ -178,6 +187,7 @@ iScroll.prototype = {
 				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);-' + vendor + '-background-clip:padding-box;-' + vendor + '-box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';-' + vendor + '-border-radius:3px;border-radius:3px';
 			}
 			bar.style.cssText += ';pointer-events:none;-' + vendor + '-transition-property:-' + vendor + '-transform;-' + vendor + '-transition-timing-function:cubic-bezier(0.33,0.66,0.66,1);-' + vendor + '-transition-duration:0;-' + vendor + '-transform:' + trnOpen + '0,0' + trnClose;
+			if (that.options.useTransition) bar.style.cssText += ';-' + vendor + '-transition-timing-function:cubic-bezier(0.33,0.66,0.66,1)';
 
 			that[dir + 'ScrollbarWrapper'].appendChild(bar);
 			that[dir + 'ScrollbarIndicator'] = bar;
@@ -267,6 +277,8 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
+		if (that.options.useTransition) that._transitionTime(0);
+
 		that.moved = false;
 		that.animating = false;
 		that.zoomed = false;
@@ -299,7 +311,8 @@ iScroll.prototype = {
 			}
 			
 			if (x != that.x || y != that.y) {
-				cancelFrame(that.aniTime);
+				if (that.options.useTransition) that._unbind('webkitTransitionEnd');
+				else cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
 			}
@@ -579,6 +592,16 @@ iScroll.prototype = {
 		this._end(e);
 	},
 
+	_transitionEnd: function (e) {
+		var that = this;
+
+		if (e.target != that.scroller) return;
+
+		that._unbind('webkitTransitionEnd');
+		
+		that._startAni();
+	},
+
 
 	/**
 	 *
@@ -604,6 +627,14 @@ iScroll.prototype = {
 
 		that.animating = true;
 		that.moved = true;
+		
+		if (that.options.useTransition) {
+			that._transitionTime(step.time);
+			that._pos(step.x, step.y);
+			that.animating = false;
+			if (step.time) that._bind('webkitTransitionEnd');
+			return;
+		}
 
 		(function animate () {
 			var now = (new Date).getTime(),
@@ -624,6 +655,16 @@ iScroll.prototype = {
 			that._pos(newX, newY);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		})();
+	},
+
+	_transitionTime: function (time) {
+		var that = this;
+
+		time += 'ms';
+		that.scroller.style[vendor + 'TransitionDuration'] = time;
+
+		if (that.hScrollbar) that.hScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
+		if (that.vScrollbar) that.vScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
@@ -734,8 +775,13 @@ iScroll.prototype = {
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
-		that._unbind('mouseout', that.wrapper);
-		that._unbind(WHEEL_EV);
+		
+		if (that.options.hasTouch) {
+			that._unbind('mouseout', that.wrapper);
+			that._unbind(WHEEL_EV);
+		}
+		
+		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
 		
 		if (that.options.onDestroy) that.options.onDestroy.call(that);
 	},
@@ -881,7 +927,8 @@ iScroll.prototype = {
 	},
 	
 	stop: function () {
-		cancelFrame(this.aniTime);
+		if (this.options.useTransition) this._unbind('webkitTransitionEnd');
+		else cancelFrame(this.aniTime);
 		this.steps = [];
 		this.moved = false;
 		this.animating = false;
