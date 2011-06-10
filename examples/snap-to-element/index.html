@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>iScroll demo: Carousel</title>
+<title>iScroll demo: Snap to element</title>
 
-<script type="text/javascript" src="../../src/iscroll.js?v4"></script>
+<script type="text/javascript" src="../../src/iscroll.js"></script>
 
 <script type="text/javascript">
 var myScroll;
@@ -45,6 +45,8 @@ body {
 	height:45px;
 	line-height:45px;
 	background-image:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #fe96c9), color-stop(0.05, #d51875), color-stop(1, #7b0a2e));
+	background-image:-moz-linear-gradient(top, #fe96c9, #d51875 5%, #7b0a2e);
+	background-image:-o-linear-gradient(top, #fe96c9, #d51875 5%, #7b0a2e);
 	padding:0;
 	color:#eee;
 	font-size:20px;
@@ -99,7 +101,7 @@ body {
 <div id="wrapper">
 	<div id="scroller">
 		<ul id="thelist">
-			<li><b>cell</b></li> <li><b>cell</b></li> <li>cell</li> <li>cell</li> <li>cell</li>
+			<li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li>
 			<li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li>
 			<li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li>
 			<li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li> <li>cell</li>

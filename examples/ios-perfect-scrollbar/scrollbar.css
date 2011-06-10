@@ -45,6 +45,13 @@
 
 	/* The following is probably what you want to customize */
 	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-o-box-sizing:border-box;
+	box-sizing:border-box;
+	
 	border-width:3px;
 	-webkit-border-image:url(scrollbar.png) 6 6 6 6;
+	-moz-border-image:url(scrollbar.png) 6 6 6 6;
+	-o-border-image:url(scrollbar.png) 6 6 6 6;
+	border-image:url(scrollbar.png) 6 6 6 6;
 }
