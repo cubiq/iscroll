@@ -80,6 +80,7 @@ var m = Math,
 			zoomMin: 1,
 			zoomMax: 4,
 			doubleTapZoom: 2,
+                        bumpStart: false,  // Experimental
 
 			// Snap
 			snap: false,
@@ -126,6 +127,9 @@ var m = Math,
 			that._bind('mouseout', that.wrapper);
 			that._bind(WHEEL_EV);
 		}
+                if (that.options.bumpStart) {
+                  that.bumpTimer = setInterval(function () { that._bumpStart(); }, 500);
+                }
 	};
 
 // Prototype
@@ -214,6 +218,11 @@ iScroll.prototype = {
 	_resize: function () {
 		this.refresh();
 	},
+
+        _bumpStart: function () {
+          if (this.moved || this.zoomed) {return;}
+          this.refresh();
+        },
 	
 	_pos: function (x, y) {
 		x = this.hScroll ? x : 0;
@@ -780,6 +789,8 @@ iScroll.prototype = {
 			that._unbind('mouseout', that.wrapper);
 			that._unbind(WHEEL_EV);
 		}
+
+                if (that.options.bumpStart) {clearTimeout(that.bumpTimer);}
 		
 		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
 		
