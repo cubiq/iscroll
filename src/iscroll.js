@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.2 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.4 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -271,7 +271,7 @@ iScroll.prototype = {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
 			matrix, x, y,
-			c1, c2;
+			c1, c2, target;
 
 		if (!that.enabled) return;
 
@@ -431,7 +431,7 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 
-		if (that.options.onBeforeTouchEnd) that.options.onBeforeTouchEnd.call(that, e);
+		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
 		if (that.zoomed) {
 			that.scale = that.scale * that.lastScale;
@@ -658,13 +658,10 @@ iScroll.prototype = {
 	},
 
 	_transitionTime: function (time) {
-		var that = this;
-
 		time += 'ms';
-		that.scroller.style[vendor + 'TransitionDuration'] = time;
-
-		if (that.hScrollbar) that.hScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
-		if (that.vScrollbar) that.vScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
+		this.scroller.style[vendor + 'TransitionDuration'] = time;
+		if (this.hScrollbar) this.hScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
+		if (this.vScrollbar) this.vScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
@@ -699,7 +696,12 @@ iScroll.prototype = {
 		while (el = el.offsetParent) {
 			left -= el.offsetLeft;
 			top -= el.offsetTop;
-		} 
+		}
+		
+		if (el != this.wrapper) {
+			left *= this.scale;
+			top *= this.scale;
+		}
 
 		return { left: left, top: top };
 	},

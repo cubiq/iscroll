@@ -5,15 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>iScroll demo: simple</title>
+<title>iScroll demo: Hover Example</title>
 
-<script type="text/javascript" src="../../src/iscroll"></script>
+<script type="text/javascript" src="../../src/iscroll.js"></script>
 
 <script type="text/javascript">
 
-var myScroll;
+var myScroll,
+	hoverClassRegEx = new RegExp('(^|\\s)iScrollHover(\\s|$)'),
+	removeClass = function () {
+		if (this.hoverTarget) {
+			clearTimeout(this.hoverTimeout);
+			this.hoverTarget.className = this.hoverTarget.className.replace(hoverClassRegEx, '');
+			this.target = null;
+		}
+	};
+
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', {
+		onBeforeScrollStart: function (e) {
+			var target = e.target;
+
+			clearTimeout(this.hoverTimeout);
+
+			while (target.nodeType != 1) target = target.parentNode;
+
+			this.hoverTimeout = setTimeout(function () {
+				if (!hoverClassRegEx.test(target.className)) target.className = target.className ? target.className + ' iScrollHover' : 'iScrollHover';
+			}, 80);
+
+			this.hoverTarget = target;
+		},
+		onScrollMove: removeClass,
+		onBeforeScrollEnd: removeClass
+	});
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
@@ -22,6 +47,11 @@ document.addEventListener('DOMContentLoaded', loaded, false);
 </script>
 
 <style type="text/css" media="all">
+.iScrollHover {
+	background:#444 !important;
+	color:#eee !important;
+}
+
 body,ul,li {
 	padding:0;
 	margin:0;
