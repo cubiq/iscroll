@@ -1,5 +1,5 @@
 /*!
- * iScroll Lite base on iScroll v4.1.4 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll Lite base on iScroll v4.1.5 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -15,7 +15,7 @@ var m = Math,
 	hasTransform = vendor + 'Transform' in document.documentElement.style,
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isPlaybook = (/playbook/gi).test(navigator.appVersion),
-	hasTransitionEnd = (isIDevice || isPlaybook) && 'onwebkittransitionend' in window,
+	hasTransitionEnd = isIDevice || isPlaybook,
 	nextFrame = (function() {
 	    return window.requestAnimationFrame
 			|| window.webkitRequestAnimationFrame
@@ -478,7 +478,7 @@ iScroll.prototype = {
 		that.scroller.style[vendor + 'Transform'] = '';
 
 		// Remove the event listeners
-		that._unbind(RESIZE_EV);
+		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
@@ -558,7 +558,6 @@ iScroll.prototype = {
 		this._unbind(MOVE_EV);
 		this._unbind(END_EV);
 		this._unbind(CANCEL_EV);
-		this._unbind('webkitTransitionEnd');
 	},
 	
 	enable: function () {

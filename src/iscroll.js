@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.4 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.5 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -16,7 +16,7 @@ var m = Math,
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isPlaybook = (/playbook/gi).test(navigator.appVersion),
-	hasTransitionEnd = (isIDevice || isPlaybook) && 'onwebkittransitionend' in window,
+	hasTransitionEnd = isIDevice || isPlaybook,
 	nextFrame = (function() {
 	    return window.requestAnimationFrame
 			|| window.webkitRequestAnimationFrame
@@ -66,6 +66,7 @@ var m = Math,
 			lockDirection: true,
 			useTransform: true,
 			useTransition: false,
+			checkDOMChanges: false,		// Experimental
 
 			// Scrollbar
 			hScrollbar: true,
@@ -126,6 +127,10 @@ var m = Math,
 			that._bind('mouseout', that.wrapper);
 			that._bind(WHEEL_EV);
 		}
+		
+		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
+			that._checkDOMChanges()
+		}, 500);
 	};
 
 // Prototype
@@ -151,6 +156,13 @@ iScroll.prototype = {
 			case 'mouseout': that._mouseout(e); break;
 			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 		}
+	},
+	
+	_checkDOMChanges: function () {
+		if (this.moved || this.zoomed || this.animating ||
+			(this.scrollerW == this.scroller.offsetWidth * this.scale && this.scrollerH == this.scroller.offsetHeight * this.scale)) return;
+
+		this.refresh();
 	},
 	
 	_scrollbar: function (dir) {
@@ -772,7 +784,7 @@ iScroll.prototype = {
 		that._scrollbar('v');
 
 		// Remove the event listeners
-		that._unbind(RESIZE_EV);
+		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
@@ -784,6 +796,8 @@ iScroll.prototype = {
 		}
 		
 		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
+		
+		if (that.options.checkDOMChanges) clearInterval(that.checkDOMTime);
 		
 		if (that.options.onDestroy) that.options.onDestroy.call(that);
 	},
@@ -954,6 +968,10 @@ iScroll.prototype = {
 		that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
 
 		that.refresh();
+	},
+	
+	isReady: function () {
+		return !this.moved && !this.zoomed && !this.animating;
 	}
 };
 
