@@ -95,7 +95,9 @@ var m = Math,
 			onBeforeScrollEnd: null,
 			onScrollEnd: null,
 			onTouchEnd: null,
-			onDestroy: null
+			onDestroy: null,
+			onZoom: null,
+			onZoomEnd: null
 		};
 
 		// User defined options
@@ -377,6 +379,7 @@ iScroll.prototype = {
 
 			this.scroller.style[vendor + 'Transform'] = trnOpen + newX + 'px,' + newY + 'px' + trnClose + ' scale(' + scale + ')';
 
+			if (that.options.onZoom) that.options.onZoom.call(that, e);
 			return;
 		}
 
@@ -453,6 +456,8 @@ iScroll.prototype = {
 			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
 
 			that.refresh();
+
+			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that, e);
 			return;
 		}
 
