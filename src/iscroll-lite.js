@@ -393,6 +393,7 @@ iScroll.prototype = {
 			that._pos(step.x, step.y);
 			that.animating = false;
 			if (step.time) that._bind('webkitTransitionEnd');
+			else that._resetPos(0);
 			return;
 		}
 
