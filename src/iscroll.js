@@ -96,6 +96,7 @@ var m = Math,
 			onScrollEnd: null,
 			onTouchEnd: null,
 			onDestroy: null,
+			onZoomStart: null,
 			onZoom: null,
 			onZoomEnd: null
 		};
@@ -311,6 +312,8 @@ iScroll.prototype = {
 
 			that.originX = m.abs(e.touches[0].pageX + e.touches[1].pageX - that.wrapperOffsetLeft * 2) / 2 - that.x;
 			that.originY = m.abs(e.touches[0].pageY + e.touches[1].pageY - that.wrapperOffsetTop * 2) / 2 - that.y;
+
+			if (that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 		}
 
 		if (that.options.momentum) {
