@@ -68,6 +68,10 @@ var m = Math,
 			useTransition: false,
 			checkDOMChanges: false,		// Experimental
 
+			// Delta threshold to constrain the gesture needed to trigger scroll
+			deltaThresholdX: false,
+			deltaThresholdY: false,
+
 			// Scrollbar
 			hScrollbar: true,
 			vScrollbar: true,
@@ -363,6 +367,10 @@ iScroll.prototype = {
 			timestamp = e.timeStamp || (new Date()).getTime();
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
+		
+		if (!that._exceedsDeltaThreshold(deltaX, deltaY)) {
+			return;
+		}
 
 		// Zoom
 		if (that.options.zoom && hasTouch && e.touches.length > 1) {
@@ -775,7 +783,19 @@ iScroll.prototype = {
 		(el || this.scroller).removeEventListener(type, this, !!bubble);
 	},
 
+	_exceedsDeltaThreshold: function (deltaX, deltaY) {
+		if (this.moved) {
+			return true;
+		}
 
+		if ((this.options.deltaThresholdX !== false && m.abs(deltaX) > this.options.deltaThresholdX) ||
+			(this.options.deltaThresholdY !== false && m.abs(deltaY) > this.options.deltaThresholdY)) {
+			return false;
+		}
+
+		return true;
+	},
+	
 	/**
 	 *
 	 * Public methods
