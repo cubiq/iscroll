@@ -1,5 +1,5 @@
 /*!
- * iScroll Lite base on iScroll v4.1.5 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll Lite base on iScroll v4.1.6 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -93,7 +93,7 @@ var m = Math,
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
-		else that.scroller.style.cssText += ';top:0;left:0';
+		else that.scroller.style.cssText += ';position:absolute;top:0;left:0';
 				
 		that.refresh();
 
@@ -113,7 +113,10 @@ iScroll.prototype = {
 	handleEvent: function (e) {
 		var that = this;
 		switch(e.type) {
-			case START_EV: that._start(e); break;
+			case START_EV:
+				if (!hasTouch && e.button !== 0) return;
+				that._start(e);
+				break;
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;

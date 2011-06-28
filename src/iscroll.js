@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.5 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.6 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -81,6 +81,7 @@ var m = Math,
 			zoomMin: 1,
 			zoomMax: 4,
 			doubleTapZoom: 2,
+			wheelAction: 'scroll',
 
 			// Snap
 			snap: false,
@@ -118,7 +119,7 @@ var m = Math,
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
-		else that.scroller.style.cssText += ';top:0;left:0';
+		else that.scroller.style.cssText += ';position:absolute;top:0;left:0';
 
 		if (that.options.useTransition) that.options.fixedScrollbar = true;
 
@@ -130,9 +131,9 @@ var m = Math,
 			that._bind('mouseout', that.wrapper);
 			that._bind(WHEEL_EV);
 		}
-		
+
 		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
-			that._checkDOMChanges()
+			that._checkDOMChanges();
 		}, 500);
 	};
 
@@ -150,7 +151,10 @@ iScroll.prototype = {
 	handleEvent: function (e) {
 		var that = this;
 		switch(e.type) {
-			case START_EV: that._start(e); break;
+			case START_EV:
+				if (!hasTouch && e.button !== 0) return;
+				that._start(e);
+				break;
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
@@ -227,7 +231,8 @@ iScroll.prototype = {
 	},
 	
 	_resize: function () {
-		this.refresh();
+		var that = this;
+		setTimeout(function () { that.refresh(); }, isAndroid ? 200 : 0);
 	},
 	
 	_pos: function (x, y) {
@@ -286,7 +291,7 @@ iScroll.prototype = {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
 			matrix, x, y,
-			c1, c2, target;
+			c1, c2;
 
 		if (!that.enabled) return;
 
@@ -375,6 +380,10 @@ iScroll.prototype = {
 			scale = 1 / that.touchesDistStart * that.touchesDist * this.scale;
 			if (scale < 0.5) scale = 0.5;
 			else if (scale > that.options.zoomMax) scale = that.options.zoomMax;
+
+//			if (scale < that.options.scaleMin) scale = 0.5 * that.options.scaleMin * Math.pow(2.0, scale / that.options.scaleMin);
+//			else if (scale > that.options.scaleMax) scale = 2.0 * that.options.scaleMax * Math.pow(0.5, that.options.scaleMax / scale);
+
 			that.lastScale = scale / this.scale;
 
 			newX = this.originX - this.originX * that.lastScale + this.x,
@@ -577,7 +586,18 @@ iScroll.prototype = {
 
 	_wheel: function (e) {
 		var that = this,
-			deltaX, deltaY;
+			deltaX, deltaY,
+			deltaScale;
+
+		if (that.options.wheelAction == 'zoom') {
+			deltaY = 'wheelDelta' in e ? e.wheelDelta : 'detail' in e ? e.detail : 0;
+			deltaScale = that.scale * Math.pow(2, 1/3 * (deltaY ? deltaY / Math.abs(deltaY) : 0));
+			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
+			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
+			that.zoom(e.pageX, e.pageY, deltaScale, 400);
+
+			return;
+		}
 
 		if ('wheelDeltaX' in e) {
 			deltaX = that.x + e.wheelDeltaX / 12,
