@@ -19,5 +19,6 @@ In completely random order:
 - [David Haslem](https://github.com/therabidbanana) for suggestions and bug reports
 - [gingertom](https://github.com/gingertom) for suggestions and bug reports
 - [David Alan Hjelle](https://github.com/dahjelle) for bug squashing
+- [iangilman](https://github.com/iangilman) for help with the zoom functionality
 - All those who supported, linked, loved the iScroll
 - I'm sure I'm missing someone, sorry about that. If you helped in the script development and you don't see your name here, please drop me a line
