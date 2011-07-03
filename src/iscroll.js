@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.6 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.7 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -23,7 +23,7 @@ var m = Math,
 			|| window.mozRequestAnimationFrame
 			|| window.oRequestAnimationFrame
 			|| window.msRequestAnimationFrame
-			|| function(callback) { return setTimeout(callback, 17); }
+			|| function(callback) { return setTimeout(callback, 1); }
 	})(),
 	cancelFrame = (function () {
 	    return window.cancelRequestAnimationFrame
@@ -147,6 +147,7 @@ iScroll.prototype = {
 	currPageX: 0, currPageY: 0,
 	pagesX: [], pagesY: [],
 	aniTime: null,
+	wheelZoomCount: 0,
 	
 	handleEvent: function (e) {
 		var that = this;
@@ -297,7 +298,7 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
-		if (that.options.useTransition) that._transitionTime(0);
+		if (that.options.useTransition || that.options.zoom) that._transitionTime(0);
 
 		that.moved = false;
 		that.animating = false;
@@ -378,11 +379,9 @@ iScroll.prototype = {
 			that.zoomed = true;
 
 			scale = 1 / that.touchesDistStart * that.touchesDist * this.scale;
-			if (scale < 0.5) scale = 0.5;
-			else if (scale > that.options.zoomMax) scale = that.options.zoomMax;
 
-//			if (scale < that.options.scaleMin) scale = 0.5 * that.options.scaleMin * Math.pow(2.0, scale / that.options.scaleMin);
-//			else if (scale > that.options.scaleMax) scale = 2.0 * that.options.scaleMax * Math.pow(0.5, that.options.scaleMax / scale);
+			if (scale < that.options.scaleMin) scale = 0.5 * that.options.scaleMin * Math.pow(2.0, scale / that.options.scaleMin);
+			else if (scale > that.options.scaleMax) scale = 2.0 * that.options.scaleMax * Math.pow(0.5, that.options.scaleMax / scale);
 
 			that.lastScale = scale / this.scale;
 
@@ -452,7 +451,8 @@ iScroll.prototype = {
 			newPosX = that.x,
 			newPosY = that.y,
 			distX, distY,
-			newDuration;
+			newDuration,
+			scale;
 
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
@@ -461,12 +461,19 @@ iScroll.prototype = {
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
 		if (that.zoomed) {
-			that.scale = that.scale * that.lastScale;
+			scale = that.scale * that.lastScale;
+			scale = Math.max(that.options.zoomMin, scale);
+			scale = Math.min(that.options.zoomMax, scale);
+			that.lastScale = scale / that.scale;
+			that.scale = scale;
+
 			that.x = that.originX - that.originX * that.lastScale + that.x;
 			that.y = that.originY - that.originY * that.lastScale + that.y;
-
-			that.scroller.style.webkitTransform = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
-
+			
+			that.scroller.style[vendor + 'TransitionDuration'] = '200ms';
+			that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + that.scale + ')';
+			
+			that.zoomed = false;
 			that.refresh();
 
 			if (that.options.onZoomEnd) that.options.onZoomEnd.call(that, e);
@@ -479,6 +486,7 @@ iScroll.prototype = {
 					// Double tapped
 					clearTimeout(that.doubleTapTimer);
 					that.doubleTapTimer = null;
+					if (that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 					that.zoom(that.pointX, that.pointY, that.scale == 1 ? that.options.doubleTapZoom : 1);
 				} else {
 					that.doubleTapTimer = setTimeout(function () {
@@ -586,29 +594,42 @@ iScroll.prototype = {
 
 	_wheel: function (e) {
 		var that = this,
+			duration,
+			wheelDeltaX, wheelDeltaY,
 			deltaX, deltaY,
 			deltaScale;
 
+		if ('wheelDeltaX' in e) {
+			wheelDeltaX = e.wheelDeltaX / 12;
+			wheelDeltaY = e.wheelDeltaY / 12;
+		} else if ('detail' in e) {
+			wheelDeltaX = wheelDeltaY = -e.detail * 3;
+		} else {
+			wheelDeltaX = wheelDeltaY = -e.wheelDelta;
+		}
+		
 		if (that.options.wheelAction == 'zoom') {
-			deltaY = 'wheelDelta' in e ? e.wheelDelta : 'detail' in e ? e.detail : 0;
-			deltaScale = that.scale * Math.pow(2, 1/3 * (deltaY ? deltaY / Math.abs(deltaY) : 0));
-			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
-			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
-			that.zoom(e.pageX, e.pageY, deltaScale, 400);
-
+			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
+			if (wheelDeltaY < that.options.zoomMin) wheelDeltaY = that.options.zoomMin;
+			if (wheelDeltaY > that.options.zoomMax) wheelDeltaY = that.options.zoomMax;
+			
+			if (wheelDeltaY != that.scale) {
+				if (!that.wheelZoomCount && that.options.onZoomStart) that.options.onZoomStart.call(that, e);
+				that.wheelZoomCount++;
+				
+				that.zoom(e.pageX, e.pageY, wheelDeltaY, 400);
+				
+				setTimeout(function() {
+					that.wheelZoomCount--;
+					if (!that.wheelZoomCount && that.options.onZoomEnd) that.options.onZoomEnd.call(that, e);
+				}, 400);
+			}
+			
 			return;
 		}
-
-		if ('wheelDeltaX' in e) {
-			deltaX = that.x + e.wheelDeltaX / 12,
-			deltaY = that.y + e.wheelDeltaY / 12;
-		} else if ('detail' in e) {
-			deltaX = that.x - e.detail * 3,
-			deltaY = that.y - e.detail * 3;
-		} else {
-			deltaX = that.x - e.wheelDelta,
-			deltaY = that.y - e.wheelDelta;
-		}
+		
+		deltaX = that.x + wheelDeltaX;
+		deltaY = that.y + wheelDeltaY;
 
 		if (deltaX > 0) deltaX = 0;
 		else if (deltaX < that.maxScrollX) deltaX = that.maxScrollX;
@@ -894,9 +915,10 @@ iScroll.prototype = {
 		that._scrollbar('h');
 		that._scrollbar('v');
 
-		that.scroller.style[vendor + 'TransitionDuration'] = '0';
-
-		that._resetPos(200);
+		if (!that.zoomed) {
+			that.scroller.style[vendor + 'TransitionDuration'] = '0';
+			that._resetPos(200);
+		}
 	},
 
 	scrollTo: function (x, y, time, relative) {
@@ -985,18 +1007,22 @@ iScroll.prototype = {
 
 		if (!that.options.useTransform) return;
 
-		time = (time || 200) + 'ms'
+		that.zoomed = true;
+		time = time === undefined ? 200 : time;
 		x = x - that.wrapperOffsetLeft - that.x;
 		y = y - that.wrapperOffsetTop - that.y;
 		that.x = x - x * relScale + that.x;
 		that.y = y - y * relScale + that.y;
 
 		that.scale = scale;
-
-		that.scroller.style[vendor + 'TransitionDuration'] = time;
-		that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
-
 		that.refresh();
+
+		that.x = that.x > 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x;
+		that.y = that.y > 0 ? 0 : that.y < that.maxScrollY ? that.maxScrollY : that.y;
+
+		that.scroller.style[vendor + 'TransitionDuration'] = time + 'ms';
+		that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose + ' scale(' + scale + ')';
+		that.zoomed = false;
 	},
 	
 	isReady: function () {
