@@ -380,8 +380,8 @@ iScroll.prototype = {
 
 			scale = 1 / that.touchesDistStart * that.touchesDist * this.scale;
 
-			if (scale < that.options.scaleMin) scale = 0.5 * that.options.scaleMin * Math.pow(2.0, scale / that.options.scaleMin);
-			else if (scale > that.options.scaleMax) scale = 2.0 * that.options.scaleMax * Math.pow(0.5, that.options.scaleMax / scale);
+			if (scale < that.options.zoomMin) scale = 0.5 * that.options.zoomMin * Math.pow(2.0, scale / that.options.zoomMin);
+			else if (scale > that.options.zoomMax) scale = 2.0 * that.options.zoomMax * Math.pow(0.5, that.options.zoomMax / scale);
 
 			that.lastScale = scale / this.scale;
 
