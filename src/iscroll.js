@@ -67,6 +67,7 @@ var m = Math,
 			useTransform: true,
 			useTransition: false,
 			checkDOMChanges: false,		// Experimental
+			emulateClick: true,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -488,7 +489,7 @@ iScroll.prototype = {
 					that.doubleTapTimer = null;
 					if (that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 					that.zoom(that.pointX, that.pointY, that.scale == 1 ? that.options.doubleTapZoom : 1);
-				} else {
+				} else if(that.options.emulateClick) {
 					that.doubleTapTimer = setTimeout(function () {
 						that.doubleTapTimer = null;
 
