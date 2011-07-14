@@ -64,6 +64,7 @@ var m = Math,
 			lockDirection: true,
 			useTransform: true,
 			useTransition: false,
+			emulateClick: true,
 
 			// Events
 			onRefresh: null,
@@ -280,7 +281,7 @@ iScroll.prototype = {
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
 		if (!that.moved) {
-			if (hasTouch) {
+			if (hasTouch && that.options.emulateClick) {
 				// Find the last touched element
 				target = point.target;
 				while (target.nodeType != 1) target = target.parentNode;
