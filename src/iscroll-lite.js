@@ -1,5 +1,5 @@
 /*!
- * iScroll Lite v4.1.2 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll Lite base on iScroll v4.1.6 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -13,6 +13,9 @@ var m = Math,
 	has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
 	hasTouch = 'ontouchstart' in window,
 	hasTransform = vendor + 'Transform' in document.documentElement.style,
+	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
+	isPlaybook = (/playbook/gi).test(navigator.appVersion),
+	hasTransitionEnd = isIDevice || isPlaybook,
 	nextFrame = (function() {
 	    return window.requestAnimationFrame
 			|| window.webkitRequestAnimationFrame
@@ -60,6 +63,7 @@ var m = Math,
 			momentum: true,
 			lockDirection: true,
 			useTransform: true,
+			useTransition: false,
 
 			// Events
 			onRefresh: null,
@@ -80,21 +84,22 @@ var m = Math,
 		that.options.useTransform = hasTransform ? that.options.useTransform : false;
 		that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
-		that.options.zoom = that.options.useTransform && that.options.zoom;
+		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
 
 		// Set some default styles
 		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
+		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
-		else that.scroller.style.cssText += ';top:0;left:0';
+		else that.scroller.style.cssText += ';position:absolute;top:0;left:0';
 				
 		that.refresh();
 
 		that._bind(RESIZE_EV, window);
-		if (!hasTouch) that._bind('mouseout', that.wrapper);
 		that._bind(START_EV);
+		if (!hasTouch) that._bind('mouseout', that.wrapper);
 	};
 
 // Prototype
@@ -108,12 +113,16 @@ iScroll.prototype = {
 	handleEvent: function (e) {
 		var that = this;
 		switch(e.type) {
-			case START_EV: that._start(e); break;
+			case START_EV:
+				if (!hasTouch && e.button !== 0) return;
+				that._start(e);
+				break;
 			case MOVE_EV: that._move(e); break;
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
 			case RESIZE_EV: that._resize(); break;
 			case 'mouseout': that._mouseout(e); break;
+			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 		}
 	},
 
@@ -146,6 +155,8 @@ iScroll.prototype = {
 		if (!that.enabled) return;
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
+		
+		if (that.options.useTransition) that._transitionTime(0);
 
 		that.moved = false;
 		that.animating = false;
@@ -169,7 +180,8 @@ iScroll.prototype = {
 			}
 			
 			if (x != that.x || y != that.y) {
-				cancelFrame(that.aniTime);
+				if (that.options.useTransition) that._unbind('webkitTransitionEnd');
+				else cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
 			}
@@ -265,12 +277,10 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 
-		if (that.options.onBeforeTouchEnd) that.options.onBeforeTouchEnd.call(that, e);
+		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
 		if (!that.moved) {
 			if (hasTouch) {
-				that.doubleTapTimer = null;
-
 				// Find the last touched element
 				target = point.target;
 				while (target.nodeType != 1) target = target.parentNode;
@@ -346,6 +356,15 @@ iScroll.prototype = {
 		this._end(e);
 	},
 
+	_transitionEnd: function (e) {
+		var that = this;
+
+		if (e.target != that.scroller) return;
+
+		that._unbind('webkitTransitionEnd');
+		
+		that._startAni();
+	},
 
 	/**
 	 *
@@ -372,6 +391,15 @@ iScroll.prototype = {
 		that.animating = true;
 		that.moved = true;
 
+		if (that.options.useTransition) {
+			that._transitionTime(step.time);
+			that._pos(step.x, step.y);
+			that.animating = false;
+			if (step.time) that._bind('webkitTransitionEnd');
+			else that._resetPos(0);
+			return;
+		}
+
 		(function animate () {
 			var now = (new Date).getTime(),
 				newX, newY;
@@ -393,6 +421,10 @@ iScroll.prototype = {
 		})();
 	},
 
+	_transitionTime: function (time) {
+		this.scroller.style[vendor + 'TransitionDuration'] = time + 'ms';
+	},
+	
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
 		var deceleration = 0.0006,
 			speed = m.abs(dist) / time,
@@ -450,12 +482,13 @@ iScroll.prototype = {
 		that.scroller.style[vendor + 'Transform'] = '';
 
 		// Remove the event listeners
-		that._unbind(RESIZE_EV);
+		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 		that._unbind('mouseout', that.wrapper);
+		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
 		
 		if (that.options.onDestroy) that.options.onDestroy.call(that);
 	},

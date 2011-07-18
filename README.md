@@ -1,4 +1,4 @@
-iScroll v4.1.3 - 2011-06-10
+iScroll v4.1.7 - 2011-07-03
 ===========================
 
 The overflow:scroll for mobile webkit. Project started because webkit for iPhone does not provide a native way to scroll content inside a fixed size (width/height) div. So basically it was impossible to have a fixed header/footer and a scrolling central area. Until now. Read more at [cubiq.org](http://cubiq.org).
@@ -19,5 +19,6 @@ In completely random order:
 - [David Haslem](https://github.com/therabidbanana) for suggestions and bug reports
 - [gingertom](https://github.com/gingertom) for suggestions and bug reports
 - [David Alan Hjelle](https://github.com/dahjelle) for bug squashing
+- [iangilman](https://github.com/iangilman) for help with the zoom functionality
 - All those who supported, linked, loved the iScroll
 - I'm sure I'm missing someone, sorry about that. If you helped in the script development and you don't see your name here, please drop me a line

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>iScroll demo: simple</title>
+<title>iScroll demo: Check DOM Changes</title>
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
@@ -13,39 +13,16 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', { checkDOMChanges: true });
+	
+	setInterval(function () {
+		if (myScroll.isReady())
+			document.getElementById('thelist').innerHTML += '<li>new row</li>';
+	}, 2000);
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-
-/* * * * * * * *
- *
- * Use this for high compatibility (iDevice + Android)
- *
- */
-window.addEventListener('DOMContentLoaded', setTimeout(function () { loaded(); }, 200), false);
-/*
- * * * * * * * */
-
-
-/* * * * * * * *
- *
- * Use this for iDevice only
- *
- */
-//document.addEventListener('DOMContentLoaded', loaded, false);
-/*
- * * * * * * * */
-
-
-/* * * * * * * *
- *
- * Use this if nothing else works
- *
- */
-//window.addEventListener('load', setTimeout(function () { loaded(); }, 200), false);
-/*
- * * * * * * * */
+document.addEventListener('DOMContentLoaded', loaded, false);
 
 </script>
 
