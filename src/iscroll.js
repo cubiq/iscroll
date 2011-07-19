@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.7 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.8 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -595,7 +595,6 @@ iScroll.prototype = {
 
 	_wheel: function (e) {
 		var that = this,
-			duration,
 			wheelDeltaX, wheelDeltaY,
 			deltaX, deltaY,
 			deltaScale;
