@@ -610,14 +610,14 @@ iScroll.prototype = {
 		
 		if (that.options.wheelAction == 'zoom') {
 			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
-			if (wheelDeltaY < that.options.zoomMin) wheelDeltaY = that.options.zoomMin;
-			if (wheelDeltaY > that.options.zoomMax) wheelDeltaY = that.options.zoomMax;
+			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
+			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
 			
-			if (wheelDeltaY != that.scale) {
+			if (deltaScale != that.scale) {
 				if (!that.wheelZoomCount && that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 				that.wheelZoomCount++;
 				
-				that.zoom(e.pageX, e.pageY, wheelDeltaY, 400);
+				that.zoom(e.pageX, e.pageY, deltaScale, 400);
 				
 				setTimeout(function() {
 					that.wheelZoomCount--;
