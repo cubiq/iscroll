@@ -453,6 +453,7 @@ iScroll.prototype = {
 			newPosY = that.y,
 			distX, distY,
 			newDuration,
+			snap,
 			scale;
 
 		that._unbind(MOVE_EV);
@@ -489,6 +490,11 @@ iScroll.prototype = {
 					that.doubleTapTimer = null;
 					if (that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 					that.zoom(that.pointX, that.pointY, that.scale == 1 ? that.options.doubleTapZoom : 1);
+					if (that.options.onZoomEnd) {
+						setTimeout(function() {
+							that.options.onZoomEnd.call(that, e);
+						}, 200); // 200 is default zoom duration
+					}
 				} else {
 					that.doubleTapTimer = setTimeout(function () {
 						that.doubleTapTimer = null;
@@ -610,14 +616,14 @@ iScroll.prototype = {
 		
 		if (that.options.wheelAction == 'zoom') {
 			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
-			if (wheelDeltaY < that.options.zoomMin) wheelDeltaY = that.options.zoomMin;
-			if (wheelDeltaY > that.options.zoomMax) wheelDeltaY = that.options.zoomMax;
+			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
+			if (deltaScale > that.options.zoomMax) deltaScale = that.options.zoomMax;
 			
-			if (wheelDeltaY != that.scale) {
+			if (deltaScale != that.scale) {
 				if (!that.wheelZoomCount && that.options.onZoomStart) that.options.onZoomStart.call(that, e);
 				that.wheelZoomCount++;
 				
-				that.zoom(e.pageX, e.pageY, wheelDeltaY, 400);
+				that.zoom(e.pageX, e.pageY, deltaScale, 400);
 				
 				setTimeout(function() {
 					that.wheelZoomCount--;
@@ -855,6 +861,8 @@ iScroll.prototype = {
 	refresh: function () {
 		var that = this,
 			offset,
+			i, l,
+			els,
 			pos = 0,
 			page = 0;
 

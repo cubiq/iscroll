@@ -13,6 +13,7 @@
 
 var myScroll,
 	pullDownEl, pullDownOffset,
+	pullUpEl, pullUpOffset,
 	generatedCount = 0;
 
 function pullDownAction () {
@@ -30,9 +31,26 @@ function pullDownAction () {
 	}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
 }
 
+function pullUpAction () {
+	setTimeout(function () {	// <-- Simulate network congestion, remove setTimeout from production!
+		var el, li, i;
+		el = document.getElementById('thelist');
+
+		for (i=0; i<3; i++) {
+			li = document.createElement('li');
+			li.innerText = 'Generated row ' + (++generatedCount);
+			el.appendChild(li, el.childNodes[0]);
+		}
+		
+		myScroll.refresh();		// Remember to refresh when contents are loaded (ie: on ajax completion)
+	}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
+}
+
 function loaded() {
 	pullDownEl = document.getElementById('pullDown');
 	pullDownOffset = pullDownEl.offsetHeight;
+	pullUpEl = document.getElementById('pullUp');	
+	pullUpOffset = pullUpEl.offsetHeight;
 	
 	myScroll = new iScroll('wrapper', {
 		useTransition: true,
@@ -41,6 +59,9 @@ function loaded() {
 			if (pullDownEl.className.match('loading')) {
 				pullDownEl.className = '';
 				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Pull down to refresh...';
+			} else if (pullUpEl.className.match('loading')) {
+				pullUpEl.className = '';
+				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Pull up to load more...';
 			}
 		},
 		onScrollMove: function () {
@@ -52,14 +73,25 @@ function loaded() {
 				pullDownEl.className = '';
 				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Pull down to refresh...';
 				this.minScrollY = -pullDownOffset;
+			} else if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) {
+				pullUpEl.className = 'flip';
+				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Release to refresh...';
+				this.maxScrollY = this.maxScrollY;
+			} else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) {
+				pullUpEl.className = '';
+				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Pull up to load more...';
+				this.maxScrollY = pullUpOffset;
 			}
 		},
 		onScrollEnd: function () {
 			if (pullDownEl.className.match('flip')) {
 				pullDownEl.className = 'loading';
-				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Loading...';
-				
+				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Loading...';				
 				pullDownAction();	// Execute custom function (ajax call?)
+			} else if (pullUpEl.className.match('flip')) {
+				pullUpEl.className = 'loading';
+				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Loading...';				
+				pullUpAction();	// Execute custom function (ajax call?)
 			}
 		}
 	});
@@ -168,7 +200,7 @@ body {
  * Pull down styles
  *
  */
-#pullDown {
+#pullDown, #pullUp {
 	background:#fff;
 	height:40px;
 	line-height:40px;
@@ -178,21 +210,30 @@ body {
 	font-size:14px;
 	color:#888;
 }
-#pullDown .pullDownIcon {
+#pullDown .pullDownIcon, #pullUp .pullUpIcon  {
 	display:block; float:left;
 	width:40px; height:40px;
 	background:url(pull-icon@2x.png) 0 0 no-repeat;
 	-webkit-background-size:40px 80px; background-size:40px 80px;
 	-webkit-transition-property:-webkit-transform;
-	-webkit-transition-duration:250ms;
+	-webkit-transition-duration:250ms;	
+}
+#pullDown .pullDownIcon {
 	-webkit-transform:rotate(0deg) translateZ(0);
+}
+#pullUp .pullUpIcon  {
+	-webkit-transform:rotate(-180deg) translateZ(0);
 }
 
 #pullDown.flip .pullDownIcon {
 	-webkit-transform:rotate(-180deg) translateZ(0);
 }
 
-#pullDown.loading .pullDownIcon {
+#pullUp.flip .pullUpIcon {
+	-webkit-transform:rotate(0deg) translateZ(0);
+}
+
+#pullDown.loading .pullDownIcon, #pullUp.loading .pullUpIcon {
 	background-position:0 100%;
 	-webkit-transform:rotate(0deg) translateZ(0);
 	-webkit-transition-duration:0ms;
@@ -261,6 +302,9 @@ body {
 			<li>Pretty row 39</li>
 			<li>Pretty row 40</li>
 		</ul>
+		<div id="pullUp">
+			<span class="pullUpIcon"></span><span class="pullUpLabel">Pull up to refresh...</span>
+		</div>
 	</div>
 </div>
 <div id="footer"></div>
