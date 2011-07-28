@@ -453,6 +453,7 @@ iScroll.prototype = {
 			newPosY = that.y,
 			distX, distY,
 			newDuration,
+			snap,
 			scale;
 
 		that._unbind(MOVE_EV);
@@ -859,7 +860,7 @@ iScroll.prototype = {
 
 	refresh: function () {
 		var that = this,
-			offset,
+			offset, i, l,
 			pos = 0,
 			page = 0;
 
@@ -891,7 +892,7 @@ iScroll.prototype = {
 		if (typeof that.options.snap == 'string') {
 			that.pagesX = [];
 			that.pagesY = [];
-			els = that.scroller.querySelectorAll(that.options.snap);
+			var els = that.scroller.querySelectorAll(that.options.snap);
 			for (i=0, l=els.length; i<l; i++) {
 				pos = that._offset(els[i]);
 				pos.left += that.wrapperOffsetLeft;
