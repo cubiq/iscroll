@@ -860,7 +860,9 @@ iScroll.prototype = {
 
 	refresh: function () {
 		var that = this,
-			offset, i, l,
+			offset,
+			i, l,
+			els,
 			pos = 0,
 			page = 0;
 
@@ -892,7 +894,7 @@ iScroll.prototype = {
 		if (typeof that.options.snap == 'string') {
 			that.pagesX = [];
 			that.pagesY = [];
-			var els = that.scroller.querySelectorAll(that.options.snap);
+			els = that.scroller.querySelectorAll(that.options.snap);
 			for (i=0, l=els.length; i<l; i++) {
 				pos = that._offset(els[i]);
 				pos.left += that.wrapperOffsetLeft;
