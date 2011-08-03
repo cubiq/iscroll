@@ -68,7 +68,6 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
-			roundPosition: false,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -242,14 +241,11 @@ iScroll.prototype = {
 		x = this.hScroll ? x : 0;
 		y = this.vScroll ? y : 0;
 
-		if (this.options.roundPosition || !this.options.useTransform) {
-			x = m.round(x);
-			y = m.round(y);
-		}
-
 		if (this.options.useTransform) {
 			this.scroller.style[vendor + 'Transform'] = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + this.scale + ')';
 		} else {
+			x = m.round(x);
+			y = m.round(y);
 			this.scroller.style.left = x + 'px';
 			this.scroller.style.top = y + 'px';
 		}
@@ -553,7 +549,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that.scrollTo(newPosX, newPosY, newDuration);
+			that.scrollTo(m.round(newPosX), m.round(newPosY), newDuration);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
