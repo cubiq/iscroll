@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.1.8 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.1.9 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 
@@ -68,6 +68,7 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
+			roundPosition: false,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -241,11 +242,14 @@ iScroll.prototype = {
 		x = this.hScroll ? x : 0;
 		y = this.vScroll ? y : 0;
 
+		if (this.options.roundPosition || !this.options.useTransform) {
+			x = m.round(x);
+			y = m.round(y);
+		}
+
 		if (this.options.useTransform) {
 			this.scroller.style[vendor + 'Transform'] = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + this.scale + ')';
 		} else {
-			x = m.round(x);
-			y = m.round(y);
 			this.scroller.style.left = x + 'px';
 			this.scroller.style.top = y + 'px';
 		}
