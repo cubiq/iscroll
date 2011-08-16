@@ -350,7 +350,7 @@ iScroll.prototype = {
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
 
-		that.startTime = e.timeStamp || (new Date()).getTime();
+		that.startTime = e.timeStamp || Date.now();
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
 
@@ -367,7 +367,7 @@ iScroll.prototype = {
 			newX = that.x + deltaX,
 			newY = that.y + deltaY,
 			c1, c2, scale,
-			timestamp = e.timeStamp || (new Date()).getTime();
+			timestamp = e.timeStamp || Date.now();
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
@@ -448,7 +448,7 @@ iScroll.prototype = {
 			target, ev,
 			momentumX = { dist:0, time:0 },
 			momentumY = { dist:0, time:0 },
-			duration = (e.timeStamp || (new Date()).getTime()) - that.startTime,
+			duration = (e.timeStamp || Date.now()) - that.startTime,
 			newPosX = that.x,
 			newPosY = that.y,
 			distX, distY,
@@ -678,7 +678,7 @@ iScroll.prototype = {
 	_startAni: function () {
 		var that = this,
 			startX = that.x, startY = that.y,
-			startTime = (new Date).getTime(),
+			startTime = Date.now(),
 			step, easeOut;
 
 		if (that.animating) return;
@@ -705,7 +705,7 @@ iScroll.prototype = {
 		}
 
 		(function animate () {
-			var now = (new Date).getTime(),
+			var now = Date.now(),
 				newX, newY;
 
 			if (now >= startTime + step.time) {
