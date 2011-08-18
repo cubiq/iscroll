@@ -704,7 +704,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		(function animate () {
+		var animate = function() {
 			var now = Date.now(),
 				newX, newY;
 
@@ -722,7 +722,8 @@ iScroll.prototype = {
 			newY = (step.y - startY) * easeOut + startY;
 			that._pos(newX, newY);
 			if (that.animating) that.aniTime = nextFrame(animate);
-		})();
+		};
+		animate();
 	},
 
 	_transitionTime: function (time) {
