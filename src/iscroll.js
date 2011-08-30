@@ -137,6 +137,9 @@ var m = Math,
 			that._checkDOMChanges();
 		}, 500);
 	};
+	iScroll.canIScroll = function() {
+		return vendor + 'TransitionProperty' in document.documentElement.style;
+	}
 
 // Prototype
 iScroll.prototype = {
