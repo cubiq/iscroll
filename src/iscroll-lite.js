@@ -58,6 +58,8 @@ var m = Math,
 		that.options = {
 			hScroll: true,
 			vScroll: true,
+			x: 0,
+			y: 0,
 			bounce: true,
 			bounceLock: false,
 			momentum: true,
@@ -80,6 +82,10 @@ var m = Math,
 		// User defined options
 		for (i in options) that.options[i] = options[i];
 
+		// Set starting position
+		that.x = that.options.x;
+		that.y = that.options.y;
+
 		// Normalize options
 		that.options.useTransform = hasTransform ? that.options.useTransform : false;
 		that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
@@ -92,9 +98,9 @@ var m = Math,
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
-		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
-		else that.scroller.style.cssText += ';position:absolute;top:0;left:0';
-				
+		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
+		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
+
 		that.refresh();
 
 		that._bind(RESIZE_EV, window);
@@ -375,7 +381,8 @@ iScroll.prototype = {
 		var that = this,
 			startX = that.x, startY = that.y,
 			startTime = Date.now(),
-			step, easeOut;
+			step, easeOut,
+			animate;
 
 		if (that.animating) return;
 
@@ -399,7 +406,8 @@ iScroll.prototype = {
 			else that._resetPos(0);
 			return;
 		}
-		var animate = function() {
+		
+		animate = function () {
 			var now = Date.now(),
 				newX, newY;
 
@@ -418,6 +426,7 @@ iScroll.prototype = {
 			that._pos(newX, newY);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
+		
 		animate();
 	},
 

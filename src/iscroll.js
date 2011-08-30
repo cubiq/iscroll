@@ -107,7 +107,10 @@ var m = Math,
 
 		// User defined options
 		for (i in options) that.options[i] = options[i];
-		that.x = that.options.x; that.y = that.options.y;
+		
+		// Set starting position
+		that.x = that.options.x;
+		that.y = that.options.y;
 
 		// Normalize options
 		that.options.useTransform = hasTransform ? that.options.useTransform : false;
@@ -122,8 +125,8 @@ var m = Math,
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
-		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + ',' + that.y + trnClose;
-		else that.scroller.style.cssText += ';position:absolute;top:'+that.y+';left:'+that.x;
+		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
+		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
 
 		if (that.options.useTransition) that.options.fixedScrollbar = true;
 
@@ -682,7 +685,8 @@ iScroll.prototype = {
 		var that = this,
 			startX = that.x, startY = that.y,
 			startTime = Date.now(),
-			step, easeOut;
+			step, easeOut,
+			animate;
 
 		if (that.animating) return;
 		
@@ -707,7 +711,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		var animate = function() {
+		animate = function () {
 			var now = Date.now(),
 				newX, newY;
 
@@ -726,6 +730,7 @@ iScroll.prototype = {
 			that._pos(newX, newY);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
+
 		animate();
 	},
 
