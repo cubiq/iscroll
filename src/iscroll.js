@@ -60,6 +60,8 @@ var m = Math,
 		that.options = {
 			hScroll: true,
 			vScroll: true,
+			x: 0,
+			y: 0,
 			bounce: true,
 			bounceLock: false,
 			momentum: true,
@@ -105,6 +107,7 @@ var m = Math,
 
 		// User defined options
 		for (i in options) that.options[i] = options[i];
+		that.x = that.options.x; that.y = that.options.y;
 
 		// Normalize options
 		that.options.useTransform = hasTransform ? that.options.useTransform : false;
@@ -119,8 +122,8 @@ var m = Math,
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
-		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + '0,0' + trnClose;
-		else that.scroller.style.cssText += ';position:absolute;top:0;left:0';
+		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + ',' + that.y + trnClose;
+		else that.scroller.style.cssText += ';position:absolute;top:'+that.y+';left:'+that.x;
 
 		if (that.options.useTransition) that.options.fixedScrollbar = true;
 
