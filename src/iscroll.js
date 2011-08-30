@@ -394,7 +394,7 @@ iScroll.prototype = {
 			if (that.options.onZoom) that.options.onZoom.call(that, e);
 			return;
 		}
-
+		
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
 
@@ -606,8 +606,8 @@ iScroll.prototype = {
 			deltaScale;
 
 		if ('wheelDeltaX' in e) {
-			wheelDeltaX = e.wheelDeltaX / 12;
-			wheelDeltaY = e.wheelDeltaY / 12;
+			wheelDeltaX = e.wheelDeltaX;
+			wheelDeltaY = e.wheelDeltaY;
 		} else if ('detail' in e) {
 			wheelDeltaX = wheelDeltaY = -e.detail * 3;
 		} else {
@@ -633,6 +633,9 @@ iScroll.prototype = {
 			
 			return;
 		}
+		
+		e.preventDefault();
+		e.stopPropagation();
 		
 		deltaX = that.x + wheelDeltaX;
 		deltaY = that.y + wheelDeltaY;
