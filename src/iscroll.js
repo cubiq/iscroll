@@ -5,6 +5,7 @@
 
 (function(){
 var m = Math,
+	_round = function (r) { return r >> 0; },
 	vendor = (/webkit/i).test(navigator.appVersion) ? 'webkit' :
 		(/firefox/i).test(navigator.userAgent) ? 'Moz' :
 		'opera' in window ? 'O' : '',
@@ -222,13 +223,13 @@ iScroll.prototype = {
 
 		if (dir == 'h') {
 			that.hScrollbarSize = that.hScrollbarWrapper.clientWidth;
-			that.hScrollbarIndicatorSize = m.max(m.round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
+			that.hScrollbarIndicatorSize = m.max(_round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
 			that.hScrollbarIndicator.style.width = that.hScrollbarIndicatorSize + 'px';
 			that.hScrollbarMaxScroll = that.hScrollbarSize - that.hScrollbarIndicatorSize;
 			that.hScrollbarProp = that.hScrollbarMaxScroll / that.maxScrollX;
 		} else {
 			that.vScrollbarSize = that.vScrollbarWrapper.clientHeight;
-			that.vScrollbarIndicatorSize = m.max(m.round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
+			that.vScrollbarIndicatorSize = m.max(_round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
 			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
 			that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
@@ -250,8 +251,8 @@ iScroll.prototype = {
 		if (this.options.useTransform) {
 			this.scroller.style[vendor + 'Transform'] = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + this.scale + ')';
 		} else {
-			x = m.round(x);
-			y = m.round(y);
+			x = _round(x);
+			y = _round(y);
 			this.scroller.style.left = x + 'px';
 			this.scroller.style.top = y + 'px';
 		}
@@ -274,14 +275,14 @@ iScroll.prototype = {
 
 		if (pos < 0) {
 			if (!that.options.fixedScrollbar) {
-				size = that[dir + 'ScrollbarIndicatorSize'] + m.round(pos * 3);
+				size = that[dir + 'ScrollbarIndicatorSize'] + _round(pos * 3);
 				if (size < 8) size = 8;
 				that[dir + 'ScrollbarIndicator'].style[dir == 'h' ? 'width' : 'height'] = size + 'px';
 			}
 			pos = 0;
 		} else if (pos > that[dir + 'ScrollbarMaxScroll']) {
 			if (!that.options.fixedScrollbar) {
-				size = that[dir + 'ScrollbarIndicatorSize'] - m.round((pos - that[dir + 'ScrollbarMaxScroll']) * 3);
+				size = that[dir + 'ScrollbarIndicatorSize'] - _round((pos - that[dir + 'ScrollbarMaxScroll']) * 3);
 				if (size < 8) size = 8;
 				that[dir + 'ScrollbarIndicator'].style[dir == 'h' ? 'width' : 'height'] = size + 'px';
 				pos = that[dir + 'ScrollbarMaxScroll'] + (that[dir + 'ScrollbarIndicatorSize'] - size);
@@ -555,7 +556,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that.scrollTo(m.round(newPosX), m.round(newPosY), newDuration);
+			that.scrollTo(_round(newPosX), _round(newPosY), newDuration);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
@@ -763,7 +764,7 @@ iScroll.prototype = {
 		newDist = newDist * (dist < 0 ? -1 : 1);
 		newTime = speed / deceleration;
 
-		return { dist: newDist, time: m.round(newTime) };
+		return { dist: newDist, time: _round(newTime) };
 	},
 
 	_offset: function (el) {
@@ -818,7 +819,7 @@ iScroll.prototype = {
 		that.currPageY = page;
 
 		// Snap with constant speed (proportional duration)
-		time = m.round(m.max(sizeX, sizeY)) || 200;
+		time = _round(m.max(sizeX, sizeY)) || 200;
 
 		return { x: x, y: y, time: time };
 	},
@@ -880,8 +881,8 @@ iScroll.prototype = {
 		that.wrapperH = that.wrapper.clientHeight || 1;
 
 		that.minScrollY = -that.options.topOffset || 0;
-		that.scrollerW = m.round(that.scroller.offsetWidth * that.scale);
-		that.scrollerH = m.round((that.scroller.offsetHeight + that.minScrollY) * that.scale);
+		that.scrollerW = _round(that.scroller.offsetWidth * that.scale);
+		that.scrollerH = _round((that.scroller.offsetHeight + that.minScrollY) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
 		that.dirX = 0;
