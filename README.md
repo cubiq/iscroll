@@ -3,6 +3,17 @@ iScroll v4.1.9 - 2011-08-03
 
 The overflow:scroll for mobile webkit. Project started because webkit for iPhone does not provide a native way to scroll content inside a fixed size (width/height) div. So basically it was impossible to have a fixed header/footer and a scrolling central area. Until now. Read more at [cubiq.org](http://cubiq.org).
 
+## Ender support
+Using [Ender](http://ender.no.de), add it to your existing build
+
+    $ ender add iscroll
+
+Use it like this:
+
+``` js
+var myScroll = $('#doc').iScroll(options)
+```
+
 ## Credits and Special thanks
 iScroll is evolving thank to the help of all those who sent suggestions, bug reports and ideas on [github](https://github.com/cubiq/iscroll), my [blog](http://cubiq.org) and [googlecode](http://code.google.com/p/iscroll-js/). This is by no means the work of a sole man.
 
