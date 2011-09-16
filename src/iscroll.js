@@ -967,14 +967,14 @@ iScroll.prototype = {
 		offsetY = offsetY != null ? offsetY : 0;
 
 		pos = that._offset(el);
-		pos.left += that.wrapperOffsetLeft;
-		pos.top += that.wrapperOffsetTop;
+		pos.left += that.wrapperOffsetLeft - offsetX;
+		pos.top += that.wrapperOffsetTop - offsetY;
 
 		pos.left = pos.left > 0 ? 0 : pos.left < that.maxScrollX ? that.maxScrollX : pos.left;
 		pos.top = pos.top > that.minScrollY ? that.minScrollY : pos.top < that.maxScrollY ? that.maxScrollY : pos.top;
 		time = time === undefined ? m.max(m.abs(pos.left)*2, m.abs(pos.top)*2) : time;
 
-		that.scrollTo(pos.left - offsetX, pos.top - offsetY, time);
+		that.scrollTo(pos.left, pos.top, time);
 	},
 
 	scrollToPage: function (pageX, pageY, time) {
