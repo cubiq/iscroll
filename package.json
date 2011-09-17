@@ -1,0 +1,14 @@
+{
+    "name": "iscroll"
+  , "description": "smooth scrolling for mobile webkit"
+  , "version": "4.1.9"
+  , "homepage": "http://cubiq.org/iscroll-4"
+  , "author": "Matteo Spinelli <> (http://cubiq.org)"
+  , "keywords": ["ender", "iscroll", "scrolling", "webkit", "iphone", "android"]
+  , "main": "./src/iscroll.js"
+  , "ender": "./src/ender.js"
+  , "repository": {
+      "type": "git"
+    , "url": "https://github.com/cubiq/iscroll.git"
+  }
+}

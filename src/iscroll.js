@@ -105,7 +105,13 @@ var m = Math,
 			onZoom: null,
 			onZoomEnd: null
 		};
-
+		// Helpers FIX ANDROID BUG!
+		// translate3d and scale doesn't work together! 
+		// Ignoring 3d ONLY WHEN YOU SET that.zoom
+		if ( that.zoom && isAndroid ){
+			trnOpen = 'translate(';
+			trnClose = ')';
+		}
 		// User defined options
 		for (i in options) that.options[i] = options[i];
 		
