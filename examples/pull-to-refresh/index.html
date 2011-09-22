@@ -101,7 +101,7 @@ function loaded() {
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
-document.addEventListener('DOMContentLoaded', setTimeout(function () { loaded(); }, 200), false);
+document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
 </script>
 
 <style type="text/css" media="all">
