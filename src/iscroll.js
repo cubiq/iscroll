@@ -1,6 +1,8 @@
 /*!
  * iScroll v4.1.9 ~ Copyright (c) 2011 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
+ *
+ * Mouse Wheel behaviour changes by from victor871129
  */
 
 (function(){
@@ -58,6 +60,11 @@ var m = Math,
 
 		// Default options
 		that.options = {
+			onScrollBarPos:function(e){
+			  setTimeout(function(){
+		             that._end(e);
+		      },400)
+			},
 			hScroll: true,
 			vScroll: true,
 			x: 0,
@@ -249,7 +256,7 @@ iScroll.prototype = {
 		setTimeout(function () { that.refresh(); }, isAndroid ? 200 : 0);
 	},
 	
-	_pos: function (x, y) {
+	_pos: function (x, y, e) {
 		x = this.hScroll ? x : 0;
 		y = this.vScroll ? y : 0;
 
@@ -265,11 +272,11 @@ iScroll.prototype = {
 		this.x = x;
 		this.y = y;
 
-		this._scrollbarPos('h');
-		this._scrollbarPos('v');
+		this._scrollbarPos('h',false,e);
+		this._scrollbarPos('v',false,e);
 	},
 
-	_scrollbarPos: function (dir, hidden) {
+	_scrollbarPos: function (dir,hidden,e) {
 		var that = this,
 			pos = dir == 'h' ? that.x : that.y,
 			size;
@@ -299,6 +306,7 @@ iScroll.prototype = {
 		that[dir + 'ScrollbarWrapper'].style[vendor + 'TransitionDelay'] = '0';
 		that[dir + 'ScrollbarWrapper'].style.opacity = hidden && that.options.hideScrollbar ? '0' : '1';
 		that[dir + 'ScrollbarIndicator'].style[vendor + 'Transform'] = trnOpen + (dir == 'h' ? pos + 'px,0' : '0,' + pos + 'px') + trnClose;
+	    if (that.options.onScrollBarPos) that.options.onScrollBarPos.call(that, e);
 	},
 	
 	_start: function (e) {
@@ -655,7 +663,7 @@ iScroll.prototype = {
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
 
-		that.scrollTo(deltaX, deltaY, 0);
+		that._pos(deltaX, deltaY, e);
 	},
 	
 	_mouseout: function (e) {
