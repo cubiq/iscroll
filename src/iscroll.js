@@ -906,10 +906,20 @@ iScroll.prototype = {
 		that.wrapperOffsetTop = -offset.top;
 
 		// Prepare snap
-		if (typeof that.options.snap == 'string') {
+		if (typeof that.options.snap == 'string' || typeof that.options.snap_type != 'undefined') {
+			//if there are no elements of the designated type
+			// in the current scroller, temporarily disable snap
+			if (typeof that.options.snap_type != 'undefined'){
+				that.options.snap = that.options.snap_type
+			}
+				els = that.scroller.querySelectorAll(that.options.snap);
+			if (els.length == 0){
+				that.options.snap_type = that.options.snap;
+				that.options.snap = false;
+			}
+			
 			that.pagesX = [];
 			that.pagesY = [];
-			els = that.scroller.querySelectorAll(that.options.snap);
 			for (i=0, l=els.length; i<l; i++) {
 				pos = that._offset(els[i]);
 				pos.left += that.wrapperOffsetLeft;
