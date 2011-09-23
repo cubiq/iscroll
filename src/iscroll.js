@@ -138,7 +138,8 @@ var m = Math,
 		}, 500);
 	};
 	iScroll.canIScroll = function() {
-		return vendor + 'TransitionProperty' in document.documentElement.style;
+		var m = /MSIE ([0-9]{1,}[\.0-9]{0,})/.exec(navigator.userAgent);
+		return !(m && parseFloat(m[1]) < 9);
 	}
 
 // Prototype
@@ -609,8 +610,8 @@ iScroll.prototype = {
 			deltaScale;
 
 		if ('wheelDeltaX' in e) {
-			wheelDeltaX = e.wheelDeltaX;
-			wheelDeltaY = e.wheelDeltaY;
+			wheelDeltaX = e.wheelDeltaX / 12;
+			wheelDeltaY = e.wheelDeltaY / 12;
 		} else if ('detail' in e) {
 			wheelDeltaX = wheelDeltaY = -e.detail * 3;
 		} else {
