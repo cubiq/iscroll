@@ -90,9 +90,22 @@ var m = Math,
 			snap: false,
 			snapThreshold: 1,
 
+            // Support forms?
+            hasForm: false,             // Experimental
+
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+			onBeforeScrollStart: function (e) {
+                if (that.options.hasForm) {
+                    var targetTag = e.target.tagName.toLowerCase();
+                    if (targetTag != 'input' && targetTag != 'select' && targetTag != 'textarea') {
+                        e.preventDefault();
+                    }
+
+                } else {
+                    e.preventDefault();
+                }
+            },
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
@@ -113,7 +126,7 @@ var m = Math,
 		}
 		// User defined options
 		for (i in options) that.options[i] = options[i];
-		
+console.log('hasForm: ' + that.options.hasForm);
 		// Set starting position
 		that.x = that.options.x;
 		that.y = that.options.y;
