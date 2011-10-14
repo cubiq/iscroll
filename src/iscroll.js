@@ -659,6 +659,9 @@ iScroll.prototype = {
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
 
 		that.scrollTo(deltaX, deltaY, 0);
+		
+		if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
+
 	},
 	
 	_mouseout: function (e) {
