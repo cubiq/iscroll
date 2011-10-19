@@ -145,7 +145,8 @@ var m = Math,
 		that._bind(START_EV);
 		if (!hasTouch) {
 			that._bind('mouseout', that.wrapper);
-			that._bind(WHEEL_EV);
+			if (that.options.wheelAction != 'none')
+				that._bind(WHEEL_EV);
 		}
 
 		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
