@@ -867,7 +867,7 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 		
-		if (that.options.hasTouch) {
+		if (!that.options.hasTouch) {
 			that._unbind('mouseout', that.wrapper);
 			that._unbind(WHEEL_EV);
 		}
