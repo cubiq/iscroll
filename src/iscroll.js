@@ -107,13 +107,7 @@ var m = Math,
 			onZoom: null,
 			onZoomEnd: null
 		};
-		// Helpers FIX ANDROID BUG!
-		// translate3d and scale doesn't work together! 
-		// Ignoring 3d ONLY WHEN YOU SET that.zoom
-		if ( that.zoom && isAndroid ){
-			trnOpen = 'translate(';
-			trnClose = ')';
-		}
+
 		// User defined options
 		for (i in options) that.options[i] = options[i];
 		
@@ -127,6 +121,14 @@ var m = Math,
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
 		that.options.zoom = that.options.useTransform && that.options.zoom;
 		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+
+		// Helpers FIX ANDROID BUG!
+		// translate3d and scale doesn't work together! 
+		// Ignoring 3d ONLY WHEN YOU SET that.options.zoom
+		if ( that.options.zoom && isAndroid ){
+			trnOpen = 'translate(';
+			trnClose = ')';
+		}
 		
 		// Set some default styles
 		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
