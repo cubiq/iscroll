@@ -7,20 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>iScroll demo: lite edition</title>
 
-<script type="application/javascript" src="../../src/iscroll-lite.js?v4"></script>
-
-<script type="text/javascript">
-
-var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper');
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
+<script type="text/javascript" src="../../src/iscroll-lite.js?v4"></script>
 
 <style type="text/css" media="all">
 body,ul,li {
@@ -156,6 +143,33 @@ body {
 </div>
 
 <div id="footer"></div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper');
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
 
 </body>
 </html>

@@ -9,27 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-
-var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper', {
-		useTransform: false,
-		onBeforeScrollStart: function (e) {
-			var target = e.target;
-			while (target.nodeType != 1) target = target.parentNode;
-
-			if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
-				e.preventDefault();
-		}
-	});
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
-
 <style type="text/css" media="all">
 body,ul,li {
 	padding:0;
@@ -171,6 +150,42 @@ body {
 	</div>
 </div>
 <div id="footer"></div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper', {
+		useTransform: false,
+		onBeforeScrollStart: function (e) {
+			var target = e.target;
+			while (target.nodeType != 1) target = target.parentNode;
+
+			if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
+				e.preventDefault();
+		}
+	});
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
 
 </body>
 </html>
