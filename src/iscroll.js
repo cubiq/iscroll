@@ -988,6 +988,8 @@ iScroll.prototype = {
 
 	scrollToPage: function (pageX, pageY, time) {
 		var that = this, x, y;
+		
+		time = time === undefined ? 400 : time;
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that);
 
@@ -1009,7 +1011,7 @@ iScroll.prototype = {
 			if (y < that.maxScrollY) y = that.maxScrollY;
 		}
 
-		that.scrollTo(x, y, time || 400);
+		that.scrollTo(x, y, time);
 	},
 
 	disable: function () {
