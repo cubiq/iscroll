@@ -9,21 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-var myScroll;
-
-function loaded() {
-	myScroll = new iScroll('wrapper', {
-		snap: 'li',
-		momentum: false,
-		hScrollbar: false,
-		vScrollbar: false
-	 });
-}
-
-document.addEventListener('DOMContentLoaded', loaded, false);
-</script>
-
 <style type="text/css" media="all">
 body,ul,li {
 	padding:0;
@@ -128,6 +113,36 @@ body {
 		</ul>
 	</div>
 </div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper', {
+		snap: 'li',
+		momentum: false,
+		hScrollbar: false,
+		vScrollbar: false
+	 });
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+</script>
 
 </body>
 </html>
