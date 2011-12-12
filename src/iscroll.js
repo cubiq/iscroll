@@ -30,6 +30,7 @@ var m = Math,
 	})(),
 	cancelFrame = (function () {
 	    return window.cancelRequestAnimationFrame
+			|| window.webkitCancelAnimationFrame
 			|| window.webkitCancelRequestAnimationFrame
 			|| window.mozCancelRequestAnimationFrame
 			|| window.oCancelRequestAnimationFrame
