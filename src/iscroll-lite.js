@@ -82,7 +82,8 @@ var m = Math,
 			onBeforeScrollEnd: null,
 			onScrollEnd: null,
 			onTouchEnd: null,
-			onDestroy: null
+			onDestroy: null,
+			onAnimationEnd: null
 		};
 
 		// User defined options
@@ -371,6 +372,8 @@ iScroll.prototype = {
 		if (e.target != that.scroller) return;
 
 		that._unbind('webkitTransitionEnd');
+
+		if (that.options.onAnimationEnd) that.options.onAnimationEnd.call(that); // Execute custom code on animation end
 
 		that._startAni();
 	},

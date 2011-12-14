@@ -104,6 +104,7 @@ var m = Math,
 			onScrollEnd: null,
 			onTouchEnd: null,
 			onDestroy: null,
+			onAnimationEnd: null,
 			onZoomStart: null,
 			onZoom: null,
 			onZoomEnd: null
@@ -684,6 +685,8 @@ iScroll.prototype = {
 		if (e.target != that.scroller) return;
 
 		that._unbind('webkitTransitionEnd');
+
+		if (that.options.onAnimationEnd) that.options.onAnimationEnd.call(that); // Execute custom code on animation end
 
 		that._startAni();
 	},
