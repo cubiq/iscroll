@@ -22,21 +22,21 @@ var m = Math,
     hasTransitionEnd = isIDevice || isPlaybook,
 
 	nextFrame = (function() {
-	    return window.requestAnimationFrame
-			|| window.webkitRequestAnimationFrame
-			|| window.mozRequestAnimationFrame
-			|| window.oRequestAnimationFrame
-			|| window.msRequestAnimationFrame
-			|| function(callback) { return setTimeout(callback, 17); }
+		return (window.requestAnimationFrame ||
+				window.webkitRequestAnimationFrame ||
+				window.mozRequestAnimationFrame ||
+				window.oRequestAnimationFrame ||
+				window.msRequestAnimationFrame ||
+				function(callback) { return setTimeout(callback, 1); });
 	})(),
 	cancelFrame = (function () {
-	    return window.cancelRequestAnimationFrame
-			|| window.webkitCancelAnimationFrame
-			|| window.webkitCancelRequestAnimationFrame
-			|| window.mozCancelRequestAnimationFrame
-			|| window.oCancelRequestAnimationFrame
-			|| window.msCancelRequestAnimationFrame
-			|| clearTimeout
+		return (window.cancelRequestAnimationFrame ||
+				window.webkitCancelAnimationFrame ||
+				window.webkitCancelRequestAnimationFrame ||
+				window.mozCancelRequestAnimationFrame ||
+				window.oCancelRequestAnimationFrame ||
+				window.msCancelRequestAnimationFrame ||
+				clearTimeout);
 	})(),
 
 	// Events
@@ -103,7 +103,7 @@ var m = Math,
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
 		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
-		
+
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
 		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
 
@@ -121,7 +121,7 @@ iScroll.prototype = {
 	y: 0,
 	steps: [],
 	scale: 1,
-	
+
 	handleEvent: function (e) {
 		var that = this;
 		switch(e.type) {
@@ -141,7 +141,7 @@ iScroll.prototype = {
 	_resize: function () {
 		this.refresh();
 	},
-	
+
 	_pos: function (x, y) {
 		x = this.hScroll ? x : 0;
 		y = this.vScroll ? y : 0;
@@ -167,7 +167,7 @@ iScroll.prototype = {
 		if (!that.enabled) return;
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
-		
+
 		if (that.options.useTransition) that._transitionTime(0);
 
 		that.moved = false;
@@ -183,14 +183,14 @@ iScroll.prototype = {
 		if (that.options.momentum) {
 			if (that.options.useTransform) {
 				// Very lame general purpose alternative to CSSMatrix
-				matrix = getComputedStyle(that.scroller, null)[vendor + 'Transform'].replace(/[^0-9-.,]/g, '').split(',');
+				matrix = getComputedStyle(that.scroller, null)[vendor + 'Transform'].replace(/[^-0-9.,]/g, '').split(',');
 				x = matrix[4] * 1;
 				y = matrix[5] * 1;
 			} else {
-				x = getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '') * 1;
-				y = getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '') * 1;
+				x = getComputedStyle(that.scroller, null).left.replace(/[^-0-9]/g, '') * 1;
+				y = getComputedStyle(that.scroller, null).top.replace(/[^-0-9]/g, '') * 1;
 			}
-			
+
 			if (x != that.x || y != that.y) {
 				if (that.options.useTransition) that._unbind('webkitTransitionEnd');
 				else cancelFrame(that.aniTime);
@@ -212,7 +212,7 @@ iScroll.prototype = {
 		that._bind(END_EV);
 		that._bind(CANCEL_EV);
 	},
-	
+
 	_move: function (e) {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
@@ -231,7 +231,7 @@ iScroll.prototype = {
 		if (newX > 0 || newX < that.maxScrollX) {
 			newX = that.options.bounce ? that.x + (deltaX / 2) : newX >= 0 || that.maxScrollX >= 0 ? 0 : that.maxScrollX;
 		}
-		if (newY > 0 || newY < that.maxScrollY) { 
+		if (newY > 0 || newY < that.maxScrollY) {
 			newY = that.options.bounce ? that.y + (deltaY / 2) : newY >= 0 || that.maxScrollY >= 0 ? 0 : that.maxScrollY;
 		}
 
@@ -265,12 +265,12 @@ iScroll.prototype = {
 			that.startX = that.x;
 			that.startY = that.y;
 		}
-		
+
 		if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
 	},
-	
+
 	_end: function (e) {
-		if (hasTouch && e.touches.length != 0) return;
+		if (hasTouch && e.touches.length !== 0) return;
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -318,8 +318,8 @@ iScroll.prototype = {
 			newPosX = that.x + momentumX.dist;
 			newPosY = that.y + momentumY.dist;
 
- 			if ((that.x > 0 && newPosX > 0) || (that.x < that.maxScrollX && newPosX < that.maxScrollX)) momentumX = { dist:0, time:0 };
- 			if ((that.y > 0 && newPosY > 0) || (that.y < that.maxScrollY && newPosY < that.maxScrollY)) momentumY = { dist:0, time:0 };
+			if ((that.x > 0 && newPosX > 0) || (that.x < that.maxScrollX && newPosX < that.maxScrollX)) momentumX = { dist:0, time:0 };
+			if ((that.y > 0 && newPosY > 0) || (that.y < that.maxScrollY && newPosY < that.maxScrollY)) momentumY = { dist:0, time:0 };
 		}
 
 		if (momentumX.dist || momentumY.dist) {
@@ -334,7 +334,7 @@ iScroll.prototype = {
 		that._resetPos(200);
 		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 	},
-	
+
 	_resetPos: function (time) {
 		var that = this,
 			resetX = that.x >= 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x,
@@ -342,7 +342,7 @@ iScroll.prototype = {
 
 		if (resetX == that.x && resetY == that.y) {
 			if (that.moved) {
-				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);		// Execute custom code on scroll end
+				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that); // Execute custom code on scroll end
 				that.moved = false;
 			}
 
@@ -351,7 +351,7 @@ iScroll.prototype = {
 
 		that.scrollTo(resetX, resetY, time || 0);
 	},
-	
+
 	_mouseout: function (e) {
 		var t = e.relatedTarget;
 
@@ -360,8 +360,8 @@ iScroll.prototype = {
 			return;
 		}
 
-		while (t = t.parentNode) if (t == this.wrapper) return;
-		
+		while ((t = t.parentNode)) if (t == this.wrapper) return;
+
 		this._end(e);
 	},
 
@@ -371,7 +371,7 @@ iScroll.prototype = {
 		if (e.target != that.scroller) return;
 
 		that._unbind('webkitTransitionEnd');
-		
+
 		that._startAni();
 	},
 
@@ -409,7 +409,7 @@ iScroll.prototype = {
 			else that._resetPos(0);
 			return;
 		}
-		
+
 		animate = function () {
 			var now = Date.now(),
 				newX, newY;
@@ -417,7 +417,7 @@ iScroll.prototype = {
 			if (now >= startTime + step.time) {
 				that._pos(step.x, step.y);
 				that.animating = false;
-				if (that.options.onAnimationEnd) that.options.onAnimationEnd.call(that);			// Execute custom code on animation end
+				if (that.options.onAnimationEnd) that.options.onAnimationEnd.call(that); // Execute custom code on animation end
 				that._startAni();
 				return;
 			}
@@ -429,21 +429,21 @@ iScroll.prototype = {
 			that._pos(newX, newY);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
-		
+
 		animate();
 	},
 
 	_transitionTime: function (time) {
 		this.scroller.style[vendor + 'TransitionDuration'] = time + 'ms';
 	},
-	
+
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
 		var deceleration = 0.0006,
 			speed = m.abs(dist) / time,
 			newDist = (speed * speed) / (2 * deceleration),
 			newTime = 0, outsideDist = 0;
 
-		// Proportinally reduce speed if we are outside of the boundaries 
+		// Proportinally reduce speed if we are outside of the boundaries
 		if (dist > 0 && newDist > maxDistUpper) {
 			outsideDist = size / (6 / (newDist / speed * deceleration));
 			maxDistUpper = maxDistUpper + outsideDist;
@@ -465,11 +465,11 @@ iScroll.prototype = {
 	_offset: function (el) {
 		var left = -el.offsetLeft,
 			top = -el.offsetTop;
-			
-		while (el = el.offsetParent) {
+
+		while ((el = el.offsetParent)) {
 			left -= el.offsetLeft;
 			top -= el.offsetTop;
-		} 
+		}
 
 		return { left: left, top: top };
 	},
@@ -501,7 +501,7 @@ iScroll.prototype = {
 		that._unbind(CANCEL_EV);
 		that._unbind('mouseout', that.wrapper);
 		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
-		
+
 		if (that.options.onDestroy) that.options.onDestroy.call(that);
 	},
 
@@ -540,7 +540,7 @@ iScroll.prototype = {
 		that.stop();
 
 		if (!step.length) step = [{ x: x, y: y, time: time, relative: relative }];
-		
+
 		for (i=0, l=step.length; i<l; i++) {
 			if (step[i].relative) { step[i].x = that.x - step[i].x; step[i].y = that.y - step[i].y; }
 			that.steps.push({ x: step[i].x, y: step[i].y, time: step[i].time || 0 });
@@ -575,11 +575,11 @@ iScroll.prototype = {
 		this._unbind(END_EV);
 		this._unbind(CANCEL_EV);
 	},
-	
+
 	enable: function () {
 		this.enabled = true;
 	},
-	
+
 	stop: function () {
 		cancelFrame(this.aniTime);
 		this.steps = [];
