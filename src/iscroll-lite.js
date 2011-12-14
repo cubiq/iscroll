@@ -173,7 +173,6 @@ iScroll.prototype = {
 
 		that.moved = false;
 		that.animating = false;
-		that.zoomed = false;
 		that.distX = 0;
 		that.distY = 0;
 		that.absDistX = 0;
