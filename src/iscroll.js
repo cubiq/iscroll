@@ -122,6 +122,7 @@ var m = Math,
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
 		that.options.zoom = that.options.useTransform && that.options.zoom;
 		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+		that.options.lockDirection = that.options.hScroll && that.options.vScroll && that.options.lockDirection;
 
 		// Helpers FIX ANDROID BUG!
 		// translate3d and scale doesn't work together! 
