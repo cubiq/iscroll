@@ -669,12 +669,7 @@ iScroll.prototype = {
 	_mouseout: function (e) {
 		var t = e.relatedTarget;
 
-		if (!t) {
-			this._end(e);
-			return;
-		}
-
-		while ((t = t.parentNode)) if (t == this.wrapper) return;
+		while (t) if (t == this.wrapper) return; else t = t.parentNode;
 
 		this._end(e);
 	},
