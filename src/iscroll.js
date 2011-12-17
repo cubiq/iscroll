@@ -94,6 +94,9 @@ var m = Math,
 			snap: false,
 			snapThreshold: 1,
 
+			// Sticky headers. Input a selector
+			stickyHeaders: false,
+
 			// Events
 			onRefresh: null,
 			onBeforeScrollStart: function (e) { e.preventDefault(); },
@@ -122,6 +125,7 @@ var m = Math,
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
 		that.options.zoom = that.options.useTransform && that.options.zoom;
 		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+		that.options.stickyHeaders = that.options.useTransform && that.options.stickyHeaders;
 
 		// Helpers FIX ANDROID BUG!
 		// translate3d and scale doesn't work together! 
@@ -274,6 +278,8 @@ iScroll.prototype = {
 
 		this._scrollbarPos('h');
 		this._scrollbarPos('v');
+
+		this.options.stickyHeaders && this._positionStickyHeaders();
 	},
 
 	_scrollbarPos: function (dir, hidden) {
@@ -752,6 +758,7 @@ iScroll.prototype = {
 		this.scroller.style[vendor + 'TransitionDuration'] = time;
 		if (this.hScrollbar) this.hScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
 		if (this.vScrollbar) this.vScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
+		this.options.stickyHeaders && this._transitionStickyHeaders(time);
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
@@ -844,6 +851,62 @@ iScroll.prototype = {
 		(el || this.scroller).removeEventListener(type, this, !!bubble);
 	},
 
+	_refreshStickyHeaders: function () {
+		var i, ii,
+			elms = this.scroller.querySelectorAll(this.options.stickyHeaders);
+
+		this.stickyHeaders = [];
+
+		for (i = 0, ii = elms.length; i < ii; i++) {
+			var header = {
+					elm: elms[i],
+					minY: elms[i].offsetTop,
+					maxY: elms[i].offsetHeight + elms[i].offsetTop
+				},
+				prevHeader = this.stickyHeaders[i - 1];
+
+			if (prevHeader) {
+				prevHeader.maxY = m.abs(prevHeader.maxY - header.minY);
+			}
+
+			header.elm.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(.33, .66, .66, 1)';
+			header.elm.style[vendor + 'TransitionProperty'] = '-' + vendor.toLowerCase() + '-transform';
+			header.elm.style[vendor + 'TransitionDuration'] = '0';
+			header.elm.style[vendor + 'TransformOrigin'] = '0 0';
+
+			this.stickyHeaders.push(header);
+		}
+	},
+
+	_positionStickyHeaders: function () {
+		var roundedAbsY = m.round(m.abs(this.y)),
+			preventTranslate = this.y > 0;
+
+		for (var i = 0, ii = this.stickyHeaders.length; i < ii; i++) {
+			var header = this.stickyHeaders[i],
+				translateY = roundedAbsY - header.minY;
+
+			if (preventTranslate || translateY < 0) {
+				translateY = 0;
+			} else if (translateY > header.maxY) {
+				// Make sure it never exceeds it's max allowed position
+				translateY = header.maxY;
+			}
+
+			this._translate(header.elm, 0, translateY);
+		}
+	},
+
+	_transitionStickyHeaders: function (time) {
+		for (var i = 0, ii = this.stickyHeaders.length; i < ii; i++) {
+			this.stickyHeaders[i].elm.style[vendor + 'TransitionDuration'] = time;
+		}
+	},
+
+	_translate: function (element, x, y) {
+		element.style[vendor + 'Transform'] = trnOpen + (x + 'px, ' + y + 'px') + trnClose;
+	},
+
 
 	/**
 	 *
@@ -911,6 +974,8 @@ iScroll.prototype = {
 		offset = that._offset(that.wrapper);
 		that.wrapperOffsetLeft = -offset.left;
 		that.wrapperOffsetTop = -offset.top;
+
+		that.options.stickyHeaders && that._refreshStickyHeaders();
 
 		// Prepare snap
 		if (typeof that.options.snap == 'string') {
