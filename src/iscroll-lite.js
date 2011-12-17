@@ -432,6 +432,7 @@ iScroll.prototype = {
 
 	_transitionTime: function (time) {
 		this.scroller.style[vendor + 'TransitionDuration'] = time + 'ms';
+		this.scroller.style[vendor + 'TransitionTimingFunction'] = 'ease-out';
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
