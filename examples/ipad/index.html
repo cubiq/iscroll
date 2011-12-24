@@ -7,23 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>iScroll demo: iPad</title>
 
-<script type="application/javascript" src="../../src/iscroll.js"></script>
-
-<script type="text/javascript">
-
-var scrollContent,
-	scrollNav;
-
-function loaded() {
-	scrollContent = new iScroll('contentWrapper');
-	scrollNav = new iScroll('navWrapper');
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
+<script type="text/javascript" src="../../src/iscroll.js"></script>
 
 <style type="text/css" media="all">
 html,body {
@@ -162,6 +146,34 @@ nav, article {
 		</article>
 	</div>
 </div>
+
+<script type="text/javascript">
+
+
+var scrollContent,
+	scrollNav;
+
+
+function loaded() {
+
+	scrollContent = new iScroll('contentWrapper');
+	scrollNav = new iScroll('navWrapper');
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+</script>
 
 </body>
 </html>

@@ -9,45 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-
-var myScroll,
-	hoverClassRegEx = new RegExp('(^|\\s)iScrollHover(\\s|$)'),
-	removeClass = function () {
-		if (this.hoverTarget) {
-			clearTimeout(this.hoverTimeout);
-			this.hoverTarget.className = this.hoverTarget.className.replace(hoverClassRegEx, '');
-			this.target = null;
-		}
-	};
-
-function loaded() {
-	myScroll = new iScroll('wrapper', {
-		onBeforeScrollStart: function (e) {
-			var target = e.target;
-
-			clearTimeout(this.hoverTimeout);
-
-			while (target.nodeType != 1) target = target.parentNode;
-
-			this.hoverTimeout = setTimeout(function () {
-				if (!hoverClassRegEx.test(target.className)) target.className = target.className ? target.className + ' iScrollHover' : 'iScrollHover';
-			}, 80);
-
-			this.hoverTarget = target;
-			
-			e.preventDefault();
-		},
-		onScrollMove: removeClass,
-		onBeforeScrollEnd: removeClass
-	});
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
-
 <style type="text/css" media="all">
 .iScrollHover {
 	background:#444 !important;
@@ -194,6 +155,57 @@ body {
 	</div>
 </div>
 <div id="footer"></div>
+
+<script type="text/javascript">
+
+
+var myScroll,
+	hoverClassRegEx = new RegExp('(^|\\s)iScrollHover(\\s|$)'),
+	removeClass = function () {
+		if (this.hoverTarget) {
+			clearTimeout(this.hoverTimeout);
+			this.hoverTarget.className = this.hoverTarget.className.replace(hoverClassRegEx, '');
+			this.target = null;
+		}
+	};
+
+
+function loaded() {
+	myScroll = new iScroll('wrapper', {
+		onBeforeScrollStart: function (e) {
+			var target = e.target;
+
+			clearTimeout(this.hoverTimeout);
+
+			while (target.nodeType != 1) target = target.parentNode;
+
+			this.hoverTimeout = setTimeout(function () {
+				if (!hoverClassRegEx.test(target.className)) target.className = target.className ? target.className + ' iScrollHover' : 'iScrollHover';
+			}, 80);
+
+			this.hoverTarget = target;
+			
+			e.preventDefault();
+		},
+		onScrollMove: removeClass,
+		onBeforeScrollEnd: removeClass
+	});
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
 
 </body>
 </html>

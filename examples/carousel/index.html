@@ -9,24 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-var myScroll;
-
-function loaded() {
-	myScroll = new iScroll('wrapper', {
-		snap: true,
-		momentum: false,
-		hScrollbar: false,
-		onScrollEnd: function () {
-			document.querySelector('#indicator > li.active').className = '';
-			document.querySelector('#indicator > li:nth-child(' + (this.currPageX+1) + ')').className = 'active';
-		}
-	 });
-}
-
-document.addEventListener('DOMContentLoaded', loaded, false);
-</script>
-
 <style type="text/css" media="all">
 body,ul,li {
 	padding:10px;
@@ -166,5 +148,40 @@ body {
 	</ul>
 	<div id="next" onclick="myScroll.scrollToPage('next', 0);return false">next &rarr;</div>
 </div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper', {
+		snap: true,
+		momentum: false,
+		hScrollbar: false,
+		onScrollEnd: function () {
+			document.querySelector('#indicator > li.active').className = '';
+			document.querySelector('#indicator > li:nth-child(' + (this.currPageX+1) + ')').className = 'active';
+		}
+	 });
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
+
 </body>
 </html>
