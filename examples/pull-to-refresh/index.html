@@ -60,10 +60,13 @@ function setPullState(type, state) {
 		pullState[type] = state;
 		pullEl[type].className = state;
 		pullEl[type].querySelector('.pullLabel').innerHTML = {
-			'pull': type == 'Down' ? 'Pull down to refresh...' : 'Pull up to refresh...',
-			'flip': 'Release to refresh...',
-			'loading': 'Loading...'
-		}[state];
+			'pullDown': "Pull down to refresh...",
+			'flipDown': 'Release to refresh...',
+			'loadingDown': 'Loading...',
+			'pullUp': "Pull up to load older...",
+			'flipUp': 'Release to load older...',
+			'loadingUp': 'Loading...'
+		}[state + type];
 		if (type == 'Down') {
 			if (state == 'pull') {
 				this.minScrollY = this._minScrollY;
@@ -230,10 +233,9 @@ body {
  */
 #pullDown,
 #pullUp {
-	background: #fff;
+	background: #eee;
 	height: 50px;
 	line-height: 50px;
-	border-bottom: 1px solid #ccc;
 	font-weight: bold;
 	font-size: 14px;
 	color: #888;
