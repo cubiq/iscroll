@@ -73,6 +73,7 @@ var m = Math,
 			useTransform: true,
 			useTransition: false,
 			topOffset: 0,
+			bottomOffset: 0,
 			checkDOMChanges: false, // Experimental
 
 			// Scrollbar
@@ -761,12 +762,12 @@ iScroll.prototype = {
 
 		// Proportinally reduce speed if we are outside of the boundaries
 		if (dist > 0 && newDist > maxDistUpper) {
-			outsideDist = size / (6 / (newDist / speed * deceleration));
+			outsideDist = size / (8 / (newDist / speed * deceleration));
 			maxDistUpper = maxDistUpper + outsideDist;
 			speed = speed * maxDistUpper / newDist;
 			newDist = maxDistUpper;
 		} else if (dist < 0 && newDist > maxDistLower) {
-			outsideDist = size / (6 / (newDist / speed * deceleration));
+			outsideDist = size / (8 / (newDist / speed * deceleration));
 			maxDistLower = maxDistLower + outsideDist;
 			speed = speed * maxDistLower / newDist;
 			newDist = maxDistLower;
@@ -853,6 +854,7 @@ iScroll.prototype = {
 		var that = this;
 
 		that.scroller.style[vendor + 'Transform'] = '';
+		that.scroller.style[vendor + 'Transition'] = '';
 
 		// Remove the scrollbars
 		that.hScrollbar = false;
@@ -896,6 +898,9 @@ iScroll.prototype = {
 		that.scrollerH = mround((that.scroller.offsetHeight + that.minScrollY) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
+		that.maxScrollY += that.options.bottomOffset || 0;
+		that._minScrollY = that.minScrollY;
+		that._maxScrollY = that.maxScrollY;
 		that.dirX = 0;
 		that.dirY = 0;
 
