@@ -246,7 +246,7 @@ iScroll.prototype = {
 			that.vScrollbarIndicatorSize = m.max(mround(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
 			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
-			that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
+			that.vScrollbarProp = that.vScrollbarMaxScroll / (that.maxScrollY - that.minScrollY);
 		}
 
 		// Reset position
@@ -280,7 +280,7 @@ iScroll.prototype = {
 
 	_scrollbarPos: function (dir, hidden) {
 		var that = this,
-			pos = dir == 'h' ? that.x : that.y,
+			pos = dir == 'h' ? that.x : that.y - that.minScrollY,
 			size;
 
 		if (!that[dir + 'Scrollbar']) return;
