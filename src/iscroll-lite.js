@@ -104,8 +104,7 @@ var m = Math,
 		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
-		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
-
+		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0,0,0.2,1)';
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
 		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
 
@@ -309,7 +308,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that._resetPos(200);
+			that._resetPos(600);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
@@ -328,6 +327,7 @@ iScroll.prototype = {
 
 		if (momentumX.dist || momentumY.dist) {
 			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);
+			that.duration = m.max(newDuration / 2, 400);
 
 			that.scrollTo(mround(newPosX), mround(newPosY), newDuration);
 
@@ -335,7 +335,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos(200);
+		that._resetPos(600);
 		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 	},
 
@@ -392,7 +392,7 @@ iScroll.prototype = {
 		if (that.animating) return;
 
 		if (!that.steps.length) {
-			that._resetPos(400);
+			that._resetPos(that.duration);
 			return;
 		}
 
@@ -438,23 +438,22 @@ iScroll.prototype = {
 	_transitionTime: function (time) {
 		time += 'ms';
 		this.scroller.style[vendor + 'TransitionDuration'] = time;
-		this.scroller.style[vendor + 'TransitionTimingFunction'] = 'ease-out';
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
-		var deceleration = 0.0006,
+		var deceleration = 0.002,
 			speed = m.abs(dist) / time,
 			newDist = (speed * speed) / (2 * deceleration),
 			newTime = 0, outsideDist = 0;
 
 		// Proportinally reduce speed if we are outside of the boundaries
 		if (dist > 0 && newDist > maxDistUpper) {
-			outsideDist = size / (8 / (newDist / speed * deceleration));
+			outsideDist = size / (20 / (newDist / speed * deceleration));
 			maxDistUpper = maxDistUpper + outsideDist;
 			speed = speed * maxDistUpper / newDist;
 			newDist = maxDistUpper;
 		} else if (dist < 0 && newDist > maxDistLower) {
-			outsideDist = size / (8 / (newDist / speed * deceleration));
+			outsideDist = size / (20 / (newDist / speed * deceleration));
 			maxDistLower = maxDistLower + outsideDist;
 			speed = speed * maxDistLower / newDist;
 			newDist = maxDistLower;
@@ -542,7 +541,7 @@ iScroll.prototype = {
 
 
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
-		that._resetPos(200);
+		that._resetPos(600);
 	},
 
 	scrollTo: function (x, y, time, relative) {

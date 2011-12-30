@@ -137,8 +137,7 @@ var m = Math,
 		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
 		that.scroller.style[vendor + 'TransitionDuration'] = '0';
 		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
-		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
-
+		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0,0,0.2,1)';
 		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
 		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
 
@@ -198,6 +197,7 @@ iScroll.prototype = {
 	_scrollbar: function (dir) {
 		var that = this,
 			doc = document,
+			scrollbarWidth = 14,
 			bar;
 
 		if (!that[dir + 'Scrollbar']) {
@@ -216,9 +216,10 @@ iScroll.prototype = {
 			bar = doc.createElement('div');
 
 			if (that.options.scrollbarClass) bar.className = that.options.scrollbarClass + dir.toUpperCase();
-			else bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:7px;bottom:1px;left:2px;right:' + (that.vScrollbar ? '7' : '2') + 'px' : 'width:7px;bottom:' + (that.hScrollbar ? '7' : '2') + 'px;top:2px;right:1px');
+			else bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:' + scrollbarWidth + 'px;bottom:1px;left:2px;right:' + (that.vScrollbar ? '7' : '2') + 'px' : 'width:' + scrollbarWidth + 'px;bottom:' + (that.hScrollbar ? '7' : '2') + 'px;top:2px;right:1px');
 
-			bar.style.cssText += ';pointer-events:none;-' + vendor + '-transition-property:opacity;-' + vendor + '-transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
+			bar.style.cssText += ';pointer-events:none;overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
+			if (that.options.useTransition) bar.style.cssText += ';-' + vendor + '-transition-property:opacity;-' + vendor + '-transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0');
 
 			that.wrapper.appendChild(bar);
 			that[dir + 'ScrollbarWrapper'] = bar;
@@ -226,10 +227,11 @@ iScroll.prototype = {
 			// Create the scrollbar indicator
 			bar = doc.createElement('div');
 			if (!that.options.scrollbarClass) {
-				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);-' + vendor + '-background-clip:padding-box;-' + vendor + '-box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';-' + vendor + '-border-radius:3px;border-radius:3px';
+				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);-' + vendor + '-background-clip:padding-box;-' + vendor + '-box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';-' + vendor + '-border-radius:' + mround(scrollbarWidth / 2) + 'px;border-radius:' + mround(scrollbarWidth / 2) + 'px';
 			}
-			bar.style.cssText += ';pointer-events:none;-' + vendor + '-transition-property:-' + vendor + '-transform;-' + vendor + '-transition-timing-function:cubic-bezier(0.33,0.66,0.66,1);-' + vendor + '-transition-duration:0;-' + vendor + '-transform:' + trnOpen + '0,0' + trnClose;
-			if (that.options.useTransition) bar.style.cssText += ';-' + vendor + '-transition-timing-function:cubic-bezier(0.33,0.66,0.66,1)';
+			bar.style.cssText += ';pointer-events:none;-' + vendor + '-transform:' + trnOpen + '0,0' + trnClose;
+			if (that.options.useTransition) bar.style.cssText += ';-' + vendor + '-transition-property:-' + vendor + '-transform;-' + vendor + '-transition-duration:0;-' + vendor + '-transition-timing-function:cubic-bezier(0,0,0.2,1)';
+			console.log(bar.style.cssText);
 
 			that[dir + 'ScrollbarWrapper'].appendChild(bar);
 			that[dir + 'ScrollbarIndicator'] = bar;
@@ -537,7 +539,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that._resetPos(200);
+			that._resetPos(600);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
@@ -556,6 +558,7 @@ iScroll.prototype = {
 
 		if (momentumX.dist || momentumY.dist) {
 			newDuration = m.max(m.max(momentumX.time, momentumY.time), 10);
+			that.duration = m.max(newDuration / 2, 400);
 
 			// Do we need to snap?
 			if (that.options.snap) {
@@ -590,7 +593,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos(200);
+		that._resetPos(600);
 		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 	},
 
@@ -703,7 +706,7 @@ iScroll.prototype = {
 		if (that.animating) return;
 
 		if (!that.steps.length) {
-			that._resetPos(400);
+			that._resetPos(that.duration);
 			return;
 		}
 
@@ -749,25 +752,24 @@ iScroll.prototype = {
 	_transitionTime: function (time) {
 		time += 'ms';
 		this.scroller.style[vendor + 'TransitionDuration'] = time;
-		this.scroller.style[vendor + 'TransitionTimingFunction'] = 'ease-out';
 		if (this.hScrollbar) this.hScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
 		if (this.vScrollbar) this.vScrollbarIndicator.style[vendor + 'TransitionDuration'] = time;
 	},
 
 	_momentum: function (dist, time, maxDistUpper, maxDistLower, size) {
-		var deceleration = 0.0006,
+		var deceleration = 0.002,
 			speed = m.abs(dist) / time,
 			newDist = (speed * speed) / (2 * deceleration),
 			newTime = 0, outsideDist = 0;
 
 		// Proportinally reduce speed if we are outside of the boundaries
 		if (dist > 0 && newDist > maxDistUpper) {
-			outsideDist = size / (8 / (newDist / speed * deceleration));
+			outsideDist = size / (20 / (newDist / speed * deceleration));
 			maxDistUpper = maxDistUpper + outsideDist;
 			speed = speed * maxDistUpper / newDist;
 			newDist = maxDistUpper;
 		} else if (dist < 0 && newDist > maxDistLower) {
-			outsideDist = size / (8 / (newDist / speed * deceleration));
+			outsideDist = size / (20 / (newDist / speed * deceleration));
 			maxDistLower = maxDistLower + outsideDist;
 			speed = speed * maxDistLower / newDist;
 			newDist = maxDistLower;
@@ -954,7 +956,7 @@ iScroll.prototype = {
 
 		if (!that.zoomed) {
 			that.scroller.style[vendor + 'TransitionDuration'] = '0';
-			that._resetPos(200);
+			that._resetPos(600);
 		}
 	},
 
