@@ -244,7 +244,7 @@ iScroll.prototype = {
 			that.vScrollbarIndicatorSize = m.max(mround(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
 			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
-			that.vScrollbarProp = that.vScrollbarMaxScroll / (that.maxScrollY - that.options.topOffset);
+			that.vScrollbarProp = that.vScrollbarMaxScroll / (that.maxScrollY + that.options.topOffset);
 		}
 
 		// Reset position
