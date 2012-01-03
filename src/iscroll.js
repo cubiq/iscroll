@@ -7,6 +7,7 @@ var m = Math,
 	mround = function (r) { return r >> 0; },
 	vendor = (/webkit/i).test(navigator.appVersion) ? 'webkit' :
 		(/firefox/i).test(navigator.userAgent) ? 'Moz' :
+		(/trident/i).test(navigator.userAgent) ? 'ms' :
 		'opera' in window ? 'O' : '',
 
     // Browser capabilities
