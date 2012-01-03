@@ -537,7 +537,7 @@ iScroll.prototype = {
 
 			that._resetPos(200);
 
-			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e, false);
 			return;
 		}
 
@@ -570,7 +570,7 @@ iScroll.prototype = {
 
 			that.scrollTo(mround(newPosX), mround(newPosY), newDuration);
 
-			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e, true);
 			return;
 		}
 
@@ -584,12 +584,12 @@ iScroll.prototype = {
 				if (snap.x != that.x || snap.y != that.y) that.scrollTo(snap.x, snap.y, snap.time);
 			}
 
-			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e, true);
 			return;
 		}
 
 		that._resetPos(200);
-		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e, true);
 	},
 	
 	_resetPos: function (time) {
