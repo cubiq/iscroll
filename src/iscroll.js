@@ -430,8 +430,6 @@ iScroll.prototype = {
 			that.distY += deltaY;
 			that.absDistX = m.abs(that.distX);
 			that.absDistY = m.abs(that.distY);
-
-			return;
 		}
 
 		// Lock direction
