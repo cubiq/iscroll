@@ -123,6 +123,7 @@ var m = Math,
 		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
 		that.options.zoom = that.options.useTransform && that.options.zoom;
 		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+		that.options.lockDirection = that.options.hScroll && that.options.vScroll && that.options.lockDirection;
 
 		// Helpers FIX ANDROID BUG!
 		// translate3d and scale doesn't work together! 
@@ -427,8 +428,8 @@ iScroll.prototype = {
 		}
 
 		if (that.absDistX < 6 && that.absDistY < 6) {
-			that.distX += deltaX;
-			that.distY += deltaY;
+			that.distX += that.hScroll ? deltaX : 0;
+			that.distY += that.vScroll ? deltaY : 0;
 			that.absDistX = m.abs(that.distX);
 			that.absDistY = m.abs(that.distY);
 
