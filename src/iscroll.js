@@ -10,7 +10,7 @@ var m = Math,
 	vendor = appVer.indexOf('WebKit')!==-1 ? 'webkit' :
 		ua.indexOf('firefox')!==-1 ? 'Moz' :
 		ua.indexOf('trident')!==-1 ? 'ms' :
-		window.opera ? 'O' : '',
+		'opera' in window ? 'O' : '',
 
     // Browser capabilities
     isIDevice = (/iphone|ipad/gi).test(appVer),
@@ -18,8 +18,8 @@ var m = Math,
     isPlaybook = appVer.indexOf('playbook')!==-1,
     isTouchPad = appVer.indexOf('hp-tablet')!==-1,
 
-    has3d = window.WebKitCSSMatrix && 'm11' in new WebKitCSSMatrix(),
-    hasTouch = window.ontouchstart && !isTouchPad,
+    has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
+    hasTouch = 'ontouchstart' in window && !isTouchPad,
     hasTransform = vendor + 'Transform' in document.documentElement.style,
     hasTransitionEnd = isIDevice || isPlaybook,
 
