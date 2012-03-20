@@ -532,9 +532,9 @@ iScroll.prototype = {
 							ev._fake = true;
 							target.dispatchEvent(ev);
 						}
-                        else {
-                            target.focus();
-                        }
+						else {
+							target.focus();
+						}
 					}, that.options.zoom ? 250 : 0);
 				}
 			}

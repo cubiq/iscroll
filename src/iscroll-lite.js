@@ -303,9 +303,9 @@ iScroll.prototype = {
 					ev._fake = true;
 					target.dispatchEvent(ev);
 				}
-                else {
-                    target.focus();
-                }
+				else {
+					target.focus();
+				}
 			}
 
 			that._resetPos(200);
