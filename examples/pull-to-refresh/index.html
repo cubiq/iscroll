@@ -12,12 +12,15 @@
 <script type="text/javascript">
 
 var myScroll,
-	pullDownEl, pullDownOffset,
-	pullUpEl, pullUpOffset,
-	generatedCount = 0;
+	generatedCount = 0,
+	pullState = {},
+	pullEl = {},
+	pullDownOffset,
+	pullUpOffset;
 
-function pullDownAction () {
-	setTimeout(function () {	// <-- Simulate network congestion, remove setTimeout from production!
+function pullDownAction() {
+	var that = this;
+	setTimeout(function() {	// <-- Simulate network congestion, remove setTimeout from production!
 		var el, li, i;
 		el = document.getElementById('thelist');
 
@@ -26,13 +29,17 @@ function pullDownAction () {
 			li.innerText = 'Generated row ' + (++generatedCount);
 			el.insertBefore(li, el.childNodes[0]);
 		}
-		
-		myScroll.refresh();		// Remember to refresh when contents are loaded (ie: on ajax completion)
+
+		y = that.maxScrollY;
+		that.refresh();		// Remember to refresh when contents are loaded (ie: on ajax completion)
+		y = that.maxScrollY - y;
+		that.scrollTo(that.x, y, 0); // this is so the view doesn't move on the user after the refresh
 	}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
 }
 
-function pullUpAction () {
-	setTimeout(function () {	// <-- Simulate network congestion, remove setTimeout from production!
+function pullUpAction() {
+	var that = this;
+	setTimeout(function() {	// <-- Simulate network congestion, remove setTimeout from production!
 		var el, li, i;
 		el = document.getElementById('thelist');
 
@@ -41,67 +48,92 @@ function pullUpAction () {
 			li.innerText = 'Generated row ' + (++generatedCount);
 			el.appendChild(li, el.childNodes[0]);
 		}
-		
-		myScroll.refresh();		// Remember to refresh when contents are loaded (ie: on ajax completion)
+
+		that.refresh();		// Remember to refresh when contents are loaded (ie: on ajax completion)
 	}, 1000);	// <-- Simulate network congestion, remove setTimeout from production!
 }
 
+function setPullState(type, state) {
+	var states = 'pull flip loading',
+		remove = states.replace(state, '');
+	if (remove != states && state != pullState[type]) {
+		pullState[type] = state;
+		pullEl[type].className = state;
+		pullEl[type].querySelector('.pullLabel').innerHTML = {
+			'pullDown': "Pull down to refresh...",
+			'flipDown': 'Release to refresh...',
+			'loadingDown': 'Loading...',
+			'pullUp': "Pull up to load older...",
+			'flipUp': 'Release to load older...',
+			'loadingUp': 'Loading...'
+		}[state + type];
+		if (type == 'Down') {
+			if (state == 'pull') {
+				this.minScrollY = this._minScrollY;
+			} else if (state == 'flip') {
+				this.minScrollY = this._minScrollY + pullDownOffset;
+			}
+		} else {
+			if (state == 'pull') {
+				this.maxScrollY = this._maxScrollY;
+			} else if (state == 'flip') {
+				this.maxScrollY = this._maxScrollY - pullUpOffset;
+			}
+		}
+	}
+}
+
 function loaded() {
-	pullDownEl = document.getElementById('pullDown');
-	pullDownOffset = pullDownEl.offsetHeight;
-	pullUpEl = document.getElementById('pullUp');	
-	pullUpOffset = pullUpEl.offsetHeight;
-	
+	pullEl.Down = document.getElementById('pullDown'),
+	pullEl.Up = document.getElementById('pullUp');
+	pullDownOffset = pullEl.Down.offsetHeight;
+	pullUpOffset = pullEl.Up.offsetHeight;
+
 	myScroll = new iScroll('wrapper', {
 		useTransition: true,
 		topOffset: pullDownOffset,
-		onRefresh: function () {
-			if (pullDownEl.className.match('loading')) {
-				pullDownEl.className = '';
-				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Pull down to refresh...';
-			} else if (pullUpEl.className.match('loading')) {
-				pullUpEl.className = '';
-				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Pull up to load more...';
+		bottomOffset: pullUpOffset,
+		onRefresh: function() {
+			if (pullState.Down == 'loading') {
+				setPullState.call(this, 'Down', 'pull');
+			}
+			if (pullState.Up == 'loading') {
+				setPullState.call(this, 'Up', 'pull');
 			}
 		},
-		onScrollMove: function () {
-			if (this.y > 5 && !pullDownEl.className.match('flip')) {
-				pullDownEl.className = 'flip';
-				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Release to refresh...';
-				this.minScrollY = 0;
-			} else if (this.y < 5 && pullDownEl.className.match('flip')) {
-				pullDownEl.className = '';
-				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Pull down to refresh...';
-				this.minScrollY = -pullDownOffset;
-			} else if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) {
-				pullUpEl.className = 'flip';
-				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Release to refresh...';
-				this.maxScrollY = this.maxScrollY;
-			} else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) {
-				pullUpEl.className = '';
-				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Pull up to load more...';
-				this.maxScrollY = pullUpOffset;
+		onScrollMove: function() {
+			if (pullState.Down != 'loading') {
+				if (this.y > 5) {
+					setPullState.call(this, 'Down', 'flip');
+				} else if (this.y < - 5) {
+					setPullState.call(this, 'Down', 'pull');
+				}
+			}
+			if (pullState.Up != 'loading') {
+				if (this.y < (this._maxScrollY - pullUpOffset - 5)) {
+					setPullState.call(this, 'Up', 'flip');
+				} else if (this.y > (this._maxScrollY - pullUpOffset + 5)) {
+					setPullState.call(this, 'Up', 'pull');
+				}
 			}
 		},
-		onScrollEnd: function () {
-			if (pullDownEl.className.match('flip')) {
-				pullDownEl.className = 'loading';
-				pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Loading...';				
-				pullDownAction();	// Execute custom function (ajax call?)
-			} else if (pullUpEl.className.match('flip')) {
-				pullUpEl.className = 'loading';
-				pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Loading...';				
-				pullUpAction();	// Execute custom function (ajax call?)
+		onScrollEnd: function() {
+			if (pullState.Down == 'flip') {
+				setPullState.call(this, 'Down', 'loading');
+				pullDownAction.call(this);	// Execute custom function (ajax call?)
+			} else if (pullState.Up == 'flip') {
+				setPullState.call(this, 'Up', 'loading');
+				pullUpAction.call(this);	// Execute custom function (ajax call?)
 			}
 		}
 	});
-	
-	setTimeout(function () { document.getElementById('wrapper').style.left = '0'; }, 800);
+
+	setTimeout(function() { document.getElementById('wrapper').style.left = '0'; }, 800);
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
-document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
+document.addEventListener('DOMContentLoaded', function() { setTimeout(loaded, 200); }, false);
 </script>
 
 <style type="text/css" media="all">
@@ -194,59 +226,61 @@ body {
 }
 
 
-
 /**
  *
  * Pull down styles
  *
  */
-#pullDown, #pullUp {
-	background:#fff;
-	height:40px;
-	line-height:40px;
-	padding:5px 10px;
-	border-bottom:1px solid #ccc;
-	font-weight:bold;
-	font-size:14px;
-	color:#888;
+#pullDown,
+#pullUp {
+	background: #eee;
+	height: 50px;
+	line-height: 50px;
+	font-weight: bold;
+	font-size: 14px;
+	color: #888;
 }
-#pullDown .pullDownIcon, #pullUp .pullUpIcon  {
-	display:block; float:left;
-	width:40px; height:40px;
-	background:url(pull-icon@2x.png) 0 0 no-repeat;
-	-webkit-background-size:40px 80px; background-size:40px 80px;
-	-webkit-transition-property:-webkit-transform;
-	-webkit-transition-duration:250ms;	
+#pullDown .pullIcon,
+#pullUp .pullIcon {
+	display: block;
+	float: left;
+	width: 50px;
+	height: 50px;
+	background: url(pull-icon@2x.png) 0 0 no-repeat;
+	-webkit-background-size: 50px 100px; background-size: 50px 100px;
+	-webkit-transition-property: -webkit-transform;
+	-webkit-transition-duration: 250ms;
 }
-#pullDown .pullDownIcon {
-	-webkit-transform:rotate(0deg) translateZ(0);
+#pullDown .pullIcon {
+	-webkit-transform: rotate(0deg) translateZ(0);
 }
-#pullUp .pullUpIcon  {
-	-webkit-transform:rotate(-180deg) translateZ(0);
-}
-
-#pullDown.flip .pullDownIcon {
-	-webkit-transform:rotate(-180deg) translateZ(0);
+#pullUp .pullIcon  {
+	-webkit-transform: rotate(-180deg) translateZ(0);
 }
 
-#pullUp.flip .pullUpIcon {
-	-webkit-transform:rotate(0deg) translateZ(0);
+#pullDown.flip .pullIcon {
+	-webkit-transform: rotate(-180deg) translateZ(0);
 }
 
-#pullDown.loading .pullDownIcon, #pullUp.loading .pullUpIcon {
-	background-position:0 100%;
-	-webkit-transform:rotate(0deg) translateZ(0);
-	-webkit-transition-duration:0ms;
+#pullUp.flip .pullIcon {
+	-webkit-transform: rotate(0deg) translateZ(0);
+}
 
-	-webkit-animation-name:loading;
-	-webkit-animation-duration:2s;
-	-webkit-animation-iteration-count:infinite;
-	-webkit-animation-timing-function:linear;
+#pullDown.loading .pullIcon,
+#pullUp.loading .pullIcon {
+	background-position: 0 100%;
+	-webkit-transform: rotate(0deg) translateZ(0);
+	-webkit-transition-duration: 0ms;
+
+	-webkit-animation-name: loading;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
 }
 
 @-webkit-keyframes loading {
-	from { -webkit-transform:rotate(0deg) translateZ(0); }
-	to { -webkit-transform:rotate(360deg) translateZ(0); }
+	from { -webkit-transform: rotate(0deg) translateZ(0); }
+	to { -webkit-transform: rotate(-360deg) translateZ(0); }
 }
 
 </style>
@@ -257,7 +291,7 @@ body {
 <div id="wrapper">
 	<div id="scroller">
 		<div id="pullDown">
-			<span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
+			<span class="pullIcon"></span><span class="pullLabel">Pull down to refresh...</span>
 		</div>
 
 		<ul id="thelist">
@@ -303,7 +337,7 @@ body {
 			<li>Pretty row 40</li>
 		</ul>
 		<div id="pullUp">
-			<span class="pullUpIcon"></span><span class="pullUpLabel">Pull up to refresh...</span>
+			<span class="pullIcon"></span><span class="pullLabel">Pull up to refresh...</span>
 		</div>
 	</div>
 </div>
