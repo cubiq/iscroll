@@ -51,6 +51,9 @@ var m = Math,
 	trnOpen = 'translate' + (has3d ? '3d(' : '('),
 	trnClose = has3d ? ',0)' : ')',
 
+	// Elements
+	body = document.body,
+
 	// Constructor
 	iScroll = function (el, options) {
 		var that = this,
@@ -148,7 +151,7 @@ var m = Math,
 		that._bind(RESIZE_EV, window);
 		that._bind(START_EV);
 		if (!hasTouch) {
-			that._bind('mouseout', that.wrapper);
+			// that._bind('mouseout', that.wrapper);
 			if (that.options.wheelAction != 'none')
 				that._bind(WHEEL_EV);
 		}
@@ -374,9 +377,9 @@ iScroll.prototype = {
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
 
-		that._bind(MOVE_EV);
-		that._bind(END_EV);
-		that._bind(CANCEL_EV);
+		that._bind(MOVE_EV, body);
+		that._bind(END_EV, body);
+		that._bind(CANCEL_EV, body);
 	},
 	
 	_move: function (e) {
@@ -476,9 +479,9 @@ iScroll.prototype = {
 			snap,
 			scale;
 
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+		that._unbind(MOVE_EV, body);
+		that._unbind(END_EV, body);
+		that._unbind(CANCEL_EV, body);
 
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
@@ -867,12 +870,12 @@ iScroll.prototype = {
 		// Remove the event listeners
 		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+		that._unbind(MOVE_EV, body);
+		that._unbind(END_EV, body);
+		that._unbind(CANCEL_EV, body);
 		
 		if (!that.options.hasTouch) {
-			that._unbind('mouseout', that.wrapper);
+			// that._unbind('mouseout', that.wrapper);
 			that._unbind(WHEEL_EV);
 		}
 		
@@ -1024,9 +1027,9 @@ iScroll.prototype = {
 		this.enabled = false;
 
 		// If disabled after touchstart we make sure that there are no left over events
-		this._unbind(MOVE_EV);
-		this._unbind(END_EV);
-		this._unbind(CANCEL_EV);
+		this._unbind(MOVE_EV, body);
+		this._unbind(END_EV, body);
+		this._unbind(CANCEL_EV, body);
 	},
 	
 	enable: function () {
