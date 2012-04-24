@@ -75,6 +75,7 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
+			childSelector: null,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -112,7 +113,21 @@ var m = Math,
 
 		// User defined options
 		for (i in options) that.options[i] = options[i];
-		
+			
+		//Allow child element to be specified
+		if (that.options.childSelector){
+			var selector = options.childSelector,
+				firstChar = selector.charAt(0);
+
+			//Check if it's a class or id (assumes id if no `.` or `#`)
+			if (firstChar === '.'){
+				that.scroller = that.wrapper.getElementsByClassName(selector.substring(1))[0];
+			}else{
+				var selectorId = (firstChar === '#') ? selector.substring(1) : selector;
+				that.scroller = document.getElementById(selectorId);
+			}
+		}
+
 		// Set starting position
 		that.x = that.options.x;
 		that.y = that.options.y;
