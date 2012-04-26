@@ -654,18 +654,18 @@ iScroll.prototype = {
 			}
 			
 			return;
+		} else if (that.options.wheelAction == 'scroll'){
+			deltaX = that.x + wheelDeltaX;
+			deltaY = that.y + wheelDeltaY;
+
+			if (deltaX > 0) deltaX = 0;
+			else if (deltaX < that.maxScrollX) deltaX = that.maxScrollX;
+
+			if (deltaY > that.minScrollY) deltaY = that.minScrollY;
+			else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
+
+			that.scrollTo(deltaX, deltaY, 0);
 		}
-		
-		deltaX = that.x + wheelDeltaX;
-		deltaY = that.y + wheelDeltaY;
-
-		if (deltaX > 0) deltaX = 0;
-		else if (deltaX < that.maxScrollX) deltaX = that.maxScrollX;
-
-		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
-		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
-
-		that.scrollTo(deltaX, deltaY, 0);
 	},
 	
 	_mouseout: function (e) {
