@@ -201,26 +201,12 @@ iScroll.prototype = {
 	// visual artifacts.
 	
 	// client = box + padding = inner
-	_clientWidth: function(ele) {
-		return ele.clientWidth;
-		//return $(ele).actual("innerWidth");
-	},
-	
-	_clientHeight: function(ele) {
-		return ele.clientHeight;
-		//return $(ele).actual("innerHeight");
-	},
+	_clientWidth:  function(ele) { return ele.clientWidth; },
+	_clientHeight: function(ele) { return ele.clientHeight; },
 	
 	// offset = box + padding + border = outer
-	_offsetWidth: function(ele) {
-		return ele.offsetWidth;
-		//return $(ele).actual("outerWidth");
-	},
-	
-	_offsetHeight: function(ele) {
-		return ele.offsetHeight;
-		//return $(ele).actual("outerHeight");
-	},
+	_offsetWidth:  function(ele) { return ele.offsetWidth; },
+	_offsetHeight: function(ele) { return ele.offsetHeight; },
 	
 	_checkDOMChanges: function () {
 		if (this.moved || this.zoomed || this.animating ||
