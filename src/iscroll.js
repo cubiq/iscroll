@@ -187,9 +187,45 @@ iScroll.prototype = {
 		}
 	},
 	
+	// Return width/height of elements. This is centralized in these four functions so
+	// that they can be sub-classed by application software or framework plugins. 
+	//
+	// This permits getting these values in some environments (e.g. jQuery Mobile) 
+	// that load multiple pages into the DOM but hide them when not the 
+	// currently-displayed page. DOM methods can't get the width/height of 
+	// hidden elements. But a jQuery plugin, jquery.actual, makes that possible. 
+    //
+	// Using the default code for these functions, it would be necessary for
+	// JQM applications to either delay instantiation until the first pageshow
+	// event, or else call refresh() on the first pageshow, resulting in unwanted
+	// visual artifacts.
+	
+	// client = box + padding = inner
+	_clientWidth: function(ele) {
+		return ele.clientWidth;
+		//return $(ele).actual("innerWidth");
+	},
+	
+	_clientHeight: function(ele) {
+		return ele.clientHeight;
+		//return $(ele).actual("innerHeight");
+	},
+	
+	// offset = box + padding + border = outer
+	_offsetWidth: function(ele) {
+		return ele.offsetWidth;
+		//return $(ele).actual("outerWidth");
+	},
+	
+	_offsetHeight: function(ele) {
+		return ele.offsetHeight;
+		//return $(ele).actual("outerHeight");
+	},
+	
 	_checkDOMChanges: function () {
 		if (this.moved || this.zoomed || this.animating ||
-			(this.scrollerW == this.scroller.offsetWidth * this.scale && this.scrollerH == this.scroller.offsetHeight * this.scale)) return;
+			(this.scrollerW == this._offsetWidth(this.scroller) * this.scale && this.scrollerH == this._offsetHeight(this.scroller) * this.scale)) return;	
+
 
 		this.refresh();
 	},
@@ -235,13 +271,13 @@ iScroll.prototype = {
 		}
 
 		if (dir == 'h') {
-			that.hScrollbarSize = that.hScrollbarWrapper.clientWidth;
+			that.hScrollbarSize = this._clientWidth(that.hScrollbarWrapper);
 			that.hScrollbarIndicatorSize = m.max(mround(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
 			that.hScrollbarIndicator.style.width = that.hScrollbarIndicatorSize + 'px';
 			that.hScrollbarMaxScroll = that.hScrollbarSize - that.hScrollbarIndicatorSize;
 			that.hScrollbarProp = that.hScrollbarMaxScroll / that.maxScrollX;
 		} else {
-			that.vScrollbarSize = that.vScrollbarWrapper.clientHeight;
+			that.vScrollbarSize = this._clientHeight(that.vScrollbarWrapper);
 			that.vScrollbarIndicatorSize = m.max(mround(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
 			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
@@ -892,12 +928,12 @@ iScroll.prototype = {
 			page = 0;
 
 		if (that.scale < that.options.zoomMin) that.scale = that.options.zoomMin;
-		that.wrapperW = that.wrapper.clientWidth || 1;
-		that.wrapperH = that.wrapper.clientHeight || 1;
+		that.wrapperW = this._clientWidth(that.wrapper) || 1;
+		that.wrapperH = this._clientHeight(that.wrapper) || 1;		
 
 		that.minScrollY = -that.options.topOffset || 0;
-		that.scrollerW = mround(that.scroller.offsetWidth * that.scale);
-		that.scrollerH = mround((that.scroller.offsetHeight + that.minScrollY) * that.scale);
+		that.scrollerW = mround(this._offsetWidth(that.scroller) * that.scale);
+		that.scrollerH = mround((this._offsetHeight(that.scroller) + that.minScrollY) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
 		that.dirX = 0;
