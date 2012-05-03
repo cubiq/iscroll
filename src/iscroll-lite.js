@@ -508,9 +508,18 @@ iScroll.prototype = {
 	refresh: function () {
 		var that = this,
 			offset;
+		
+		var clientWidth = that.wrapper.clientWidth;
+		var clientHeight = that.wrapper.clientHeight;
+		
+		// If the wrapper has zero width or height then we shouldn't do any more.
+		// This can happen if someone is using display:none to hide a screen. 
+		if(clientWidth * clientHeight === 0) {
+			return;
+		}
 
-		that.wrapperW = that.wrapper.clientWidth;
-		that.wrapperH = that.wrapper.clientHeight;
+		that.wrapperW = clientWidth;
+		that.wrapperH = clientHeight;
 
 		that.scrollerW = that.scroller.offsetWidth;
 		that.scrollerH = that.scroller.offsetHeight;
