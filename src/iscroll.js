@@ -27,7 +27,7 @@ var m = Math,
 			|| window.mozRequestAnimationFrame
 			|| window.oRequestAnimationFrame
 			|| window.msRequestAnimationFrame
-			|| function(callback) { return setTimeout(callback, 1); }
+			|| function(callback) { return setTimeout(callback, 1); };
 	})(),
 	cancelFrame = (function () {
 	    return window.cancelRequestAnimationFrame
@@ -36,7 +36,7 @@ var m = Math,
 			|| window.mozCancelRequestAnimationFrame
 			|| window.oCancelRequestAnimationFrame
 			|| window.msCancelRequestAnimationFrame
-			|| clearTimeout
+			|| clearTimeout;
 	})(),
 
 	// Events
