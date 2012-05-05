@@ -111,7 +111,7 @@ var m = Math,
 		};
 
 		// User defined options
-		for (var i in options) that.options[i] = options[i];
+		for (i in options) that.options[i] = options[i];
 		
 		// Set starting position
 		that.x = that.options.x;
