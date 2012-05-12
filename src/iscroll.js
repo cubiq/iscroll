@@ -74,6 +74,7 @@ var m = Math,
 			useTransform: true,
 			useTransition: false,
 			topOffset: 0,
+			bottomOffset: 0,
 			checkDOMChanges: false,		// Experimental
 
 			// Scrollbar
@@ -899,7 +900,7 @@ iScroll.prototype = {
 		that.scrollerW = mround(that.scroller.offsetWidth * that.scale);
 		that.scrollerH = mround((that.scroller.offsetHeight + that.minScrollY) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
-		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
+		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY + (that.options.bottomOffset || 0);		
 		that.dirX = 0;
 		that.dirY = 0;
 
