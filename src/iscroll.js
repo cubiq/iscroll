@@ -114,18 +114,9 @@ var m = Math,
 		// User defined options
 		for (i in options) that.options[i] = options[i];
 			
-		//Allow child element to be specified
+		//Allow child element to be specified (not supported IE < 8 - http://caniuse.com/queryselector)
 		if (that.options.childSelector){
-			var selector = options.childSelector,
-				firstChar = selector.charAt(0);
-
-			//Check if it's a class or id (assumes id if no `.` or `#`)
-			if (firstChar === '.'){
-				that.scroller = that.wrapper.getElementsByClassName(selector.substring(1))[0];
-			}else{
-				var selectorId = (firstChar === '#') ? selector.substring(1) : selector;
-				that.scroller = document.getElementById(selectorId);
-			}
+			that.scroller = that.wrapper.querySelector(that.options.childSelector);
 		}
 
 		// Set starting position
