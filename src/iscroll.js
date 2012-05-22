@@ -664,8 +664,10 @@ iScroll.prototype = {
 
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
-
-		that.scrollTo(deltaX, deltaY, 0);
+    
+    if(that.maxScrollY < 0){
+		  that.scrollTo(deltaX, deltaY, 0);
+    }
 	},
 	
 	_mouseout: function (e) {
