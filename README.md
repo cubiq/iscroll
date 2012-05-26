@@ -27,7 +27,7 @@ In completely random order:
 - [Christoph Pojer](http://cpojer.net) for ideas, suggestions and bug reports
 - [Shimon Dookdin](https://github.com/shimondoodkin) for help with wheel support
 - [Will Bailey](http://blog.thirtymontgomery.com/) for commonJS compatibility
-- [Aaron Infidel](https://github.com/lifeiscontent) for bug reports and continued support
+- [Aaron Reisman](https://github.com/lifeiscontent) for bug reports and continued support
 - [David Haslem](https://github.com/therabidbanana) for suggestions and bug reports
 - [gingertom](https://github.com/gingertom) for suggestions and bug reports
 - [David Alan Hjelle](https://github.com/dahjelle) for bug squashing
