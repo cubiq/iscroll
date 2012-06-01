@@ -1,3 +1,28 @@
+iScroll fork v4.1.9.2 - 2012-05-31
+===========================
+
+## Branch History:
+ * Merged and Fixed oversized wrapper height: https://github.com/meckdahl
+ * Android and optimization: https://github.com/LeoDutra
+
+Bug resolved was observed in:
+Safari version Version 5.1.4 (6534.54.16)
+iOS 4.x Safari
+- Scroll failed to work and just sprung back to starting point.
+
+Issue due to clientHeight in usage case returned the same height for both wrapper and scroller.
+
+This caused the expected scroll region to be zero. Height = ABS(wrapperHeight - scrollerHeight)
+
+The wrapper height was pushed to its parent, which returned the correct (viewport) height.
+
+Note:  This was inside Spine.JS webapp.
+
+Enjoy,
+
+Mark Eckdahl
+www.schedulemax.com
+
 iScroll v4.1.9 - 2011-09-22
 ===========================
 
