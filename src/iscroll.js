@@ -672,9 +672,9 @@ iScroll.prototype = {
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
 
-        //if(that.maxScrollY < 0){
-		    that.scrollTo(deltaX, deltaY, 0);
-        //}
+		if(that.maxScrollY < 0){ // Should this run all the time?
+			hat.scrollTo(deltaX, deltaY, 0);
+		}
 	},
 	
 	_mouseout: function (e) {
@@ -902,7 +902,10 @@ iScroll.prototype = {
 
 		if (that.scale < that.options.zoomMin) that.scale = that.options.zoomMin;
 		that.wrapperW = that.wrapper.clientWidth || 1;
-		that.wrapperH = $(that.wrapper).parent().height() || 1;	// Fix for too tall wrapper, wouldn't scroll
+		
+		that.wrapperH = ( $(that.wrapper).parent().height() < that.wrapper.clientHeight  ? $(that.wrapper).parent().height()
+			: that.wrapper.clientHeight ) || 1;
+		//that.wrapperH = $(that.wrapper).parent().height() || 1;	// Fix for wrapper and scroller having same height, wouldn't scroll
 		//that.wrapperH = that.wrapper.clientHeight || 1;
 
 		that.minScrollY = -that.options.topOffset || 0;
@@ -910,9 +913,6 @@ iScroll.prototype = {
 		that.scrollerH = mround((that.scroller.offsetHeight + that.minScrollY) * that.scale);
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
-		console.log("wrapper Height = " + that.wrapperH);
-		console.log("scroller Height = " + that.scrollerH);
-		console.log("Need to be smaller wrapper view than scroller!")
 		that.dirX = 0;
 		that.dirY = 0;
 
