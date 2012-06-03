@@ -258,6 +258,8 @@ iScroll.prototype = {
 	},
 	
 	_pos: function (x, y) {
+		if (this.zoomed) return;
+
 		x = this.hScroll ? x : 0;
 		y = this.vScroll ? y : 0;
 
