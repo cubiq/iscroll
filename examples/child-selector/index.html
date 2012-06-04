@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>iScroll demo: simple</title>
+
+<script type="text/javascript" src="../../src/iscroll.js"></script>
+
+<script type="text/javascript">
+
+var myScroll;
+function loaded() {
+	myScroll = new iScroll('wrapper', {
+		childSelector: '#list-2'
+	});
+}
+
+document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+/* * * * * * * *
+ *
+ * Use this for high compatibility (iDevice + Android)
+ *
+ */
+document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
+/*
+ * * * * * * * */
+
+
+/* * * * * * * *
+ *
+ * Use this for iDevice only
+ *
+ */
+//document.addEventListener('DOMContentLoaded', loaded, false);
+/*
+ * * * * * * * */
+
+
+/* * * * * * * *
+ *
+ * Use this if nothing else works
+ *
+ */
+//window.addEventListener('load', setTimeout(function () { loaded(); }, 200), false);
+/*
+ * * * * * * * */
+
+</script>
+
+<style type="text/css" media="all">
+body,ul,li {
+	padding:0;
+	margin:0;
+	border:0;
+}
+
+body {
+	font-size:12px;
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
+	font-family:helvetica;
+}
+
+#header {
+	position:absolute; z-index:2;
+	top:0; left:0;
+	width:100%;
+	height:45px;
+	line-height:45px;
+	background-color:#d51875;
+	background-image:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #fe96c9), color-stop(0.05, #d51875), color-stop(1, #7b0a2e));
+	background-image:-moz-linear-gradient(top, #fe96c9, #d51875 5%, #7b0a2e);
+	background-image:-o-linear-gradient(top, #fe96c9, #d51875 5%, #7b0a2e);
+	padding:0;
+	color:#eee;
+	font-size:20px;
+	text-align:center;
+}
+
+#header a {
+	color:#f3f3f3;
+	text-decoration:none;
+	font-weight:bold;
+	text-shadow:0 -1px 0 rgba(0,0,0,0.5);
+}
+
+#footer {
+	position:absolute; z-index:2;
+	bottom:0; left:0;
+	width:100%;
+	height:48px;
+	background-color:#222;
+	background-image:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0, #999), color-stop(0.02, #666), color-stop(1, #222));
+	background-image:-moz-linear-gradient(top, #999, #666 2%, #222);
+	background-image:-o-linear-gradient(top, #999, #666 2%, #222);
+	padding:0;
+	border-top:1px solid #444;
+}
+
+#wrapper {
+	position:absolute; z-index:1;
+	top:45px; bottom:48px; left:0;
+	width:100%;
+	background:#aaa;
+	overflow:auto;
+}
+
+#wrapper {
+	position:absolute; z-index:1;
+/*	-webkit-touch-callout:none;*/
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+	width:100%;
+	padding:0;
+}
+
+#wrapper ul {
+	list-style:none;
+	padding:0;
+	margin:0;
+	width:32%;
+	text-align:left;
+	float:left;
+	text-align:center;
+}
+
+#wrapper #list-2 {
+	border-left:2px solid #000;
+	border-right:2px solid #000;
+	width: 35%;
+}
+
+#wrapper li {
+	padding:0 10px;
+	height:40px;
+	line-height:40px;
+	border-bottom:1px solid #ccc;
+	border-top:1px solid #fff;
+	background-color:#fafafa;
+	font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div id="header"><a href="http://cubiq.org/iscroll">iScroll</a></div>
+<div id="wrapper">
+	<ul id="list-1">
+		<li>No Scroll - row 1</li>
+		<li>No Scroll - row 2</li>
+		<li>No Scroll - row 3</li>
+		<li>No Scroll - row 4</li>
+		<li>No Scroll - row 5</li>
+		<li>No Scroll - row 6</li>
+		<li>No Scroll - row 7</li>
+		<li>No Scroll - row 8</li>
+		<li>No Scroll - row 9</li>
+		<li>No Scroll - row 10</li>
+		<li>No Scroll - row 11</li>
+		<li>No Scroll - row 12</li>
+		<li>No Scroll - row 13</li>
+		<li>No Scroll - row 14</li>
+		<li>No Scroll - row 15</li>
+		<li>No Scroll - row 16</li>
+		<li>No Scroll - row 17</li>
+		<li>No Scroll - row 18</li>
+		<li>No Scroll - row 19</li>
+		<li>No Scroll - row 20</li>
+		<li>No Scroll - row 21</li>
+		<li>No Scroll - row 22</li>
+		<li>No Scroll - row 23</li>
+		<li>No Scroll - row 24</li>
+		<li>No Scroll - row 25</li>
+		<li>No Scroll - row 26</li>
+		<li>No Scroll - row 27</li>
+		<li>No Scroll - row 28</li>
+		<li>No Scroll - row 29</li>
+		<li>No Scroll - row 30</li>
+		<li>No Scroll - row 31</li>
+		<li>No Scroll - row 32</li>
+		<li>No Scroll - row 33</li>
+		<li>No Scroll - row 34</li>
+		<li>No Scroll - row 35</li>
+		<li>No Scroll - row 36</li>
+		<li>No Scroll - row 37</li>
+		<li>No Scroll - row 38</li>
+		<li>No Scroll - row 39</li>
+		<li>No Scroll - row 40</li>
+	</ul>
+	<ul id="list-2">
+		<li>Scrollable - row 1</li>
+		<li>Scrollable - row 2</li>
+		<li>Scrollable - row 3</li>
+		<li>Scrollable - row 4</li>
+		<li>Scrollable - row 5</li>
+		<li>Scrollable - row 6</li>
+		<li>Scrollable - row 7</li>
+		<li>Scrollable - row 8</li>
+		<li>Scrollable - row 9</li>
+		<li>Scrollable - row 10</li>
+		<li>Scrollable - row 11</li>
+		<li>Scrollable - row 12</li>
+		<li>Scrollable - row 13</li>
+		<li>Scrollable - row 14</li>
+		<li>Scrollable - row 15</li>
+		<li>Scrollable - row 16</li>
+		<li>Scrollable - row 17</li>
+		<li>Scrollable - row 18</li>
+		<li>Scrollable - row 19</li>
+		<li>Scrollable - row 20</li>
+		<li>Scrollable - row 21</li>
+		<li>Scrollable - row 22</li>
+		<li>Scrollable - row 23</li>
+		<li>Scrollable - row 24</li>
+		<li>Scrollable - row 25</li>
+		<li>Scrollable - row 26</li>
+		<li>Scrollable - row 27</li>
+		<li>Scrollable - row 28</li>
+		<li>Scrollable - row 29</li>
+		<li>Scrollable - row 30</li>
+		<li>Scrollable - row 31</li>
+		<li>Scrollable - row 32</li>
+		<li>Scrollable - row 33</li>
+		<li>Scrollable - row 34</li>
+		<li>Scrollable - row 35</li>
+		<li>Scrollable - row 36</li>
+		<li>Scrollable - row 37</li>
+		<li>Scrollable - row 38</li>
+		<li>Scrollable - row 39</li>
+		<li>Scrollable - row 40</li>
+	</ul>
+	<ul id="list-3">
+		<li>No Scroll - row 1</li>
+		<li>No Scroll - row 2</li>
+		<li>No Scroll - row 3</li>
+		<li>No Scroll - row 4</li>
+		<li>No Scroll - row 5</li>
+		<li>No Scroll - row 6</li>
+		<li>No Scroll - row 7</li>
+		<li>No Scroll - row 8</li>
+		<li>No Scroll - row 9</li>
+		<li>No Scroll - row 10</li>
+		<li>No Scroll - row 11</li>
+		<li>No Scroll - row 12</li>
+		<li>No Scroll - row 13</li>
+		<li>No Scroll - row 14</li>
+		<li>No Scroll - row 15</li>
+		<li>No Scroll - row 16</li>
+		<li>No Scroll - row 17</li>
+		<li>No Scroll - row 18</li>
+		<li>No Scroll - row 19</li>
+		<li>No Scroll - row 20</li>
+		<li>No Scroll - row 21</li>
+		<li>No Scroll - row 22</li>
+		<li>No Scroll - row 23</li>
+		<li>No Scroll - row 24</li>
+		<li>No Scroll - row 25</li>
+		<li>No Scroll - row 26</li>
+		<li>No Scroll - row 27</li>
+		<li>No Scroll - row 28</li>
+		<li>No Scroll - row 29</li>
+		<li>No Scroll - row 30</li>
+		<li>No Scroll - row 31</li>
+		<li>No Scroll - row 32</li>
+		<li>No Scroll - row 33</li>
+		<li>No Scroll - row 34</li>
+		<li>No Scroll - row 35</li>
+		<li>No Scroll - row 36</li>
+		<li>No Scroll - row 37</li>
+		<li>No Scroll - row 38</li>
+		<li>No Scroll - row 39</li>
+		<li>No Scroll - row 40</li>
+	</ul>
+</div>
+<div id="footer"></div>
+
+</body>
+</html>

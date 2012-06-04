@@ -75,6 +75,7 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
+			childSelector: null,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -112,7 +113,12 @@ var m = Math,
 
 		// User defined options
 		for (i in options) that.options[i] = options[i];
-		
+			
+		//Allow child element to be specified (not supported IE < 8 - http://caniuse.com/queryselector)
+		if (that.options.childSelector){
+			that.scroller = that.wrapper.querySelector(that.options.childSelector);
+		}
+
 		// Set starting position
 		that.x = that.options.x;
 		that.y = that.options.y;
