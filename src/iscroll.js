@@ -69,6 +69,7 @@ var m = Math,
 			y: 0,
 			bounce: true,
 			bounceLock: false,
+			bounceDelay: 0,
 			momentum: true,
 			lockDirection: true,
 			useTransform: true,
@@ -538,7 +539,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that._resetPos(200);
+			that._resetPos(that.options.bounceDelay + 200);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
@@ -591,7 +592,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos(200);
+		that._resetPos(that.options.bounceDelay + 200);
 		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 	},
 	
@@ -666,10 +667,8 @@ iScroll.prototype = {
 
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
-    
-    if(that.maxScrollY < 0){
-		  that.scrollTo(deltaX, deltaY, 0);
-    }
+
+		that.scrollTo(deltaX, deltaY, 0);
 	},
 	
 	_mouseout: function (e) {
@@ -711,7 +710,7 @@ iScroll.prototype = {
 		if (that.animating) return;
 		
 		if (!that.steps.length) {
-			that._resetPos(400);
+			that._resetPos(that.options.bounceDelay + 400);
 			return;
 		}
 		
@@ -957,7 +956,7 @@ iScroll.prototype = {
 
 		if (!that.zoomed) {
 			that.scroller.style[vendor + 'TransitionDuration'] = '0';
-			that._resetPos(200);
+			that._resetPos(that.options.bounceDelay + 200);
 		}
 	},
 
