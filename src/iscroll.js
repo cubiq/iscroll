@@ -463,8 +463,6 @@ iScroll.prototype = {
 	},
 	
 	_end: function (e) {
-		if (hasTouch && e.touches.length != 0) return;
-
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
 			target, ev,
