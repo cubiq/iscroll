@@ -61,54 +61,9 @@ var m = Math,
 		that.wrapper.style.overflow = 'hidden';
 		that.scroller = that.wrapper.children[0];
 
-		// Default options
-		that.options = {
-			hScroll: true,
-			vScroll: true,
-			x: 0,
-			y: 0,
-			bounce: true,
-			bounceLock: false,
-			momentum: true,
-			lockDirection: true,
-			useTransform: true,
-			useTransition: false,
-			topOffset: 0,
-			checkDOMChanges: false,		// Experimental
-
-			// Scrollbar
-			hScrollbar: true,
-			vScrollbar: true,
-			fixedScrollbar: isAndroid,
-			hideScrollbar: isIDevice,
-			fadeScrollbar: isIDevice && has3d,
-			scrollbarClass: '',
-
-			// Zoom
-			zoom: false,
-			zoomMin: 1,
-			zoomMax: 4,
-			doubleTapZoom: 2,
-			wheelAction: 'scroll',
-
-			// Snap
-			snap: false,
-			snapThreshold: 1,
-
-			// Events
-			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
-			onScrollStart: null,
-			onBeforeScrollMove: null,
-			onScrollMove: null,
-			onBeforeScrollEnd: null,
-			onScrollEnd: null,
-			onTouchEnd: null,
-			onDestroy: null,
-			onZoomStart: null,
-			onZoom: null,
-			onZoomEnd: null
-		};
+		// Copy default options
+		that.options={};
+		for (i in iScroll.defaults) that.options[i] = iScroll.defaults[i];
 
 		// User defined options
 		for (i in options) that.options[i] = options[i];
@@ -157,6 +112,55 @@ var m = Math,
 			that._checkDOMChanges();
 		}, 500);
 	};
+
+// Default options
+iScroll.defaults = {
+	hScroll: true,
+	vScroll: true,
+	x: 0,
+	y: 0,
+	bounce: true,
+	bounceLock: false,
+	momentum: true,
+	lockDirection: true,
+	useTransform: true,
+	useTransition: false,
+	topOffset: 0,
+	checkDOMChanges: false,		// Experimental
+
+	// Scrollbar
+	hScrollbar: true,
+	vScrollbar: true,
+	fixedScrollbar: isAndroid,
+	hideScrollbar: isIDevice,
+	fadeScrollbar: isIDevice && has3d,
+	scrollbarClass: '',
+
+	// Zoom
+	zoom: false,
+	zoomMin: 1,
+	zoomMax: 4,
+	doubleTapZoom: 2,
+	wheelAction: 'scroll',
+
+	// Snap
+	snap: false,
+	snapThreshold: 1,
+
+	// Events
+	onRefresh: null,
+	onBeforeScrollStart: function (e) { e.preventDefault(); },
+	onScrollStart: null,
+	onBeforeScrollMove: null,
+	onScrollMove: null,
+	onBeforeScrollEnd: null,
+	onScrollEnd: null,
+	onTouchEnd: null,
+	onDestroy: null,
+	onZoomStart: null,
+	onZoom: null,
+	onZoomEnd: null
+};
 
 // Prototype
 iScroll.prototype = {
