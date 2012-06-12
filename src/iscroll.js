@@ -325,7 +325,13 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
-		if (that._isMomentumActive) that._isMomentumActive = false;
+		if (that._isMomentumActive)
+		{
+			that._isMomentumActive = false;
+			if (that.options.onMomentumEnd) that.options.onMomentumEnd.call(that);
+			if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);
+		}
+
 		if (that.options.useTransition || that.options.zoom) that._transitionTime(0);
 
 		that.moved = false;
