@@ -75,6 +75,7 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
+      handleClick: true,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -517,7 +518,7 @@ iScroll.prototype = {
 							that.options.onZoomEnd.call(that, e);
 						}, 200); // 200 is default zoom duration
 					}
-				} else {
+				} else if (this.options.handleClick) {
 					that.doubleTapTimer = setTimeout(function () {
 						that.doubleTapTimer = null;
 
