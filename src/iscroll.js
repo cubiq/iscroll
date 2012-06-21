@@ -58,7 +58,7 @@ var m = Math,
 			i;
 
 		that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
-		that.wrapper.style.overflow = 'hidden';
+		that.wrapper.style.overflow = document.addEventListener ? 'hidden' : 'auto';
 		that.scroller = that.wrapper.children[0];
 
 		// Default options
@@ -845,11 +845,13 @@ iScroll.prototype = {
 	},
 
 	_bind: function (type, el, bubble) {
-		(el || this.scroller).addEventListener(type, this, !!bubble);
+		if((el || this.scroller).addEventListener)
+			(el || this.scroller).addEventListener(type, this, !!bubble);
 	},
 
 	_unbind: function (type, el, bubble) {
-		(el || this.scroller).removeEventListener(type, this, !!bubble);
+		if((el || this.scroller).addEventListener)
+			(el || this.scroller).removeEventListener(type, this, !!bubble);
 	},
 
 
