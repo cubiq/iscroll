@@ -75,7 +75,8 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
-      handleClick: true,
+			handleClick: true,
+			minDistance: 6,
 
 			// Scrollbar
 			hScrollbar: true,
@@ -434,7 +435,7 @@ iScroll.prototype = {
 		that.absDistX = m.abs(that.distX);
 		that.absDistY = m.abs(that.distY);
 
-		if (that.absDistX < 6 && that.absDistY < 6) {
+		if (that.absDistX < that.options.minDistance && that.absDistY < that.options.minDistance) {
 			return;
 		}
 
