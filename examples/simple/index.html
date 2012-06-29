@@ -9,45 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-
-var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper');
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-
-/* * * * * * * *
- *
- * Use this for high compatibility (iDevice + Android)
- *
- */
-document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
-/*
- * * * * * * * */
-
-
-/* * * * * * * *
- *
- * Use this for iDevice only
- *
- */
-//document.addEventListener('DOMContentLoaded', loaded, false);
-/*
- * * * * * * * */
-
-
-/* * * * * * * *
- *
- * Use this if nothing else works
- *
- */
-//window.addEventListener('load', setTimeout(function () { loaded(); }, 200), false);
-/*
- * * * * * * * */
-
-</script>
 
 <style type="text/css" media="all">
 body,ul,li {
@@ -184,6 +145,63 @@ body {
 	</div>
 </div>
 <div id="footer"></div>
+
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper');
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+	/* * * * * * * *
+	 *
+	 * Use this for high compatibility (iDevice + Android)
+	 *
+	 */
+	document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);
+	/*
+	 * * * * * * * */
+	
+	
+	/* * * * * * * *
+	 *
+	 * Use this for iDevice only
+	 *
+	 */
+	//document.addEventListener('DOMContentLoaded', loaded, false);
+	/*
+	 * * * * * * * */
+	
+	
+	/* * * * * * * *
+	 *
+	 * Use this if nothing else works
+	 *
+	 */
+	//window.addEventListener('load', setTimeout(function () { loaded(); }, 200), false);
+	/*
+	 * * * * * * * */
+
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>	
+
 
 </body>
 </html>

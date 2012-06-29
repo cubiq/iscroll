@@ -9,20 +9,7 @@
 
 <link rel="stylesheet" type="text/css" href="scrollbar.css">
 
-<script type="application/javascript" src="../../src/iscroll.js?v4"></script>
-
-<script type="text/javascript">
-
-var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper', { scrollbarClass: 'myScrollbar' });
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
+<script type="text/javascript" src="../../src/iscroll.js?v4"></script>
 
 <style type="text/css" media="all">
 body,ul,li {
@@ -167,6 +154,33 @@ body {
 </div>
 
 <div id="footer"></div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+	myScroll = new iScroll('wrapper', { scrollbarClass: 'myScrollbar' });
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
 
 </body>
 </html>

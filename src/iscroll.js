@@ -15,6 +15,7 @@ var m = Math,
     isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
     isPlaybook = (/playbook/gi).test(navigator.appVersion),
     isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
+    isOldIE = (document.all) && !document.getElementsByClassName, // IE < 9.
 
     has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
     hasTouch = 'ontouchstart' in window && !isTouchPad,
@@ -46,6 +47,7 @@ var m = Math,
 	END_EV = hasTouch ? 'touchend' : 'mouseup',
 	CANCEL_EV = hasTouch ? 'touchcancel' : 'mouseup',
 	WHEEL_EV = vendor == 'Moz' ? 'DOMMouseScroll' : 'mousewheel',
+	MOUSEOUT_EV = document.attachEvent ? 'mouseleave' : 'mouseout',
 
 	// Helpers
 	trnOpen = 'translate' + (has3d ? '3d(' : '('),
@@ -98,7 +100,15 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+			onBeforeScrollStart: function (e) { 
+
+				if (e.preventDefault) {
+					e.preventDefault();
+				} else {
+					e.returnValue = false;
+				}
+				 
+			},
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
@@ -145,6 +155,9 @@ var m = Math,
 		if (that.options.useTransition) that.options.fixedScrollbar = true;
 
 		that.refresh();
+		
+		// Disable ondragstart (mainly for IE 8).
+		that.scroller.ondragstart = function () { return false; };
 
 		that._bind(RESIZE_EV, window);
 		that._bind(START_EV);
@@ -175,7 +188,7 @@ iScroll.prototype = {
 		var that = this;
 		switch(e.type) {
 			case START_EV:
-				if (!hasTouch && e.button !== 0) return;
+				if ((!hasTouch && e.button !== 0 && !isOldIE) || (isOldIE && e.button !== 1)) return;
 				that._start(e);
 				break;
 			case MOVE_EV: that._move(e); break;
@@ -183,10 +196,12 @@ iScroll.prototype = {
 			case CANCEL_EV: that._end(e); break;
 			case RESIZE_EV: that._resize(); break;
 			case WHEEL_EV: that._wheel(e); break;
-			case 'mouseout': that._mouseout(e); break;
+			case MOUSEOUT_EV: that._mouseout(e); break;
 			case 'webkitTransitionEnd': that._transitionEnd(e); break;
 		}
 	},
+	
+	events : {},
 	
 	_checkDOMChanges: function () {
 		if (this.moved || this.zoomed || this.animating ||
@@ -315,6 +330,8 @@ iScroll.prototype = {
 	_start: function (e) {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
+			docBody = document.body,
+			docEl = document.documentElement,
 			matrix, x, y,
 			c1, c2;
 
@@ -353,8 +370,9 @@ iScroll.prototype = {
 				x = matrix[4] * 1;
 				y = matrix[5] * 1;
 			} else {
-				x = getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '') * 1;
-				y = getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '') * 1;
+				// Use currentStyle if applicable (IE).
+				x = (that.scroller.currentStyle || getComputedStyle(that.scroller, null)).left.replace(/[^0-9-]/g, '') * 1;
+				y = (that.scroller.currentStyle || getComputedStyle(that.scroller, null)).top.replace(/[^0-9-]/g, '') * 1;
 			}
 			
 			if (x != that.x || y != that.y) {
@@ -370,10 +388,11 @@ iScroll.prototype = {
 
 		that.startX = that.x;
 		that.startY = that.y;
-		that.pointX = point.pageX;
-		that.pointY = point.pageY;
+		
+		that.pointX = (point.pageX || point.clientX + docBody.scrollLeft + docEl.scrollLeft);
+		that.pointY = (point.pageY || point.clientY + docBody.scrollTop + docEl.scrollTop);
 
-		that.startTime = e.timeStamp || Date.now();
+		that.startTime = e.timeStamp || new Date().getTime();
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
 
@@ -385,12 +404,14 @@ iScroll.prototype = {
 	_move: function (e) {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
-			deltaX = point.pageX - that.pointX,
-			deltaY = point.pageY - that.pointY,
+			docBody = document.body,
+			docEl = document.documentElement,
+			deltaX = (point.pageX || point.clientX + docBody.scrollLeft + docEl.scrollLeft) - that.pointX,
+			deltaY = (point.pageY || point.clientY + docBody.scrollTop + docEl.scrollTop) - that.pointY,
 			newX = that.x + deltaX,
 			newY = that.y + deltaY,
 			c1, c2, scale,
-			timestamp = e.timeStamp || Date.now();
+			timestamp = e.timeStamp || new Date().getTime();
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
@@ -418,8 +439,8 @@ iScroll.prototype = {
 			return;
 		}
 
-		that.pointX = point.pageX;
-		that.pointY = point.pageY;
+		that.pointX = (point.pageX || point.clientX + docBody.scrollLeft + docEl.scrollLeft);
+		that.pointY = (point.pageY || point.clientY + docBody.scrollTop + docEl.scrollTop);
 
 		// Slow down if outside of the boundaries
 		if (newX > 0 || newX < that.maxScrollX) {
@@ -471,7 +492,7 @@ iScroll.prototype = {
 			target, ev,
 			momentumX = { dist:0, time:0 },
 			momentumY = { dist:0, time:0 },
-			duration = (e.timeStamp || Date.now()) - that.startTime,
+			duration = (e.timeStamp || new Date().getTime()) - that.startTime,
 			newPosX = that.x,
 			newPosY = that.y,
 			distX, distY,
@@ -705,7 +726,7 @@ iScroll.prototype = {
 	_startAni: function () {
 		var that = this,
 			startX = that.x, startY = that.y,
-			startTime = Date.now(),
+			startTime = new Date().getTime(),
 			step, easeOut,
 			animate;
 
@@ -733,7 +754,7 @@ iScroll.prototype = {
 		}
 
 		animate = function () {
-			var now = Date.now(),
+			var now = new Date().getTime(),
 				newX, newY;
 
 			if (now >= startTime + step.time) {
@@ -845,11 +866,40 @@ iScroll.prototype = {
 	},
 
 	_bind: function (type, el, bubble) {
-		(el || this.scroller).addEventListener(type, this, !!bubble);
+
+		var fn = this;
+
+		if (document.addEventListener) {
+
+			(el || this.scroller).addEventListener(type, this, !!bubble);
+
+		} else {
+		
+			// Store function so we can detachEvent later.
+			this.events[type] = function(e) {
+				fn.handleEvent.call(fn, e);
+			};
+		
+			(el || this.scroller).attachEvent('on' + type, this.events[type]);
+
+		}
+
 	},
 
 	_unbind: function (type, el, bubble) {
-		(el || this.scroller).removeEventListener(type, this, !!bubble);
+		
+		if (document.removeEventListener) {
+
+			(el || this.scroller).removeEventListener(type, this, !!bubble);
+
+		} else {
+
+			if (this.events[type]) {
+				(el || this.scroller).detachEvent('on' + type, this.events[type]);				
+			}
+
+		}
+		
 	},
 
 

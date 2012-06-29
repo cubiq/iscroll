@@ -9,23 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-
-var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper', { checkDOMChanges: true });
-	
-	setInterval(function () {
-		if (myScroll.isReady())
-			document.getElementById('thelist').innerHTML += '<li>new row</li>';
-	}, 2000);
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
-
 <style type="text/css" media="all">
 body,ul,li {
 	padding:0;
@@ -167,6 +150,40 @@ body {
 	</div>
 </div>
 <div id="footer"></div>
+
+<script type="text/javascript">
+
+
+var myScroll;
+
+
+function loaded() {
+
+
+	myScroll = new iScroll('wrapper', { checkDOMChanges: true });
+	
+	setInterval(function () {
+		if (myScroll.isReady())
+			document.getElementById('thelist').innerHTML += '<li>new row</li>';
+	}, 2000);
+
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+
+</script>
 
 </body>
 </html>

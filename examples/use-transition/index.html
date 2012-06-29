@@ -9,19 +9,6 @@
 
 <script type="text/javascript" src="../../src/iscroll.js"></script>
 
-<script type="text/javascript">
-
-var scroll1, scroll2;
-function loaded() {
-	scroll1 = new iScroll('standard');
-	scroll2 = new iScroll('transition', { useTransition:true });
-}
-
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', loaded, false);
-
-</script>
-
 <style type="text/css" media="all">
 ul,li {
 	padding:0;
@@ -181,6 +168,32 @@ body {
 	</div>
 </div>
 
+<script type="text/javascript">
+
+
+var scroll1, scroll2;
+
+
+function loaded() {
+
+	scroll1 = new iScroll('standard');
+	scroll2 = new iScroll('transition', { useTransition:true });
+
+}
+
+
+if (document.addEventListener) {
+
+	document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+	document.addEventListener('DOMContentLoaded', loaded, false);
+	
+} else {
+
+	document.body.onload = loaded;
+
+}
+
+</script>
 
 </body>
 </html>
