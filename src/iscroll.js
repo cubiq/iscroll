@@ -1114,4 +1114,4 @@ dummyStyle = null;	// for the sake of it
 if (typeof exports !== 'undefined') exports.iScroll = iScroll;
 else window.iScroll = iScroll;
 
-})(this, document);
+})(window, document);
