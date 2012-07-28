@@ -17,9 +17,9 @@ function loaded() {
 		snap: true,
 		momentum: false,
 		hScrollbar: false,
-		onScrollEnd: function () {
+		onPageChange: function (pageX, pageY) {
 			document.querySelector('#indicator > li.active').className = '';
-			document.querySelector('#indicator > li:nth-child(' + (this.currPageX+1) + ')').className = 'active';
+			document.querySelector('#indicator > li:nth-child(' + (pageX+1) + ')').className = 'active';
 		}
 	 });
 }

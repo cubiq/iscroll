@@ -127,6 +127,7 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
+			onPageChange: null,
 			onBeforeScrollStart: function (e) { e.preventDefault(); },
 			onScrollStart: null,
 			onBeforeScrollMove: null,
@@ -1004,6 +1005,8 @@ iScroll.prototype = {
 		}
 
 		that._startAni();
+
+		if (that.options.onPageChange) that.options.onPageChange.call(that, that.currPageX, that.currPageY);
 	},
 
 	scrollToElement: function (el, time) {
