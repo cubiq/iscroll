@@ -922,10 +922,19 @@ iScroll.prototype = {
 			els,
 			pos = 0,
 			page = 0;
+			
+		var clientWidth = that.wrapper.clientWidth;
+		var clientHeight = that.wrapper.clientHeight;
+		
+		// If the wrapper has zero width or height then we shouldn't do any more.
+		// This can happen if someone is using display:none to hide a screen. 
+		if(clientWidth * clientHeight === 0) {
+			return;
+		}
 
 		if (that.scale < that.options.zoomMin) that.scale = that.options.zoomMin;
-		that.wrapperW = that.wrapper.clientWidth || 1;
-		that.wrapperH = that.wrapper.clientHeight || 1;
+		that.wrapperW = clientWidth || 1;
+		that.wrapperH = clientHeight || 1;
 
 		that.minScrollY = -that.options.topOffset || 0;
 		that.scrollerW = m.round(that.scroller.offsetWidth * that.scale);
