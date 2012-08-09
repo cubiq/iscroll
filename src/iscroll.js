@@ -1050,6 +1050,15 @@ iScroll.prototype = {
 		that.scrollTo(x, y, time);
 	},
 
+	getPage: function() { 
+
+		return {
+			x: Math.round(-this.x/this.wrapperW),
+			y: Math.round(-this.y/this.wrapperH)
+		}
+
+	},
+
 	disable: function () {
 		this.stop();
 		this._resetPos(0);
