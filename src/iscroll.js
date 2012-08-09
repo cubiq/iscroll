@@ -1050,7 +1050,7 @@ iScroll.prototype = {
 		that.scrollTo(x, y, time);
 	},
 
-	getPage = function() { 
+	getPage: function() { 
 
 		return {
 			x: Math.round(-this.x/this.wrapperW),
