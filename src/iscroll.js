@@ -39,6 +39,8 @@ var m = Math,
     hasTouch = 'ontouchstart' in window && !isTouchPad,
     hasTransform = !!vendor,
     hasTransitionEnd = prefixStyle('transition') in dummyStyle,
+    
+    stopOnTouch = '<SELECT><INPUT><TEXTAREA><BUTTON>',
 
 	RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
 	START_EV = hasTouch ? 'touchstart' : 'mousedown',
@@ -344,8 +346,9 @@ iScroll.prototype = {
 			point = hasTouch ? e.touches[0] : e,
 			matrix, x, y,
 			c1, c2;
-
-		if (!that.enabled) return;
+		
+		// Stops iscroll if touched a specific element
+		if (!that.enabled || stopOnTouch.match('<'+e.target.tagName+'>')) return;
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
