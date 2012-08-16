@@ -564,7 +564,7 @@ iScroll.prototype = {
 				}
 			}
 
-			that._resetPos(200);
+			that._resetPos(400);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
@@ -969,7 +969,7 @@ iScroll.prototype = {
 
 		if (!that.zoomed) {
 			that.scroller.style[transitionDuration] = '0';
-			that._resetPos(200);
+			that._resetPos(400);
 		}
 	},
 
