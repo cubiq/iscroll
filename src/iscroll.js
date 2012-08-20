@@ -127,7 +127,28 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+			onBeforeScrollStart: function (e) {
+				if (!(e.target instanceof HTMLButtonElement) && 
+				  !(e.srcElement instanceof HTMLButtonElement) &&
+				  
+				  !(e.target instanceof HTMLInputElement) && 
+				  !(e.srcElement instanceof HTMLInputElement) &&
+				  
+				  !(e.target instanceof HTMLOptGroupElement) && 
+				  !(e.srcElement instanceof HTMLOptGroupElement) &&
+
+				  !(e.target instanceof HTMLOptionElement) && 
+				  !(e.srcElement instanceof HTMLOptionElement) &&
+				
+				  !(e.target instanceof HTMLSelectElement) && 
+				  !(e.srcElement instanceof HTMLSelectElement) &&
+
+				  !(e.target instanceof HTMLTextAreaElement) && 
+				  !(e.srcElement instanceof HTMLTextAreaElement)) {
+				
+					e.preventDefault(); 
+
+				  }},
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
