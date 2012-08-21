@@ -134,6 +134,7 @@ var m = Math,
 			onBeforeScrollEnd: null,
 			onScrollEnd: null,
 			onTouchEnd: null,
+			onCreate: null,
 			onDestroy: null,
 			onZoomStart: null,
 			onZoom: null,
@@ -184,6 +185,10 @@ var m = Math,
 		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
 			that._checkDOMChanges();
 		}, 500);
+		
+		if (that.options.onCreate) {
+		    that.options.onCreate.apply(that, arguments);
+		}
 	};
 
 // Prototype
