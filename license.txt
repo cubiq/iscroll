@@ -1,4 +1,4 @@
-Copyright (c) 2011 Matteo Spinelli, http://cubiq.org/
+Copyright (c) 2012 Matteo Spinelli, http://cubiq.org/
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
