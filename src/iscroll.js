@@ -375,11 +375,11 @@ iScroll.prototype = {
 			if (that.options.useTransform) {
 				// Very lame general purpose alternative to CSSMatrix
 				matrix = getComputedStyle(that.scroller, null)[transform].replace(/[^0-9\-.,]/g, '').split(',');
-				x = matrix[4] * 1;
-				y = matrix[5] * 1;
+				x = +matrix[4];
+				y = +matrix[5];
 			} else {
-				x = getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '') * 1;
-				y = getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '') * 1;
+				x = +getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '');
+				y = +getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '');
 			}
 			
 			if (x != that.x || y != that.y) {
@@ -387,6 +387,7 @@ iScroll.prototype = {
 				else cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
+				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);
 			}
 		}
 
