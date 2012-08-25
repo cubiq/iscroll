@@ -53,7 +53,7 @@ var m = Math,
 				''			: 'transitionend',
 				'webkit'	: 'webkitTransitionEnd',
 				'Moz'		: 'transitionend',
-				'O'			: 'oTransitionEnd',
+				'O'			: 'otransitionend',
 				'ms'		: 'MSTransitionEnd'
 			};
 
