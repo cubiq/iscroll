@@ -350,6 +350,10 @@ iScroll.prototype = {
 		if (that.options.useTransition || that.options.zoom) that._transitionTime(0);
 
 		that.moved = false;
+		if (that.animating)
+                {
+                    that.wasAnimating = true;
+                }
 		that.animating = false;
 		that.zoomed = false;
 		that.distX = 0;
@@ -628,8 +632,9 @@ iScroll.prototype = {
 			resetY = that.y >= that.minScrollY || that.maxScrollY > 0 ? that.minScrollY : that.y < that.maxScrollY ? that.maxScrollY : that.y;
 
 		if (resetX == that.x && resetY == that.y) {
-			if (that.moved) {
+			if (that.moved || that.wasAnimating) {
 				that.moved = false;
+				that.wasAnimating = false;
 				if (that.options.onScrollEnd) that.options.onScrollEnd.call(that);		// Execute custom code on scroll end
 			}
 
@@ -734,6 +739,7 @@ iScroll.prototype = {
 		if (step.x == startX && step.y == startY) step.time = 0;
 
 		that.animating = true;
+		that.wasAnimating = false;
 		that.moved = true;
 		
 		if (that.options.useTransition) {
