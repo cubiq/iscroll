@@ -34,7 +34,7 @@ var m = Math,
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
-
+        isIE = (window.attachEvent),
     has3d = prefixStyle('perspective') in dummyStyle,
     hasTouch = 'ontouchstart' in window && !isTouchPad,
     hasTransform = !!vendor,
@@ -85,7 +85,17 @@ var m = Math,
 	iScroll = function (el, options) {
 		var that = this,
 			i;
+            this.scrollEl = window;
+            if (isIE) {
+                this.scrollEl = document.body;
+                var ua = navigator.userAgent;
+                var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+                if (re.exec(ua) != null) that.ieVersion = parseFloat(RegExp.$1);
 
+                this.ieEventHandler = function (e) {
+                    that.handleEvent(e);
+                };
+            }
 		that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
 		that.wrapper.style.overflow = 'hidden';
 		that.scroller = that.wrapper.children[0];
@@ -104,6 +114,9 @@ var m = Math,
 			useTransition: false,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
+                // standard click
+                desktop: false,
+                minSize: 50,
 			handleClick: true,
 
 			// Scrollbar
@@ -127,7 +140,11 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+                onBeforeScrollStart: function (e) {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                },
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
@@ -175,7 +192,9 @@ var m = Math,
 		that.refresh();
 
 		that._bind(RESIZE_EV, window);
+            if (!isIE) {
 		that._bind(START_EV);
+            }
 		if (!hasTouch) {
 			if (that.options.wheelAction != 'none')
 				that._bind(WHEEL_EV);
@@ -184,6 +203,22 @@ var m = Math,
 		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
 			that._checkDOMChanges();
 		}, 500);
+            if (!window.getComputedStyle) {
+                window.getComputedStyle = function (el, pseudo) {
+                    this.el = el;
+                    this.getPropertyValue = function (prop) {
+                        var re = /(\-([a-z]){1})/g;
+                        if (prop == 'float') prop = 'styleFloat';
+                        if (re.test(prop)) {
+                            prop = prop.replace(re, function () {
+                                return arguments[2].toUpperCase();
+                            });
+                        }
+                        return el.currentStyle[prop] ? el.currentStyle[prop] : null;
+                    }
+                    return this;
+                }
+            }
 	};
 
 // Prototype
@@ -200,12 +235,29 @@ iScroll.prototype = {
 	
 	handleEvent: function (e) {
 		var that = this;
+            if (!e) {
+                e = window.event;
+                e.type = e.type.slice(2);
+            }
 		switch(e.type) {
 			case START_EV:
-				if (!hasTouch && e.button !== 0) return;
+                if (!hasTouch && e.button == 2) return;
 				that._start(e);
 				break;
-			case MOVE_EV: that._move(e); break;
+            case MOVE_EV:
+                if (isIE) {
+                    if (e.button === 0) {
+                        that._end(e);
+                    } else if (e.button === 1) {
+                        that._move(e);
+                    } else if (e.button === 2) {
+                        that._move(e);
+                    }
+                    break;
+                } else {
+                    that._move(e);
+                    break;
+                }
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
 			case RESIZE_EV: that._resize(); break;
@@ -262,13 +314,13 @@ iScroll.prototype = {
 
 		if (dir == 'h') {
 			that.hScrollbarSize = that.hScrollbarWrapper.clientWidth;
-			that.hScrollbarIndicatorSize = m.max(m.round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), 8);
+                that.hScrollbarIndicatorSize = m.max(m.round(that.hScrollbarSize * that.hScrollbarSize / that.scrollerW), that.options["minSize"]);
 			that.hScrollbarIndicator.style.width = that.hScrollbarIndicatorSize + 'px';
 			that.hScrollbarMaxScroll = that.hScrollbarSize - that.hScrollbarIndicatorSize;
 			that.hScrollbarProp = that.hScrollbarMaxScroll / that.maxScrollX;
 		} else {
 			that.vScrollbarSize = that.vScrollbarWrapper.clientHeight;
-			that.vScrollbarIndicatorSize = m.max(m.round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), 8);
+                that.vScrollbarIndicatorSize = m.max(m.round(that.vScrollbarSize * that.vScrollbarSize / that.scrollerH), that.options["minSize"]);
 			that.vScrollbarIndicator.style.height = that.vScrollbarIndicatorSize + 'px';
 			that.vScrollbarMaxScroll = that.vScrollbarSize - that.vScrollbarIndicatorSize;
 			that.vScrollbarProp = that.vScrollbarMaxScroll / that.maxScrollY;
@@ -334,16 +386,49 @@ iScroll.prototype = {
 
 		that[dir + 'ScrollbarWrapper'].style[transitionDelay] = '0';
 		that[dir + 'ScrollbarWrapper'].style.opacity = hidden && that.options.hideScrollbar ? '0' : '1';
+            if (this.options.useTransform) {
 		that[dir + 'ScrollbarIndicator'].style[transform] = 'translate(' + (dir == 'h' ? pos + 'px,0)' : '0,' + pos + 'px)') + translateZ;
+            } else {
+                if (dir == 'h'){
+                    pos = m.round(pos);
+                    that[dir + 'ScrollbarIndicator'].style.left = pos + 'px';
+                }
+                else{
+                    pos = m.round(pos);
+                    that[dir + 'ScrollbarIndicator'].style.top = pos + 'px';
+                }
+            }
 	},
 	
+        _ieCoords: function (point) {
+            point.pageX = point.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+            point.pageY = point.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+        },
 	_start: function (e) {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
 			matrix, x, y,
 			c1, c2;
 
+            if (isIE) {
+                this._ieCoords(point);
+            }
 		if (!that.enabled) return;
+            if (that.options.desktop) {
+                var deltaX = point.pageX - that.pointX;
+                var deltaY = point.pageY - that.pointY;
+                var offset = this._offset(that.wrapper);
+                this.wrapperOffsetLeft = -offset.left;
+                this.wrapperOffsetTop = -offset.top;
+                var _top = this.wrapperOffsetTop + this["vScrollbarProp"] * that.y;
+                var _bottom = _top + this.vScrollbarIndicatorSize;
+                var _right = this.wrapperOffsetLeft + this.wrapperW;
+                var _left = _right - this.vScrollbarIndicator.offsetWidth;
+                if (
+                point.pageX < _left || point.pageY < _top || point.pageX > _right || point.pageY > _bottom) return;
+                deltaY = -deltaY * (that.scrollerH / that.wrapperH);
+                deltaX = -deltaX * (that.scrollerW / that.wrapperW);
+            }
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
@@ -378,8 +463,8 @@ iScroll.prototype = {
 				x = +matrix[4];
 				y = +matrix[5];
 			} else {
-				x = +getComputedStyle(that.scroller, null).left.replace(/[^0-9-]/g, '');
-				y = +getComputedStyle(that.scroller, null).top.replace(/[^0-9-]/g, '');
+                    x = +getComputedStyle(that.scroller, null).getPropertyValue("left").replace(/[^0-9-]/g, '');
+                    y = +getComputedStyle(that.scroller, null).getPropertyValue("top").replace(/[^0-9-]/g, '');
 			}
 			
 			if (x != that.x || y != that.y) {
@@ -399,24 +484,34 @@ iScroll.prototype = {
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
 
-		that.startTime = e.timeStamp || Date.now();
+            that.startTime = e.timeStamp || (new Date()).getTime();
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
 
-		that._bind(MOVE_EV, window);
-		that._bind(END_EV, window);
-		that._bind(CANCEL_EV, window);
+            that._bind(MOVE_EV, that.scrollEl);
+            that._bind(END_EV, that.scrollEl);
+            that._bind(CANCEL_EV, that.scrollEl);
 	},
 	
 	_move: function (e) {
-		var that = this,
-			point = hasTouch ? e.touches[0] : e,
-			deltaX = point.pageX - that.pointX,
-			deltaY = point.pageY - that.pointY,
-			newX = that.x + deltaX,
-			newY = that.y + deltaY,
-			c1, c2, scale,
-			timestamp = e.timeStamp || Date.now();
+            var that = this;
+            var point = hasTouch ? e.touches[0] : e;
+            if (isIE) {
+                this._ieCoords(point);
+            }
+            var deltaX = point.pageX - that.pointX;
+            var deltaY = point.pageY - that.pointY;
+            if (that.options.desktop) {
+                var offset = this._offset(that.wrapper);
+                this.wrapperOffsetLeft = -offset.left;
+                this.wrapperOffsetTop = -offset.top;
+                deltaY = -deltaY * (that.scrollerH / that.wrapperH);
+                deltaX = -deltaX * (that.scrollerW / that.wrapperW);
+            }
+            var newX = that.x + deltaX;
+            var newY = that.y + deltaY;
+            var c1, c2, scale;
+            var timestamp = e.timeStamp || (new Date()).getTime();
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
@@ -497,7 +592,7 @@ iScroll.prototype = {
 			target, ev,
 			momentumX = { dist:0, time:0 },
 			momentumY = { dist:0, time:0 },
-			duration = (e.timeStamp || Date.now()) - that.startTime,
+                duration = (e.timeStamp || (new Date()).getTime()) - that.startTime,
 			newPosX = that.x,
 			newPosY = that.y,
 			distX, distY,
@@ -505,9 +600,12 @@ iScroll.prototype = {
 			snap,
 			scale;
 
-		that._unbind(MOVE_EV, window);
-		that._unbind(END_EV, window);
-		that._unbind(CANCEL_EV, window);
+            if (isIE) {
+                this._ieCoords(point);
+            }
+            that._unbind(MOVE_EV, that.scrollEl);
+            that._unbind(END_EV, that.scrollEl);
+            that._unbind(CANCEL_EV, that.scrollEl);
 
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
@@ -685,6 +783,10 @@ iScroll.prototype = {
 			return;
 		}
 		
+            if (that.options.desktop) {
+                wheelDeltaY = wheelDeltaY * 4;
+                wheelDeltaX = wheelDeltaX * 4;
+            }
 		deltaX = that.x + wheelDeltaX;
 		deltaY = that.y + wheelDeltaY;
 
@@ -718,7 +820,7 @@ iScroll.prototype = {
 	_startAni: function () {
 		var that = this,
 			startX = that.x, startY = that.y,
-			startTime = Date.now(),
+                startTime = (new Date).getTime(),
 			step, easeOut,
 			animate;
 
@@ -746,7 +848,7 @@ iScroll.prototype = {
 		}
 
 		animate = function () {
-			var now = Date.now(),
+                var now = (new Date).getTime(),
 				newX, newY;
 
 			if (now >= startTime + step.time) {
@@ -801,6 +903,32 @@ iScroll.prototype = {
 	},
 
 	_offset: function (el) {
+            if ("getBoundingClientRect" in document.documentElement) {
+                var box;
+                try {
+                    box = el.getBoundingClientRect();
+                } catch (e) {}
+                var doc = el.ownerDocument,
+                    docElem = doc.documentElement;
+                // Make sure we're not dealing with a disconnected DOM node
+                if (!box) {
+                    return box ? {
+                        top: box.top,
+                        left: box.left
+                    } : {
+                        top: 0,
+                        left: 0
+                    };
+                }
+                var body = doc.body;
+                var win = doc.defaultView || doc.parentWindow;
+                var clientTop = docElem.clientTop || body.clientTop || 0;
+                var clientLeft = docElem.clientLeft || body.clientLeft || 0;
+                var scrollTop = win.pageYOffset || docElem.scrollTop || body.scrollTop;
+                var scrollLeft = win.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+                var top = -1 * (box.top + scrollTop - clientTop);
+                var left = -1 * (box.left + scrollLeft - clientLeft);
+            } else {
 		var left = -el.offsetLeft,
 			top = -el.offsetTop;
 			
@@ -808,7 +936,7 @@ iScroll.prototype = {
 			left -= el.offsetLeft;
 			top -= el.offsetTop;
 		}
-		
+            }
 		if (el != this.wrapper) {
 			left *= this.scale;
 			top *= this.scale;
@@ -858,11 +986,21 @@ iScroll.prototype = {
 	},
 
 	_bind: function (type, el, bubble) {
+            var that = this;
+            if (isIE) {
+                (el || this.scroller).attachEvent('on' + type, this.ieEventHandler);
+            } else {
 		(el || this.scroller).addEventListener(type, this, !!bubble);
+            }
 	},
 
 	_unbind: function (type, el, bubble) {
+            var that = this;
+            if (isIE) {
+                (el || this.scroller).detachEvent("on" + type, this.ieEventHandler);
+            } else {
 		(el || this.scroller).removeEventListener(type, this, !!bubble);
+            }
 	},
 
 
@@ -885,9 +1023,12 @@ iScroll.prototype = {
 		// Remove the event listeners
 		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
-		that._unbind(MOVE_EV, window);
-		that._unbind(END_EV, window);
-		that._unbind(CANCEL_EV, window);
+	    if (isIE){
+	            that._unbind(START_EV, that.vScrollbarIndicator);
+            }
+            that._unbind(MOVE_EV, that.scrollEl);
+            that._unbind(END_EV, that.scrollEl);
+            that._unbind(CANCEL_EV, that.scrollEl);
 		
 		if (!that.options.hasTouch) {
 			that._unbind(WHEEL_EV);
@@ -967,6 +1108,11 @@ iScroll.prototype = {
 		// Prepare the scrollbars
 		that._scrollbar('h');
 		that._scrollbar('v');
+            if (isIE) {
+                that._unbind(START_EV);
+                that._unbind(START_EV, that.vScrollbarIndicator);
+                that._bind(START_EV, that.vScrollbarIndicator);
+            }
 
 		if (!that.zoomed) {
 			that.scroller.style[transitionDuration] = '0';
@@ -1041,9 +1187,9 @@ iScroll.prototype = {
 		this.enabled = false;
 
 		// If disabled after touchstart we make sure that there are no left over events
-		this._unbind(MOVE_EV, window);
-		this._unbind(END_EV, window);
-		this._unbind(CANCEL_EV, window);
+            this._unbind(MOVE_EV, that.scrollEl);
+            this._unbind(END_EV, that.scrollEl);
+            this._unbind(CANCEL_EV, that.scrollEl);
 	},
 	
 	enable: function () {
