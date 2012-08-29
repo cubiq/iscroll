@@ -403,9 +403,9 @@ iScroll.prototype = {
 
 		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
 
-		that._bind(MOVE_EV);
-		that._bind(END_EV);
-		that._bind(CANCEL_EV);
+		that._bind(MOVE_EV, window);
+		that._bind(END_EV, window);
+		that._bind(CANCEL_EV, window);
 	},
 	
 	_move: function (e) {
@@ -505,9 +505,9 @@ iScroll.prototype = {
 			snap,
 			scale;
 
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+		that._unbind(MOVE_EV, window);
+		that._unbind(END_EV, window);
+		that._unbind(CANCEL_EV, window);
 
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
@@ -885,9 +885,9 @@ iScroll.prototype = {
 		// Remove the event listeners
 		that._unbind(RESIZE_EV, window);
 		that._unbind(START_EV);
-		that._unbind(MOVE_EV);
-		that._unbind(END_EV);
-		that._unbind(CANCEL_EV);
+		that._unbind(MOVE_EV, window);
+		that._unbind(END_EV, window);
+		that._unbind(CANCEL_EV, window);
 		
 		if (!that.options.hasTouch) {
 			that._unbind(WHEEL_EV);
@@ -1041,9 +1041,9 @@ iScroll.prototype = {
 		this.enabled = false;
 
 		// If disabled after touchstart we make sure that there are no left over events
-		this._unbind(MOVE_EV);
-		this._unbind(END_EV);
-		this._unbind(CANCEL_EV);
+		this._unbind(MOVE_EV, window);
+		this._unbind(END_EV, window);
+		this._unbind(CANCEL_EV, window);
 	},
 	
 	enable: function () {
