@@ -405,7 +405,7 @@ iScroll.prototype = {
 
 		that._bind(MOVE_EV, window);
 		that._bind(END_EV, window);
-		that._bind(CANCEL_EV, window);
+		that._bind(CANCEL_EV, window, true);
 	},
 	
 	_move: function (e) {
