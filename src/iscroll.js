@@ -207,8 +207,11 @@ iScroll.prototype = {
 		var that = this;
 
         // Hack to prevent unwanted clicks in touch mode
-        if (hasTouch && that.options.handleClick && (e.type == 'click') && !e._fake)
+        if (window.iScrollFakeClickGenerated && (e.type == 'click') && !e._fake)
+        {
+            window.iScrollFakeClickGenerated = false;
             e.preventDefault();
+        }
         
 		switch(e.type) {
 			case START_EV:
@@ -563,6 +566,10 @@ iScroll.prototype = {
 						while (target.nodeType != 1) target = target.parentNode;
 
 						if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA') {
+                            
+                            // Hack to prevent unwanted clicks
+                            window.iScrollFakeClickGenerated = true;
+
 							ev = doc.createEvent('MouseEvents');
 							ev.initMouseEvent('click', true, true, e.view, 1,
 								point.screenX, point.screenY, point.clientX, point.clientY,
@@ -570,6 +577,11 @@ iScroll.prototype = {
 								0, null);
 							ev._fake = true;
 							target.dispatchEvent(ev);
+                            
+                            // Hack to prevent unwanted clicks
+                            setTimeout( function() {
+                                window.iScrollFakeClickGenerated = false;
+                            }, 50);
 						}
 					}, that.options.zoom ? 250 : 0);
 				}
