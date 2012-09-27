@@ -664,6 +664,9 @@ iScroll.prototype = {
 		} else {
 			return;
 		}
+
+        if (that.options.wheelHorizontal && vendor == 'webkit')
+            wheelDeltaX = wheelDeltaY;
 		
 		if (that.options.wheelAction == 'zoom') {
 			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
@@ -696,6 +699,7 @@ iScroll.prototype = {
     
 		if (that.options.wheelHorizontal && that.maxScrollX < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
+            e.preventDefault();
             return;
 		}
 		if (that.maxScrollY < 0) {
