@@ -694,6 +694,10 @@ iScroll.prototype = {
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
     
+		if (that.options.wheelHorizontal && that.maxScrollX < 0) {
+			that.scrollTo(deltaX, deltaY, 0);
+            return;
+		}
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
 		}
