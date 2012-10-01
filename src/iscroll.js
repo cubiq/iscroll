@@ -666,9 +666,11 @@ iScroll.prototype = {
 		}
 
 		if (that.options.wheelHorizontal && vendor == 'webkit') {
-			wheelDeltaX = wheelDeltaY;
+			if (wheelDeltaY != 0) {
+				wheelDeltaX = wheelDeltaY;
+			}
 		}
-		
+
 		if (that.options.wheelAction == 'zoom') {
 			deltaScale = that.scale * Math.pow(2, 1/3 * (wheelDeltaY ? wheelDeltaY / Math.abs(wheelDeltaY) : 0));
 			if (deltaScale < that.options.zoomMin) deltaScale = that.options.zoomMin;
