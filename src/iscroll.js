@@ -214,7 +214,10 @@ iScroll.prototype = {
             while (target.nodeType != 1) target = target.parentNode;
 
             if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
+			{
+				e.stopPropagation();
                 e.preventDefault();
+			}
         }
         
 		switch(e.type) {
