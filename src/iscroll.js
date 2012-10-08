@@ -176,6 +176,11 @@ var m = Math,
 
 		that._bind(RESIZE_EV, window);
 		that._bind(START_EV);
+        
+        // Hack to prevent unwanted clicks in touch mode
+        if (hasTouch && that.options.handleClick)
+            that._bind('click');
+
 		if (!hasTouch) {
 			if (that.options.wheelAction != 'none')
 				that._bind(WHEEL_EV);
@@ -200,6 +205,21 @@ iScroll.prototype = {
 	
 	handleEvent: function (e) {
 		var that = this;
+
+        // Hack to prevent unwanted clicks in touch mode
+        if (hasTouch && that.options.handleClick && (e.type == 'click') && !e._fake)
+        {
+            // Find the last touched element
+            var target = e.target;
+            while (target.nodeType != 1) target = target.parentNode;
+
+            if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA')
+			{
+				e.stopPropagation();
+                e.preventDefault();
+			}
+        }
+        
 		switch(e.type) {
 			case START_EV:
 				if (!hasTouch && e.button !== 0) return;
