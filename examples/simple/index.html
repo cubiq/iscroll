@@ -13,7 +13,7 @@
 
 var myScroll;
 function loaded() {
-	myScroll = new iScroll('wrapper');
+	myScroll = new iScroll('wrapper', {draggableScrollbar:true});
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
