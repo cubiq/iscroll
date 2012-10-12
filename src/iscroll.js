@@ -1,5 +1,5 @@
 /*!
- * iScroll v4.3.0 ~ Copyright (c) 2012 Matteo Spinelli, http://cubiq.org
+ * iScroll v4.2.3 ~ Copyright (c) 2012 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
  */
 (function(window, doc){
@@ -30,15 +30,15 @@ var m = Math,
 	transitionTimingFunction = prefixStyle('transitionTimingFunction'),
 	transitionDelay = prefixStyle('transitionDelay'),
 
-	// Browser capabilities
+    // Browser capabilities
 	isAndroid = (/android/gi).test(navigator.appVersion),
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
 
-	has3d = prefixStyle('perspective') in dummyStyle,
-	hasTouch = 'ontouchstart' in window && !isTouchPad,
-	hasTransform = vendor !== false,
-	hasTransitionEnd = prefixStyle('transition') in dummyStyle,
+    has3d = prefixStyle('perspective') in dummyStyle,
+    hasTouch = 'ontouchstart' in window && !isTouchPad,
+    hasTransform = vendor !== false,
+    hasTransitionEnd = prefixStyle('transition') in dummyStyle,
 
 	RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
 	START_EV = hasTouch ? 'touchstart' : 'mousedown',
@@ -113,7 +113,6 @@ var m = Math,
 			hideScrollbar: isIDevice,
 			fadeScrollbar: isIDevice && has3d,
 			scrollbarClass: '',
-			draggableScrollbar: false,
 
 			// Zoom
 			zoom: false,
@@ -244,19 +243,17 @@ iScroll.prototype = {
 			if (that.options.scrollbarClass) bar.className = that.options.scrollbarClass + dir.toUpperCase();
 			else bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:7px;bottom:1px;left:2px;right:' + (that.vScrollbar ? '7' : '2') + 'px' : 'width:7px;bottom:' + (that.hScrollbar ? '7' : '2') + 'px;top:2px;right:1px');
 
-			if (!that.options.draggableScrollbar) bar.style.cssText += ';pointer-events:none';
-			bar.style.cssText += ';' + cssVendor + 'transition-property:opacity;' + cssVendor + 'transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
+			bar.style.cssText += ';pointer-events:none;' + cssVendor + 'transition-property:opacity;' + cssVendor + 'transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
 
 			that.wrapper.appendChild(bar);
 			that[dir + 'ScrollbarWrapper'] = bar;
 
 			// Create the scrollbar indicator
 			bar = doc.createElement('div');
-			if (!that.options.scrollbarClass) bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);' + cssVendor + 'background-clip:padding-box;' + cssVendor + 'box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';' + cssVendor + 'border-radius:3px;border-radius:3px';
-
-			if (!that.options.draggableScrollbar) bar.style.cssText += ';pointer-events:none';
-
-			bar.style.cssText += ';' + cssVendor + 'transition-property:' + cssVendor + 'transform;' + cssVendor + 'transition-timing-function:cubic-bezier(0.33,0.66,0.66,1);' + cssVendor + 'transition-duration:0;' + cssVendor + 'transform: translate(0,0)' + translateZ;
+			if (!that.options.scrollbarClass) {
+				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);' + cssVendor + 'background-clip:padding-box;' + cssVendor + 'box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';' + cssVendor + 'border-radius:3px;border-radius:3px';
+			}
+			bar.style.cssText += ';pointer-events:none;' + cssVendor + 'transition-property:' + cssVendor + 'transform;' + cssVendor + 'transition-timing-function:cubic-bezier(0.33,0.66,0.66,1);' + cssVendor + 'transition-duration:0;' + cssVendor + 'transform: translate(0,0)' + translateZ;
 			if (that.options.useTransition) bar.style.cssText += ';' + cssVendor + 'transition-timing-function:cubic-bezier(0.33,0.66,0.66,1)';
 
 			that[dir + 'ScrollbarWrapper'].appendChild(bar);
@@ -696,7 +693,7 @@ iScroll.prototype = {
 
 		if (deltaY > that.minScrollY) deltaY = that.minScrollY;
 		else if (deltaY < that.maxScrollY) deltaY = that.maxScrollY;
-
+    
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
 		}
@@ -1096,33 +1093,6 @@ function prefixStyle (style) {
 	style = style.charAt(0).toUpperCase() + style.substr(1);
 	return vendor + style;
 }
-
-function dragScrollbar (el, direction, multiplier) {
-	this.scrollbar = el;
-	this.wrapper = el.parentNode;
-	this.direction = direction;
-	this.multiplier = multiplier;
-
-	this.scrollbar.addEventListener(START_EV, this, false);
-}
-
-dragScrollbar.prototype = {
-	handleEvent: function (e) {
-		switch(e.type) {
-			case START_EV: this._start(e); break;
-			case MOVE_EV: that._move(e); break;
-			case END_EV:
-			case CANCEL_EV: that._end(e); break;
-		}
-	},
-
-	_start: function (e) {
-		var point = hasTouch ? e.touches[0] : e;
-
-		e.stopPropagation();
-		e.preventDefault();
-	}
-};
 
 dummyStyle = null;	// for the sake of it
 
