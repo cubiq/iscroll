@@ -1,7 +1,7 @@
 {
     "name": "iscroll"
   , "description": "smooth scrolling for mobile webkit"
-  , "version": "4.2.4"
+  , "version": "4.2.5"
   , "homepage": "http://cubiq.org/iscroll-4"
   , "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)"
   , "keywords": ["ender", "iscroll", "scrolling", "webkit", "iphone", "android"]
