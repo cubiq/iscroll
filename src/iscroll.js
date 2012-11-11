@@ -348,7 +348,17 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
 
-		if (that.options.useTransition || that.options.zoom) that._transitionTime(0);
+		if (that.options.useTransition || that.options.zoom){
+			if(that.is_momentum == 1){
+				that.is_momentum = 2;
+				that._transitionTime(0.1);
+			}else if(that.is_momentum == 2){
+				that.is_momentum = 0;
+				that._transitionTime(0);
+			}else{
+				that._transitionTime(0);
+			}
+		}
 
 		that.moved = false;
 		that.animating = false;
@@ -418,7 +428,15 @@ iScroll.prototype = {
 			newY = that.y + deltaY,
 			c1, c2, scale,
 			timestamp = e.timeStamp || Date.now();
-
+		
+		if(that.options.useTransition){
+			if(that.is_momentum == 2){
+				that.is_momentum = 0;
+				that._transitionTime(0);
+				return;
+			}
+		}
+		
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
 		// Zoom
@@ -598,11 +616,14 @@ iScroll.prototype = {
 					newDuration = m.max(snap.time, newDuration);
 				}
 			}
-
+			
+			that.is_momentum = 1;
 			that.scrollTo(m.round(newPosX), m.round(newPosY), newDuration);
 
 			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 			return;
+		}else{
+			that.is_momentum = 0;
 		}
 
 		// Do we need to snap?
@@ -702,6 +723,8 @@ iScroll.prototype = {
 	
 	_transitionEnd: function (e) {
 		var that = this;
+		
+		that.is_momentum = 0;
 
 		if (e.target != that.scroller) return;
 
