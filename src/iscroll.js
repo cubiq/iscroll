@@ -80,6 +80,10 @@ var m = Math,
 	// Helpers
 	translateZ = has3d ? ' translateZ(0)' : '',
 
+	// Will be used to hold a window.setInterval id for checking if the scroller got stuck
+	stuckCheckTimer,
+	couldBeStuck = false,
+
 	// Constructor
 	iScroll = function (el, options) {
 		var that = this,
@@ -123,6 +127,9 @@ var m = Math,
 			// Snap
 			snap: false,
 			snapThreshold: 1,
+
+			// How often to check if scroller got stuck (-1 = don't check)
+			stuckCheckInterval: 300,
 
 			// Events
 			onRefresh: null,
@@ -392,6 +399,24 @@ iScroll.prototype = {
 			}
 		}
 
+		// Check periodically if the scroller got stuck
+		if(that.options.stuckCheckInterval > -1) {
+			clearInterval(stuckCheckTimer);
+
+			stuckCheckTimer = setInterval(function() {
+				// It could be stuck AND we actually scrolled below the bottom bounds
+				if(couldBeStuck && that.y < that.maxScrollY) {
+					clearInterval(stuckCheckTimer);
+					that._resetPos(200);
+					couldBeStuck = false;
+				} else {
+					// A finger/mouse move will set this to false before next check. Otherwise we could be stuck
+					couldBeStuck = true;
+				}
+			}, that.options.stuckCheckInterval);
+		}
+
+
 		that.absStartX = that.x;	// Needed by snap threshold
 		that.absStartY = that.y;
 
@@ -418,6 +443,9 @@ iScroll.prototype = {
 			newY = that.y + deltaY,
 			c1, c2, scale,
 			timestamp = e.timeStamp || Date.now();
+
+		// Apparently we are not stuck (we just moved)
+		couldBeStuck = false;
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
@@ -492,6 +520,8 @@ iScroll.prototype = {
 
 	_end: function (e) {
 		if (hasTouch && e.touches.length !== 0) return;
+
+		clearInterval(stuckCheckTimer);
 
 		var that = this,
 			point = hasTouch ? e.changedTouches[0] : e,
@@ -627,6 +657,10 @@ iScroll.prototype = {
 		var that = this,
 			resetX = that.x >= 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x,
 			resetY = that.y >= that.minScrollY || that.maxScrollY > 0 ? that.minScrollY : that.y < that.maxScrollY ? that.maxScrollY : that.y;
+
+		that._unbind(MOVE_EV, window);
+		that._unbind(END_EV, window);
+		that._unbind(CANCEL_EV, window);
 
 		if (resetX == that.x && resetY == that.y) {
 			if (that.moved) {
