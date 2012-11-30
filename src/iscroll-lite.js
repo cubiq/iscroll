@@ -143,8 +143,8 @@ iScroll.prototype = {
 	},
 	
 	_pos: function (x, y) {
-		x = this.hScroll ? x : 0;
-		y = this.vScroll ? y : 0;
+		x = this.hScroll ? x : this.x;
+		y = this.vScroll ? y : this.y;
 
 		if (this.options.useTransform) {
 			this.scroller.style[vendor + 'Transform'] = trnOpen + x + 'px,' + y + 'px' + trnClose + ' scale(' + this.scale + ')';
