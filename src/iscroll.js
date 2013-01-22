@@ -229,7 +229,7 @@ iScroll.prototype = {
 		if (!that[dir + 'Scrollbar']) {
 			if (that[dir + 'ScrollbarWrapper']) {
 				if (hasTransform) that[dir + 'ScrollbarIndicator'].style[transform] = '';
-				that[dir + 'ScrollbarWrapper'].parentNode.removeChild(that[dir + 'ScrollbarWrapper']);
+				if (that[dir + 'ScrollbarWrapper'].parentNode != undefined) that[dir + 'ScrollbarWrapper'].parentNode.removeChild(that[dir + 'ScrollbarWrapper']);
 				that[dir + 'ScrollbarWrapper'] = null;
 				that[dir + 'ScrollbarIndicator'] = null;
 			}
