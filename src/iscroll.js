@@ -130,6 +130,8 @@ var m = Math,
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
+			onBeforeWheelMove: null,
+			onWheelMove: null,
 			onBeforeAnimationMove: null,
 			onAnimationMove: null,
 			onBeforeScrollEnd: null,
@@ -657,6 +659,8 @@ iScroll.prototype = {
 			deltaX, deltaY,
 			deltaScale;
 
+		if (that.options.onBeforeWheelMove) that.options.onBeforeWheelMove.call(that, e);
+
 		if ('wheelDeltaX' in e) {
 			wheelDeltaX = e.wheelDeltaX / 12;
 			wheelDeltaY = e.wheelDeltaY / 12;
@@ -700,6 +704,8 @@ iScroll.prototype = {
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
 		}
+
+		if (that.options.onWheelMove) that.options.onWheelMove.call(that, e);
 	},
 	
 	_transitionEnd: function (e) {
