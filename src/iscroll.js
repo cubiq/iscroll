@@ -130,6 +130,10 @@ var m = Math,
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
+			onBeforeWheelMove: null,
+			onWheelMove: null,
+			onBeforeAnimationMove: null,
+			onAnimationMove: null,
 			onBeforeScrollEnd: null,
 			onScrollEnd: null,
 			onTouchEnd: null,
@@ -655,6 +659,8 @@ iScroll.prototype = {
 			deltaX, deltaY,
 			deltaScale;
 
+		if (that.options.onBeforeWheelMove) that.options.onBeforeWheelMove.call(that, e);
+
 		if ('wheelDeltaX' in e) {
 			wheelDeltaX = e.wheelDeltaX / 12;
 			wheelDeltaY = e.wheelDeltaY / 12;
@@ -698,6 +704,8 @@ iScroll.prototype = {
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
 		}
+
+		if (that.options.onWheelMove) that.options.onWheelMove.call(that, e);
 	},
 	
 	_transitionEnd: function (e) {
@@ -750,6 +758,8 @@ iScroll.prototype = {
 			var now = Date.now(),
 				newX, newY;
 
+			if (that.options.onBeforeAnimationMove) that.options.onBeforeAnimationMove.call(that);
+
 			if (now >= startTime + step.time) {
 				that._pos(step.x, step.y);
 				that.animating = false;
@@ -763,6 +773,7 @@ iScroll.prototype = {
 			newX = (step.x - startX) * easeOut + startX;
 			newY = (step.y - startY) * easeOut + startY;
 			that._pos(newX, newY);
+			if (that.options.onAnimationMove) that.options.onAnimationMove.call(that);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
 
