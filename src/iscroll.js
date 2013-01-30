@@ -130,6 +130,8 @@ var m = Math,
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
+			onBeforeAnimationMove: null,
+			onAnimationMove: null,
 			onBeforeScrollEnd: null,
 			onScrollEnd: null,
 			onTouchEnd: null,
@@ -750,6 +752,8 @@ iScroll.prototype = {
 			var now = Date.now(),
 				newX, newY;
 
+			if (that.options.onBeforeAnimationMove) that.options.onBeforeAnimationMove.call(that);
+
 			if (now >= startTime + step.time) {
 				that._pos(step.x, step.y);
 				that.animating = false;
@@ -763,6 +767,7 @@ iScroll.prototype = {
 			newX = (step.x - startX) * easeOut + startX;
 			newY = (step.y - startY) * easeOut + startY;
 			that._pos(newX, newY);
+			if (that.options.onAnimationMove) that.options.onAnimationMove.call(that);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
 
