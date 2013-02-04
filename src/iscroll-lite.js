@@ -5,42 +5,50 @@
 
 (function(){
 var m = Math,
+	doc = document,
+	nav = navigator,
+	win = window,
+	appVersion = nav.appVersion,
 	mround = function (r) { return r >> 0; },
-	vendor = (/webkit/i).test(navigator.appVersion) ? 'webkit' :
-		(/firefox/i).test(navigator.userAgent) ? 'Moz' :
-		'opera' in window ? 'O' : '',
+	vendor = (/webkit/i).test(nav.appVersion) ? 'webkit' :
+		(/firefox/i).test(nav.userAgent) ? 'Moz' :
+		'opera' in win ? 'O' : '',
 
     // Browser capabilities
-    isAndroid = (/android/gi).test(navigator.appVersion),
-    isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
-    isPlaybook = (/playbook/gi).test(navigator.appVersion),
-    isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
+    isAndroid = (/android/gi).test(appVersion),
+    isIDevice = (/iphone|ipad/gi).test(appVersion),
+    isPlaybook = (/playbook/gi).test(appVersion),
+    isTouchPad = (/hp-tablet/gi).test(appVersion),
 
-    has3d = 'WebKitCSSMatrix' in window && 'm11' in new WebKitCSSMatrix(),
-    hasTouch = 'ontouchstart' in window && !isTouchPad,
-    hasTransform = vendor + 'Transform' in document.documentElement.style,
+    has3d = 'WebKitCSSMatrix' in win && 'm11' in new WebKitCSSMatrix(),
+    hasTouch = 'ontouchstart' in win && !isTouchPad,
+    hasTransform = vendor + 'Transform' in doc.documentElement.style,
     hasTransitionEnd = isIDevice || isPlaybook,
 
+    AF = 'AnimationFrame',
+    RAF = 'Request' + AF,
+    CRAF = 'Cancel' + RAF,
+
 	nextFrame = (function() {
-	    return window.requestAnimationFrame
-			|| window.webkitRequestAnimationFrame
-			|| window.mozRequestAnimationFrame
-			|| window.oRequestAnimationFrame
-			|| window.msRequestAnimationFrame
+	    return win['request' + AF]
+			|| win['webkit' + RAF]
+			|| win['moz' + RAF]
+			|| win['o' + RAF]
+			|| win['ms' + RAF]
 			|| function(callback) { return setTimeout(callback, 17); }
 	})(),
 	cancelFrame = (function () {
-	    return window.cancelRequestAnimationFrame
-			|| window.webkitCancelAnimationFrame
-			|| window.webkitCancelRequestAnimationFrame
-			|| window.mozCancelRequestAnimationFrame
-			|| window.oCancelRequestAnimationFrame
-			|| window.msCancelRequestAnimationFrame
+	    return win['cancel' + RAF]
+			|| win['webkitCancel' + AF]
+			|| win['webkit' + CRAF]
+			|| win['moz' + CRAF]
+			|| win['o' + CRAF]
+			|| win['ms' + CRAF]
 			|| clearTimeout
 	})(),
 
 	// Events
-	RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
+	RESIZE_EV = 'onorientationchange' in win ? 'orientationchange' : 'resize',
 	START_EV = hasTouch ? 'touchstart' : 'mousedown',
 	MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
 	END_EV = hasTouch ? 'touchend' : 'mouseup',
@@ -53,7 +61,7 @@ var m = Math,
 	// Constructor
 	iScroll = function (el, options) {
 		var that = this,
-			doc = document,
+			doc = doc,
 			i;
 
 		that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
@@ -85,31 +93,37 @@ var m = Math,
 			onDestroy: null
 		};
 
+		var opts = that.options;
+		var scroller = that.scroller;
+		var scroller_style = scroller.style;
+		var transf = 'Transform';
+		var transi = 'Transition';
+
 		// User defined options
-		for (i in options) that.options[i] = options[i];
+		for (i in options) opts[i] = options[i];
 
 		// Set starting position
-		that.x = that.options.x;
-		that.y = that.options.y;
+		that.x = opts.x;
+		that.y = opts.y;
 
 		// Normalize options
-		that.options.useTransform = hasTransform ? that.options.useTransform : false;
-		that.options.hScrollbar = that.options.hScroll && that.options.hScrollbar;
-		that.options.vScrollbar = that.options.vScroll && that.options.vScrollbar;
-		that.options.useTransition = hasTransitionEnd && that.options.useTransition;
+		opts.useTransform = hasTransform ? opts.useTransform : false;
+		opts.hScrollbar = opts.hScroll && opts.hScrollbar;
+		opts.vScrollbar = opts.vScroll && opts.vScrollbar;
+		opts.useTransition = hasTransitionEnd && opts.useTransition;
 
 		// Set some default styles
-		that.scroller.style[vendor + 'TransitionProperty'] = that.options.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
-		that.scroller.style[vendor + 'TransitionDuration'] = '0';
-		that.scroller.style[vendor + 'TransformOrigin'] = '0 0';
-		if (that.options.useTransition) that.scroller.style[vendor + 'TransitionTimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
+		scroller_style[vendor + transi + 'Property'] = opts.useTransform ? '-' + vendor.toLowerCase() + '-transform' : 'top left';
+		scroller_style[vendor + transi + 'Duration'] = '0';
+		scroller_style[vendor + transf + 'Origin'] = '0 0';
+		if (opts.useTransition) scroller_style[vendor + transi + 'TimingFunction'] = 'cubic-bezier(0.33,0.66,0.66,1)';
 		
-		if (that.options.useTransform) that.scroller.style[vendor + 'Transform'] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
-		else that.scroller.style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
+		if (opts.useTransform) scroller_style[vendor + transf] = trnOpen + that.x + 'px,' + that.y + 'px' + trnClose;
+		else scroller_style.cssText += ';position:absolute;top:' + that.y + 'px;left:' + that.x + 'px';
 
 		that.refresh();
 
-		that._bind(RESIZE_EV, window);
+		that._bind(RESIZE_EV, win);
 		that._bind(START_EV);
 		if (!hasTouch) that._bind('mouseout', that.wrapper);
 	};
@@ -162,13 +176,14 @@ iScroll.prototype = {
 	_start: function (e) {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
+			opts = that.options,
 			matrix, x, y;
 
 		if (!that.enabled) return;
 
-		if (that.options.onBeforeScrollStart) that.options.onBeforeScrollStart.call(that, e);
+		if (opts.onBeforeScrollStart) opts.onBeforeScrollStart.call(that, e);
 		
-		if (that.options.useTransition) that._transitionTime(0);
+		if (opts.useTransition) that._transitionTime(0);
 
 		that.moved = false;
 		that.animating = false;
@@ -180,8 +195,8 @@ iScroll.prototype = {
 		that.dirX = 0;
 		that.dirY = 0;
 
-		if (that.options.momentum) {
-			if (that.options.useTransform) {
+		if (opts.momentum) {
+			if (opts.useTransform) {
 				// Very lame general purpose alternative to CSSMatrix
 				matrix = getComputedStyle(that.scroller, null)[vendor + 'Transform'].replace(/[^0-9-.,]/g, '').split(',');
 				x = matrix[4] * 1;
@@ -192,7 +207,7 @@ iScroll.prototype = {
 			}
 			
 			if (x != that.x || y != that.y) {
-				if (that.options.useTransition) that._unbind('webkitTransitionEnd');
+				if (opts.useTransition) that._unbind('webkitTransitionEnd');
 				else cancelFrame(that.aniTime);
 				that.steps = [];
 				that._pos(x, y);
@@ -206,7 +221,7 @@ iScroll.prototype = {
 
 		that.startTime = e.timeStamp || Date.now();
 
-		if (that.options.onScrollStart) that.options.onScrollStart.call(that, e);
+		if (opts.onScrollStart) opts.onScrollStart.call(that, e);
 
 		that._bind(MOVE_EV);
 		that._bind(END_EV);
@@ -215,6 +230,7 @@ iScroll.prototype = {
 	
 	_move: function (e) {
 		var that = this,
+			opts = that.options,
 			point = hasTouch ? e.touches[0] : e,
 			deltaX = point.pageX - that.pointX,
 			deltaY = point.pageY - that.pointY,
@@ -222,17 +238,17 @@ iScroll.prototype = {
 			newY = that.y + deltaY,
 			timestamp = e.timeStamp || Date.now();
 
-		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
+		if (opts.onBeforeScrollMove) opts.onBeforeScrollMove.call(that, e);
 
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
 
 		// Slow down if outside of the boundaries
 		if (newX > 0 || newX < that.maxScrollX) {
-			newX = that.options.bounce ? that.x + (deltaX / 2) : newX >= 0 || that.maxScrollX >= 0 ? 0 : that.maxScrollX;
+			newX = opts.bounce ? that.x + (deltaX / 2) : newX >= 0 || that.maxScrollX >= 0 ? 0 : that.maxScrollX;
 		}
 		if (newY > 0 || newY < that.maxScrollY) { 
-			newY = that.options.bounce ? that.y + (deltaY / 2) : newY >= 0 || that.maxScrollY >= 0 ? 0 : that.maxScrollY;
+			newY = opts.bounce ? that.y + (deltaY / 2) : newY >= 0 || that.maxScrollY >= 0 ? 0 : that.maxScrollY;
 		}
 
 		that.distX += deltaX;
@@ -245,7 +261,7 @@ iScroll.prototype = {
 		}
 
 		// Lock direction
-		if (that.options.lockDirection) {
+		if (opts.lockDirection) {
 			if (that.absDistX > that.absDistY + 5) {
 				newY = that.y;
 				deltaY = 0;
@@ -266,13 +282,14 @@ iScroll.prototype = {
 			that.startY = that.y;
 		}
 		
-		if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
+		if (opts.onScrollMove) opts.onScrollMove.call(that, e);
 	},
 	
 	_end: function (e) {
 		if (hasTouch && e.touches.length != 0) return;
 
 		var that = this,
+			opts = that.options,
 			point = hasTouch ? e.changedTouches[0] : e,
 			target, ev,
 			momentumX = { dist:0, time:0 },
@@ -286,7 +303,7 @@ iScroll.prototype = {
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 
-		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
+		if (opts.onBeforeScrollEnd) opts.onBeforeScrollEnd.call(that, e);
 
 		if (!that.moved) {
 			if (hasTouch) {
@@ -295,7 +312,7 @@ iScroll.prototype = {
 				while (target.nodeType != 1) target = target.parentNode;
 
 				if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA') {
-					ev = document.createEvent('MouseEvents');
+					ev = doc.createEvent('MouseEvents');
 					ev.initMouseEvent('click', true, true, e.view, 1,
 						point.screenX, point.screenY, point.clientX, point.clientY,
 						e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
@@ -307,13 +324,13 @@ iScroll.prototype = {
 
 			that._resetPos(200);
 
-			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+			if (opts.onTouchEnd) opts.onTouchEnd.call(that, e);
 			return;
 		}
 
-		if (duration < 300 && that.options.momentum) {
-			momentumX = newPosX ? that._momentum(newPosX - that.startX, duration, -that.x, that.scrollerW - that.wrapperW + that.x, that.options.bounce ? that.wrapperW : 0) : momentumX;
-			momentumY = newPosY ? that._momentum(newPosY - that.startY, duration, -that.y, (that.maxScrollY < 0 ? that.scrollerH - that.wrapperH + that.y : 0), that.options.bounce ? that.wrapperH : 0) : momentumY;
+		if (duration < 300 && opts.momentum) {
+			momentumX = newPosX ? that._momentum(newPosX - that.startX, duration, -that.x, that.scrollerW - that.wrapperW + that.x, opts.bounce ? that.wrapperW : 0) : momentumX;
+			momentumY = newPosY ? that._momentum(newPosY - that.startY, duration, -that.y, (that.maxScrollY < 0 ? that.scrollerH - that.wrapperH + that.y : 0), opts.bounce ? that.wrapperH : 0) : momentumY;
 
 			newPosX = that.x + momentumX.dist;
 			newPosY = that.y + momentumY.dist;
@@ -327,12 +344,12 @@ iScroll.prototype = {
 
 			that.scrollTo(mround(newPosX), mround(newPosY), newDuration);
 
-			if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+			if (opts.onTouchEnd) opts.onTouchEnd.call(that, e);
 			return;
 		}
 
 		that._resetPos(200);
-		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+		if (opts.onTouchEnd) opts.onTouchEnd.call(that, e);
 	},
 	
 	_resetPos: function (time) {
@@ -382,6 +399,7 @@ iScroll.prototype = {
 	 */
 	_startAni: function () {
 		var that = this,
+			opts = that.options,
 			startX = that.x, startY = that.y,
 			startTime = Date.now(),
 			step, easeOut,
@@ -401,7 +419,7 @@ iScroll.prototype = {
 		that.animating = true;
 		that.moved = true;
 
-		if (that.options.useTransition) {
+		if (opts.useTransition) {
 			that._transitionTime(step.time);
 			that._pos(step.x, step.y);
 			that.animating = false;
@@ -417,7 +435,7 @@ iScroll.prototype = {
 			if (now >= startTime + step.time) {
 				that._pos(step.x, step.y);
 				that.animating = false;
-				if (that.options.onAnimationEnd) that.options.onAnimationEnd.call(that);			// Execute custom code on animation end
+				if (opts.onAnimationEnd) opts.onAnimationEnd.call(that);			// Execute custom code on animation end
 				that._startAni();
 				return;
 			}
@@ -489,45 +507,49 @@ iScroll.prototype = {
 	 *
 	 */
 	destroy: function () {
-		var that = this;
+		var that = this,
+			opts = that.options;
 
 		that.scroller.style[vendor + 'Transform'] = '';
 
 		// Remove the event listeners
-		that._unbind(RESIZE_EV, window);
+		that._unbind(RESIZE_EV, win);
 		that._unbind(START_EV);
 		that._unbind(MOVE_EV);
 		that._unbind(END_EV);
 		that._unbind(CANCEL_EV);
 		that._unbind('mouseout', that.wrapper);
-		if (that.options.useTransition) that._unbind('webkitTransitionEnd');
+		if (opts.useTransition) that._unbind('webkitTransitionEnd');
 		
-		if (that.options.onDestroy) that.options.onDestroy.call(that);
+		if (opts.onDestroy) opts.onDestroy.call(that);
 	},
 
 	refresh: function () {
 		var that = this,
+			opts = that.options,
+			scroller = that.scroller,
+			wrapper = that.wrapper,
 			offset;
 
-		that.wrapperW = that.wrapper.clientWidth;
-		that.wrapperH = that.wrapper.clientHeight;
+		that.wrapperW = wrapper.clientWidth;
+		that.wrapperH = wrapper.clientHeight;
 
-		that.scrollerW = that.scroller.offsetWidth;
-		that.scrollerH = that.scroller.offsetHeight;
+		that.scrollerW = scroller.offsetWidth;
+		that.scrollerH = scroller.offsetHeight;
 		that.maxScrollX = that.wrapperW - that.scrollerW;
 		that.maxScrollY = that.wrapperH - that.scrollerH;
 		that.dirX = 0;
 		that.dirY = 0;
 
-		that.hScroll = that.options.hScroll && that.maxScrollX < 0;
-		that.vScroll = that.options.vScroll && (!that.options.bounceLock && !that.hScroll || that.scrollerH > that.wrapperH);
+		that.hScroll = opts.hScroll && that.maxScrollX < 0;
+		that.vScroll = opts.vScroll && (!opts.bounceLock && !that.hScroll || that.scrollerH > that.wrapperH);
 
 		offset = that._offset(that.wrapper);
 		that.wrapperOffsetLeft = -offset.left;
 		that.wrapperOffsetTop = -offset.top;
 
 
-		that.scroller.style[vendor + 'TransitionDuration'] = '0';
+		scroller.style[vendor + 'TransitionDuration'] = '0';
 
 		that._resetPos(200);
 	},
@@ -589,6 +611,6 @@ iScroll.prototype = {
 };
 
 if (typeof exports !== 'undefined') exports.iScroll = iScroll;
-else window.iScroll = iScroll;
+else win.iScroll = iScroll;
 
 })();
