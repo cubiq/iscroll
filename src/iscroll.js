@@ -104,6 +104,8 @@ var m = Math,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
 			handleClick: true,
+			preventGhostClick: false,	// prevent ghost clicks?
+			ghostClickTimeout: 500,		// timeout for ghost click prevention
 
 			// Scrollbar
 			hScrollbar: true,
@@ -490,7 +492,22 @@ iScroll.prototype = {
 		if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
 	},
 	
+	/**
+	 * Prevents any real clicks.
+	 * See preventGhostClick portion of _end().
+	 */
+	_preventRealClick: function(e) {
+		if (e._fake !== true) {
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			e.cancel = true;
+			return false;
+		}
+	},
+	
 	_end: function (e) {
+		var that = this;
 		if (hasTouch && e.touches.length !== 0) return;
 
 		var that = this,
@@ -560,6 +577,16 @@ iScroll.prototype = {
 								e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
 								0, null);
 							ev._fake = true;
+							
+							if (that.options.preventGhostClick) {
+								// prevent ghost real clicks on body
+								document.body.addEventListener('click', that._preventRealClick, true);
+								// until ghost click timeout expires
+								setTimeout(function () {
+									document.body.removeEventListener('click', that._preventRealClick, true);
+								}, that.options.ghostClickTimeout);
+							}
+							
 							target.dispatchEvent(ev);
 						}
 					}, that.options.zoom ? 250 : 0);
