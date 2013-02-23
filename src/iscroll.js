@@ -40,7 +40,7 @@ var m = Math,
     hasTransform = vendor !== false,
     hasTransitionEnd = prefixStyle('transition') in dummyStyle,
 
-	RESIZE_EV = 'onorientationchange' in window ? 'orientationchange' : 'resize',
+	RESIZE_EV = 'orientationchange' in window ? 'orientationchange' : 'resize',
 	START_EV = hasTouch ? 'touchstart' : 'mousedown',
 	MOVE_EV = hasTouch ? 'touchmove' : 'mousemove',
 	END_EV = hasTouch ? 'touchend' : 'mouseup',
