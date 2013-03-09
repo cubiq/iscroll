@@ -59,6 +59,18 @@ var m = Math,
 		return transitionEnd[vendor];
 	})(),
 
+	DOMSUBTREEMODIFIED_EV = (function () {
+		var ev = false;
+		var element = doc.createElement('i');
+		element.addEventListener('DOMSubtreeModified', function () {
+			ev = true;
+		}, false);
+
+		element.innerHTML = '<i></i>';
+		element = null;
+		return ev;
+	})(),
+
 	nextFrame = (function() {
 		return window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
@@ -182,9 +194,17 @@ var m = Math,
 			}
 		}
 
-		if (that.options.checkDOMChanges) that.checkDOMTime = setInterval(function () {
-			that._checkDOMChanges();
-		}, 500);
+		if (that.options.checkDOMChanges) {
+
+			if (DOMSUBTREEMODIFIED_EV) {
+				that.checkDOMListener = that.refresh.bind(that);
+				that.scroller.addEventListener('DOMSubtreeModified', that.checkDOMListener, false);
+			} else {
+				that.checkDOMTime = setInterval(function () {
+					that._checkDOMChanges();
+				}, 500);
+			}
+		}
 	};
 
 // Prototype
@@ -897,7 +917,13 @@ iScroll.prototype = {
 		
 		if (that.options.useTransition) that._unbind(TRNEND_EV);
 		
-		if (that.options.checkDOMChanges) clearInterval(that.checkDOMTime);
+		if (that.options.checkDOMChanges) {
+			if (DOMSUBTREEMODIFIED_EV) {
+				that.scroller.removeEventListener('DOMSubtreeModified', that.checkDOMListener, false);
+			} else {
+				clearInterval(that.checkDOMTime);
+			}		
+		}
 		
 		if (that.options.onDestroy) that.options.onDestroy.call(that);
 	},
