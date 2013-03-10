@@ -59,17 +59,7 @@ var m = Math,
 		return transitionEnd[vendor];
 	})(),
 
-	DOMSUBTREEMODIFIED_EV = (function () {
-		var ev = false;
-		var element = doc.createElement('i');
-		element.addEventListener('DOMSubtreeModified', function () {
-			ev = true;
-		}, false);
-
-		element.innerHTML = '<i></i>';
-		element = null;
-		return ev;
-	})(),
+	MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver,
 
 	nextFrame = (function() {
 		return window.requestAnimationFrame ||
@@ -196,9 +186,14 @@ var m = Math,
 
 		if (that.options.checkDOMChanges) {
 
-			if (DOMSUBTREEMODIFIED_EV) {
-				that.checkDOMListener = that.refresh.bind(that);
-				that.scroller.addEventListener('DOMSubtreeModified', that.checkDOMListener, false);
+			if (MutationObserver) {
+	
+				that.mutationObserver = new MutationObserver(that.refresh.bind(that));
+				that.mutationObserver.observe(that.scroller, {
+					childList: true,
+					subtree: true
+				});
+
 			} else {
 				that.checkDOMTime = setInterval(function () {
 					that._checkDOMChanges();
@@ -262,7 +257,7 @@ iScroll.prototype = {
 			bar = doc.createElement('div');
 
 			if (that.options.scrollbarClass) bar.className = that.options.scrollbarClass + dir.toUpperCase();
-			else bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:7px;bottom:1px;left:2px;right:' + (that.vScrollbar ? '7' : '2') + 'px' : 'width:7px;bottom:' + (that.hScrollbar ? '7' : '2') + 'px;top:2px;right:1px');
+			else bar.style.cssText = 'position:absolute;z-index:100;' + (dir == 'h' ? 'height:5px;bottom:1px;left:2px;right:' + (that.vScrollbar ? '7' : '2') + 'px' : 'width:5px;bottom:' + (that.hScrollbar ? '7' : '2') + 'px;top:2px;right:1px');
 
 			bar.style.cssText += ';pointer-events:none;' + cssVendor + 'transition-property:opacity;' + cssVendor + 'transition-duration:' + (that.options.fadeScrollbar ? '350ms' : '0') + ';overflow:hidden;opacity:' + (that.options.hideScrollbar ? '0' : '1');
 
@@ -272,7 +267,7 @@ iScroll.prototype = {
 			// Create the scrollbar indicator
 			bar = doc.createElement('div');
 			if (!that.options.scrollbarClass) {
-				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);' + cssVendor + 'background-clip:padding-box;' + cssVendor + 'box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';' + cssVendor + 'border-radius:3px;border-radius:3px';
+				bar.style.cssText = 'position:absolute;z-index:100;background:rgba(0,0,0,0.5);' + cssVendor + 'background-clip:padding-box;' + cssVendor + 'box-sizing:border-box;' + (dir == 'h' ? 'height:100%' : 'width:100%') + ';' + cssVendor + 'border-radius:3px;border-radius:3px';
 			}
 			bar.style.cssText += ';pointer-events:none;' + cssVendor + 'transition-property:' + cssVendor + 'transform;' + cssVendor + 'transition-timing-function:cubic-bezier(0.33,0.66,0.66,1);' + cssVendor + 'transition-duration:0;' + cssVendor + 'transform: translate(0,0)' + translateZ;
 			if (that.options.useTransition) bar.style.cssText += ';' + cssVendor + 'transition-timing-function:cubic-bezier(0.33,0.66,0.66,1)';
@@ -639,7 +634,7 @@ iScroll.prototype = {
 			return;
 		}
 
-		that._resetPos(200);
+		that._resetPos(600);
 		if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
 	},
 	
@@ -918,8 +913,8 @@ iScroll.prototype = {
 		if (that.options.useTransition) that._unbind(TRNEND_EV);
 		
 		if (that.options.checkDOMChanges) {
-			if (DOMSUBTREEMODIFIED_EV) {
-				that.scroller.removeEventListener('DOMSubtreeModified', that.checkDOMListener, false);
+			if (MutationObserver) {
+				that.mutationObserver.disconnect();
 			} else {
 				clearInterval(that.checkDOMTime);
 			}		
