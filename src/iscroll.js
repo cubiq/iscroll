@@ -102,6 +102,7 @@ var m = Math,
 			useTransform: true,
 			useTransition: false,
 			topOffset: 0,
+			leftOffset: 0,
 			checkDOMChanges: false,		// Experimental
 			handleClick: true,
 
@@ -449,8 +450,8 @@ iScroll.prototype = {
 		that.pointY = point.pageY;
 
 		// Slow down if outside of the boundaries
-		if (newX > 0 || newX < that.maxScrollX) {
-			newX = that.options.bounce ? that.x + (deltaX / 2) : newX >= 0 || that.maxScrollX >= 0 ? 0 : that.maxScrollX;
+		if (newX > that.minScrollX || newX < that.maxScrollX) {
+			newX = that.options.bounce ? that.x + (deltaX / 2) : newX >= that.minScrollX || that.maxScrollX >= 0 ? 0 : that.maxScrollX;
 		}
 		if (newY > that.minScrollY || newY < that.maxScrollY) {
 			newY = that.options.bounce ? that.y + (deltaY / 2) : newY >= that.minScrollY || that.maxScrollY >= 0 ? that.minScrollY : that.maxScrollY;
@@ -625,7 +626,7 @@ iScroll.prototype = {
 	
 	_resetPos: function (time) {
 		var that = this,
-			resetX = that.x >= 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x,
+			resetX = that.x >= that.minScrollX ? that.minScrollX : that.x < that.maxScrollX ? that.maxScrollX : that.x,
 			resetY = that.y >= that.minScrollY || that.maxScrollY > 0 ? that.minScrollY : that.y < that.maxScrollY ? that.maxScrollY : that.y;
 
 		if (resetX == that.x && resetY == that.y) {
@@ -915,9 +916,11 @@ iScroll.prototype = {
 		that.wrapperH = that.wrapper.clientHeight || 1;
 
 		that.minScrollY = -that.options.topOffset || 0;
-		that.scrollerW = m.round(that.scroller.offsetWidth * that.scale);
+		that.minScrollX = -that.options.leftOffset || 0;
+
+		that.scrollerW = m.round((that.scroller.offsetWidth  + that.minScrollX) * that.scale);
 		that.scrollerH = m.round((that.scroller.offsetHeight + that.minScrollY) * that.scale);
-		that.maxScrollX = that.wrapperW - that.scrollerW;
+		that.maxScrollX = that.wrapperW - that.scrollerW + that.minScrollX;
 		that.maxScrollY = that.wrapperH - that.scrollerH + that.minScrollY;
 		that.dirX = 0;
 		that.dirY = 0;
@@ -1002,7 +1005,7 @@ iScroll.prototype = {
 		pos.left += that.wrapperOffsetLeft;
 		pos.top += that.wrapperOffsetTop;
 
-		pos.left = pos.left > 0 ? 0 : pos.left < that.maxScrollX ? that.maxScrollX : pos.left;
+		pos.left = pos.left > that.minScrollX ? that.minScrollX : pos.left < that.maxScrollX ? that.maxScrollX : pos.left;
 		pos.top = pos.top > that.minScrollY ? that.minScrollY : pos.top < that.maxScrollY ? that.maxScrollY : pos.top;
 		time = time === undefined ? m.max(m.abs(pos.left)*2, m.abs(pos.top)*2) : time;
 
@@ -1076,7 +1079,7 @@ iScroll.prototype = {
 		that.scale = scale;
 		that.refresh();
 
-		that.x = that.x > 0 ? 0 : that.x < that.maxScrollX ? that.maxScrollX : that.x;
+		that.x = that.x > that.minScrollX ? that.minScrollX : that.x < that.maxScrollX ? that.maxScrollX : that.x;
 		that.y = that.y > that.minScrollY ? that.minScrollY : that.y < that.maxScrollY ? that.maxScrollY : that.y;
 
 		that.scroller.style[transitionDuration] = time + 'ms';
