@@ -35,7 +35,13 @@ var m = Math,
 	isIDevice = (/iphone|ipad/gi).test(navigator.appVersion),
 	isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
 
-    has3d = prefixStyle('perspective') in dummyStyle,
+    has3d = (function() {
+		var value = prefixStyle('perspective') in dummyStyle;
+		if (navigator.userAgent.match(/OS 5(_\d)+ like Mac OS X/i)) {
+			value = false;
+		}
+		return value;
+    })(),
     hasTouch = 'ontouchstart' in window && !isTouchPad,
     hasTransform = vendor !== false,
     hasTransitionEnd = prefixStyle('transition') in dummyStyle,
