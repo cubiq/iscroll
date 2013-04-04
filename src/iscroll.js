@@ -650,6 +650,10 @@ iScroll.prototype = {
 	},
 
 	_wheel: function (e) {
+		if (e.preventDefault) {
+			e.preventDefault();
+		}
+
 		var that = this,
 			wheelDeltaX, wheelDeltaY,
 			deltaX, deltaY,
