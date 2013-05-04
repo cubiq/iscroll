@@ -993,14 +993,17 @@ iScroll.prototype = {
 		that._startAni();
 	},
 
-	scrollToElement: function (el, time) {
+	scrollToElement: function (el, time, offsetX, offsetY) {
 		var that = this, pos;
 		el = el.nodeType ? el : that.scroller.querySelector(el);
 		if (!el) return;
 
+		offsetX = offsetX != null ? offsetX : 0;
+		offsetY = offsetY != null ? offsetY : 0;
+
 		pos = that._offset(el);
-		pos.left += that.wrapperOffsetLeft;
-		pos.top += that.wrapperOffsetTop;
+		pos.left += that.wrapperOffsetLeft - offsetX;
+		pos.top += that.wrapperOffsetTop - offsetY;
 
 		pos.left = pos.left > 0 ? 0 : pos.left < that.maxScrollX ? that.maxScrollX : pos.left;
 		pos.top = pos.top > that.minScrollY ? that.minScrollY : pos.top < that.maxScrollY ? that.maxScrollY : pos.top;
