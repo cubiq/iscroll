@@ -178,7 +178,7 @@ var m = Math,
 		that._bind(START_EV);
 		if (!hasTouch) {
 			if (that.options.wheelAction != 'none') {
-				that._bind('DOMMouseScroll');
+				that._bind( 'onwheel' in window ? 'wheel' : 'DOMMouseScroll' );
 				that._bind('mousewheel');
 			}
 		}
@@ -211,7 +211,7 @@ iScroll.prototype = {
 			case END_EV:
 			case CANCEL_EV: that._end(e); break;
 			case RESIZE_EV: that._resize(); break;
-			case 'DOMMouseScroll': case 'mousewheel': that._wheel(e); break;
+            case 'wheel': case 'DOMMouseScroll': case 'mousewheel': that._wheel(e); break;
 			case TRNEND_EV: that._transitionEnd(e); break;
 		}
 	},
@@ -661,7 +661,10 @@ iScroll.prototype = {
 			wheelDeltaY = e.wheelDeltaY / 12;
 		} else if('wheelDelta' in e) {
 			wheelDeltaX = wheelDeltaY = e.wheelDelta / 12;
-		} else if ('detail' in e) {
+		} else if('deltaY' in e) {
+            wheelDeltaX = -e.deltaX / 3;
+            wheelDeltaY = -e.deltaY / 3;
+        } else if ('detail' in e) {
 			wheelDeltaX = wheelDeltaY = -e.detail * 3;
 		} else {
 			return;
@@ -698,6 +701,8 @@ iScroll.prototype = {
     
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
+			
+            if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
 		}
 	},
 	
