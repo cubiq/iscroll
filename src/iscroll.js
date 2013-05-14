@@ -342,7 +342,17 @@ iScroll.prototype = {
 		var that = this,
 			point = hasTouch ? e.touches[0] : e,
 			matrix, x, y,
-			c1, c2;
+			c1, c2,
+			tagName = e.target.nodeName.toLowerCase();
+
+		if (that.focusedInput){
+			that.focusedInput.blur();
+			that.focusedInput = false;
+		}
+		if (tagName === "select" || tagName === "input" || tagName === "textarea") {
+			e.target.focus();
+			that.focusedInput = e.target;
+		}
 
 		if (!that.enabled) return;
 
