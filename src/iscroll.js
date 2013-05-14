@@ -186,6 +186,10 @@ var m = Math,
 			that._checkDOMChanges();
 		}, 500);
 	};
+	iScroll.canIScroll = function() {
+		var m = /MSIE ([0-9]{1,}[\.0-9]{0,})/.exec(navigator.userAgent);
+		return !(m && parseFloat(m[1]) < 9);
+	}
 
 // Prototype
 iScroll.prototype = {
@@ -444,7 +448,7 @@ iScroll.prototype = {
 			if (that.options.onZoom) that.options.onZoom.call(that, e);
 			return;
 		}
-
+		
 		that.pointX = point.pageX;
 		that.pointY = point.pageY;
 
@@ -685,6 +689,9 @@ iScroll.prototype = {
 			
 			return;
 		}
+		
+		e.preventDefault();
+		e.stopPropagation();
 		
 		deltaX = that.x + wheelDeltaX;
 		deltaY = that.y + wheelDeltaY;
