@@ -564,6 +564,15 @@ iScroll.prototype = {
 						}
 					}, that.options.zoom ? 250 : 0);
 				}
+				
+        // Do we need to snap?
+        if (that.options.snap) {
+            snap = that._snap(that.x, that.y);
+            if (snap.x != that.x || snap.y != that.y) that.scrollTo(snap.x, snap.y, snap.time);
+            
+            if (that.options.onTouchEnd) that.options.onTouchEnd.call(that, e);
+            return;
+        }
 			}
 
 			that._resetPos(400);
