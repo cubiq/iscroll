@@ -1083,7 +1083,35 @@ iScroll.prototype = {
 		that.scroller.style[transform] = 'translate(' + that.x + 'px,' + that.y + 'px) scale(' + scale + ')' + translateZ;
 		that.zoomed = false;
 	},
-	
+	zoomOut: function(scaleSubtract){
+		var that = this;
+		var relScale = scaleSubtract === undefined ? that.scale - 1 : that.scale - scaleSubtract ; 
+		
+		if ( relScale >= that.options.zoomMin && that.isReady() ){
+			
+			if( that.options.onZoomStart ) that.options.onZoomStart.call( that, null );
+			
+			that.zoom( that.currPageX, that.currPageY, relScale );
+			
+			if( that.options.onZoomEnd ) that.options.onZoomEnd.call( that, null );
+			
+		}else{ return; }
+		
+	},
+	zoomIn:function(scaleAdd){
+		var that = this;
+		var relScale = scaleAdd === undefined ? that.scale + 1 : that.scale + scaleAdd ; 
+		
+		if ( relScale <= that.options.zoomMax && that.isReady() ){
+			
+			if( that.options.onZoomStart ) that.options.onZoomStart.call( that, null );
+			
+			that.zoom( that.currPageX, that.currPageY, relScale );
+			
+			if( that.options.onZoomEnd ) that.options.onZoomEnd.call( that, null );
+		
+		}else{ return; }
+	},	
 	isReady: function () {
 		return !this.moved && !this.zoomed && !this.animating;
 	}
