@@ -511,7 +511,7 @@ iScroll.prototype = {
 		that._unbind(END_EV, window);
 		that._unbind(CANCEL_EV, window);
 
-		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
+		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e, {x:newX, y:newY});
 
 		if (that.zoomed) {
 			scale = that.scale * that.lastScale;
@@ -702,7 +702,7 @@ iScroll.prototype = {
 		if (that.maxScrollY < 0) {
 			that.scrollTo(deltaX, deltaY, 0);
 			
-            if (that.options.onScrollMove) that.options.onScrollMove.call(that, e);
+            if (that.options.onScrollMove) that.options.onScrollMove.call(that, e, {x:deltaX, y:deltaY});
 		}
 	},
 	
