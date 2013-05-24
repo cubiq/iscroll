@@ -1347,6 +1347,11 @@ function Indicator (scroller, options) {
 		this.options[i] = options[i];
 	}
 
+	this.sizeRatioX = 1;
+	this.sizeRatioY = 1;
+	this.maxPosX = 0;
+	this.maxPosY = 0;
+
 	if ( this.options.interactive ) {
 		utils.addEvent(this.indicator, 'touchstart', this);
 		utils.addEvent(this.indicator, 'MSPointerDown', this);
@@ -1374,8 +1379,6 @@ Indicator.prototype = {
 			case 'touchend':
 			case 'MSPointerUp':
 			case 'mouseup':
-				this._end(e);
-				break;
 			case 'touchcancel':
 			case 'MSPointerCancel':
 			case 'mousecancel':
