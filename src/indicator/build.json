@@ -1,0 +1,9 @@
+{
+	"insert": {
+		"OPTIONS": "\t\tresizeIndicator: true,",
+		"_init": "\t\tif ( this.options.scrollbars || this.options.indicators ) {\n\t\t\tthis._initIndicators();\n\t\t}",
+		"_transitionTime": "indicator/_transitionTime.js",
+		"_transitionTimingFunction": "indicator/_transitionTimingFunction.js",
+		"_translate": "indicator/_translate.js"
+	}
+}

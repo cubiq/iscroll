@@ -1,0 +1,9 @@
+{
+	"insert": {
+		"NORMALIZATION": "\tif ( this.options.probeType == 3 ) {\n\t\tthis.options.useTransition = false;\t}",
+		"_wheel": "\t\tif ( this.options.probeType > 1 ) {\n\t\t\tthis._execEvent('scroll');\n\t\t}"
+	},
+	"replace": {
+		"_move": "probe/_move.js"
+	}
+}

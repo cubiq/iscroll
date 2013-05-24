@@ -1,0 +1,6 @@
+{
+	"insert": {
+		"OPTIONS": "\t\tsnapThreshold: 10,",
+		"_init": "\t\tif ( this.options.snap ) {\n\t\t\tthis._initSnap();\n\t\t}"
+	}
+}
