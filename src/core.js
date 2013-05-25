@@ -6,7 +6,7 @@ function IScroll (el, options) {
 
 	this.options = {
 
-// INSERT POINT: OPTIONS 
+// INSERT POINT: OPTIONS
 
 		startX: 0,
 		startY: 0,
@@ -55,7 +55,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this._events = {};
@@ -117,7 +117,7 @@ IScroll.prototype = {
 		this.directionLocked = 0;
 
 		this._transitionTime();
-		
+
 		this.isAnimating = false;
 		this.startTime = utils.getTime();
 
@@ -464,7 +464,7 @@ IScroll.prototype = {
 		this.y = y;
 
 // INSERT POINT: _translate
-	
+
 	},
 
 	_initEvents: function (remove) {
@@ -514,3 +514,5 @@ IScroll.prototype = {
 
 		return { x: x, y: y };
 	},
+
+	utils: utils
