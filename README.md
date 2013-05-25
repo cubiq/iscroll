@@ -1,6 +1,7 @@
 # iScroll 5 beta 1
 
-Documentation soon to come. In the meantime please reference to the examples in the demos directory.
+Detailed documentation soon to come. In the meantime please reference to the examples in the demos directory.
+Note: The global variable in iScroll 5 is called `IScroll` while it was `iScroll` in verion 4.
 
 ## Build system (for developers only)
 
