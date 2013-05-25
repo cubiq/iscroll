@@ -6,7 +6,7 @@ If you are an individual, please sign the following form:
 http://cubiq.org/iscroll/cla/individual.html
 
 If you are a company or an entity please sing the following form:
-http://cubiq.org/iscroll/cla/individual.html
+http://cubiq.org/iscroll/cla/entity.html
 
 Thanks!
 Matteo Spinelli
