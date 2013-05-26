@@ -8,7 +8,7 @@ Once you have embedded iScroll 5 in your page, this is how you create an iScroll
 ```javascript
 var myscrollview = new IScroll("#myid");
 ```
-The `IScroll` constructor excepts two arguments: `new iScroll(selector, options);
+The `IScroll` constructor excepts two arguments: `new iScroll(selector, options);`
 `selector` is a css selecor as you know it from jQuery or `querySelector`.
 `options` is an object of options you can supply to the constructor.
 
