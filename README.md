@@ -1,14 +1,14 @@
 # iScroll 5 beta 1
 
 Detailed documentation soon to come. In the meantime please reference to the examples in the demos directory.
-Note: The global variable in iScroll 5 is called `IScroll` while it was `iScroll` in verion 4.
+Note: The global variable in iScroll 5 is called `IScroll` while it was `iScroll` in version 4.
 
 ## Getting Started
 Once you have embedded iScroll 5 in your page, this is how you create an iScroll instance:
 ```javascript
 var myscrollview = new IScroll("#myid");
 ```
-The `IScroll` constructor excepts two arguments: `new iScroll(selector, options);`
+The `IScroll` constructor accepts two arguments: `new iScroll(selector, options);`
 `selector` is a css selecor as you know it from jQuery or `querySelector`.
 `options` is an object of options you can supply to the constructor.
 
