@@ -902,6 +902,8 @@ IScroll.prototype = {
 
 		this.originX = Math.abs(e.touches[0].pageX + e.touches[1].pageX) / 2 + this.wrapperOffset.left - this.x;
 		this.originY = Math.abs(e.touches[0].pageY + e.touches[1].pageY) / 2 + this.wrapperOffset.top - this.y;
+
+		this._execEvent('zoomStart');
 	},
 
 	_zoom: function (e) {
@@ -983,6 +985,8 @@ IScroll.prototype = {
 		}
 
 		this.scaled = false;
+
+		this._execEvent('zoomEnd');
 	},
 
 	zoom: function (scale, x, y, time) {
