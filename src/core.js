@@ -117,7 +117,7 @@ IScroll.prototype = {
 		this.directionLocked = 0;
 
 		this._transitionTime();
-		
+
 		this.isAnimating = false;
 		this.startTime = utils.getTime();
 
@@ -379,7 +379,9 @@ IScroll.prototype = {
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
 		this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
 
-		this.endTime		= 0;
+		this.endTime = 0;
+
+		this.wrapperOffset = utils.offset(this.wrapper);
 
 		this._execEvent('refresh');
 	},
@@ -429,6 +431,37 @@ IScroll.prototype = {
 		}
 	},
 
+	scrollToElement: function (el, time, offsetX, offsetY, easing) {
+		el = el.nodeType ? el : this.scroller.querySelector(el);
+
+		if ( !el ) {
+			return;
+		}
+
+		var pos = utils.offset(el);
+
+		pos.left -= this.wrapperOffset.left;
+		pos.top  -= this.wrapperOffset.top;
+
+		// if offsetX/Y are true we center the element to the screen
+		if ( offsetX === true ) {
+			offsetX = Math.round(el.offsetWidth / 2 - this.wrapper.offsetWidth / 2);
+		}
+		if ( offsetY === true ) {
+			offsetY = Math.round(el.offsetHeight / 2 - this.wrapper.offsetHeight / 2);
+		}
+
+		pos.left -= offsetX || 0;
+		pos.top  -= offsetY || 0;
+
+		pos.left = pos.left > 0 ? 0 : pos.left < this.maxScrollX ? this.maxScrollX : pos.left;
+		pos.top  = pos.top  > 0 ? 0 : pos.top  < this.maxScrollY ? this.maxScrollY : pos.top;
+
+		time = time === undefined || null || 'auto' ? Math.max(Math.abs(pos.left)*2, Math.abs(pos.top)*2) : time;
+
+		this.scrollTo(pos.left, pos.top, time, easing);
+	},
+
 	_transitionTime: function (time) {
 		time = time || 0;
 		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
@@ -464,7 +497,7 @@ IScroll.prototype = {
 		this.y = y;
 
 // INSERT POINT: _translate
-	
+
 	},
 
 	_initEvents: function (remove) {
