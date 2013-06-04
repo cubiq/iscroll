@@ -183,8 +183,8 @@ var utils = (function () {
 		elastic: {
 			style: '',
 			fn: function (k) {
-				f = 0.225;
-				e = 1;
+				f = 0.22;
+				e = 0.4;
 
 				if ( k === 0 ) { return 0; }
 				if ( k == 1 ) { return 1; }
@@ -919,18 +919,18 @@ IScroll.prototype = {
 		e.preventDefault();
 
 		if ( 'wheelDeltaX' in e ) {
-			wheelDeltaX = e.wheelDeltaX / Math.abs(e.wheelDeltaX) || 0;
-			wheelDeltaY = e.wheelDeltaY / Math.abs(e.wheelDeltaY) || 0;
+			wheelDeltaX = e.wheelDeltaX / 120;
+			wheelDeltaY = e.wheelDeltaY / 120;
 		} else if ( 'wheelDelta' in e ) {
-			wheelDeltaX = wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
+			wheelDeltaX = wheelDeltaY = e.wheelDelta / 120;
 		} else if ( 'detail' in e ) {
-			wheelDeltaX = wheelDeltaY = -(e.detail / Math.abs(e.detail));
+			wheelDeltaX = wheelDeltaY = -e.detail / 3;
 		} else {
 			return;
 		}
 
-		wheelDeltaX *= 12;
-		wheelDeltaY *= 12;
+		wheelDeltaX *= 10;
+		wheelDeltaY *= 10;
 
 		if ( !this.hasVerticalScroll ) {
 			wheelDeltaX = wheelDeltaY;
