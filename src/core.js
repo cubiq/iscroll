@@ -101,8 +101,8 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault ) {
-			//e.preventDefault();		// This seems to break default Android browser
+		if ( this.options.preventDefault && !utils.isAndroidBrowser ) {
+			e.preventDefault();		// This seems to break default Android browser
 		}
 
 		var point = e.touches ? e.touches[0] : e,

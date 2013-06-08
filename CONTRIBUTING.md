@@ -5,8 +5,8 @@ All contributions are welcome but to enforce the openess of this script I have t
 If you are an individual, please sign the following form:
 http://cubiq.org/iscroll/cla/individual.html
 
-If you are a company or an entity please sing the following form:
-http://cubiq.org/iscroll/cla/individual.html
+If you are a company or an entity please sign the following form:
+http://cubiq.org/iscroll/cla/entity.html
 
 Thanks!
 Matteo Spinelli
