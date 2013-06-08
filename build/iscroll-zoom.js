@@ -1572,7 +1572,7 @@ function Indicator (scroller, options) {
 		utils.addEvent(this.indicator, 'mousedown', this);
 
 		utils.addEvent(window, 'touchend', this);
-		utils.addEvent(window, 'MSPointerMove', this);
+		utils.addEvent(window, 'MSPointerUp', this);
 		utils.addEvent(window, 'mouseup', this);
 	}
 }
@@ -1612,7 +1612,7 @@ Indicator.prototype = {
 			utils.removeEvent(window, 'mousemove', this);
 
 			utils.removeEvent(window, 'touchend', this);
-			utils.removeEvent(window, 'MSPointerMove', this);
+			utils.removeEvent(window, 'MSPointerUp', this);
 			utils.removeEvent(window, 'mouseup', this);
 		}
 	},
@@ -1625,6 +1625,7 @@ Indicator.prototype = {
 
 		this.transitionTime(0);
 
+		this.initiated = true;
 		this.lastPointX	= point.pageX;
 		this.lastPointY	= point.pageY;
 
@@ -1657,6 +1658,12 @@ Indicator.prototype = {
 	},
 
 	_end: function (e) {
+		if ( !this.initiated ) {
+			return;
+		}
+
+		this.initiated = false;
+
 		e.preventDefault();
 		e.stopPropagation();
 
