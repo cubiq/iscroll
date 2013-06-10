@@ -9,3 +9,5 @@ iScroll comes with a custom build system. The required nodejs packages are inclu
 	./build.js dist
 
 The compiled scripts will be saved in the /build and /dist directories.
+
+Script released under the MIT license.

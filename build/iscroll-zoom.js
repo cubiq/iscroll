@@ -1,4 +1,4 @@
-/*! iScroll v5.0.0-beta.1 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.0-beta.2 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 
 var rAF = window.requestAnimationFrame	||
@@ -242,7 +242,6 @@ function IScroll (el, options) {
 		startX: 0,
 		startY: 0,
 		scrollY: true,
-		lockDirection: true,
 		directionLockThreshold: 5,
 		momentum: true,
 
@@ -275,7 +274,7 @@ function IScroll (el, options) {
 	this.options.scrollX = this.options.eventPassthrough == 'horizontal' ? false : this.options.scrollX;
 
 	// With eventPassthrough we also need lockDirection mechanism
-	this.options.lockDirection = this.options.lockDirection || this.options.eventPassthrough;
+	this.options.freeScroll = this.options.freeScroll && !this.options.eventPassthrough;
 	this.options.directionLockThreshold = this.options.eventPassthrough ? 0 : this.options.directionLockThreshold;
 
 	this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
@@ -305,7 +304,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.0-beta.1',
+	version: '5.0.0-beta.2',
 
 	_init: function () {
 		this._initEvents();
@@ -423,13 +422,13 @@ IScroll.prototype = {
 		}
 
 		// If you are scrolling in one direction lock the other
-		if ( !this.directionLocked && this.options.lockDirection ) {
+		if ( !this.directionLocked && !this.options.freeScroll ) {
 			if ( absDistX > absDistY + this.options.directionLockThreshold ) {
 				this.directionLocked = 'h';		// lock horizontally
 			} else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
 				this.directionLocked = 'v';		// lock vertically
 			} else {
-				this.directionLocked = 0;		// no lock
+				this.directionLocked = 'n';		// no lock
 			}
 		}
 
@@ -500,6 +499,8 @@ IScroll.prototype = {
 			newY = Math.round(this.y),
 			time = 0,
 			easing = '';
+
+		this.scrollTo(newX, newY);	// ensures that the last position is rounded
 
 		this.isInTransition = 0;
 		this.initiated = 0;
@@ -592,6 +593,13 @@ IScroll.prototype = {
 			y = 0;
 		} else if ( this.y < this.maxScrollY ) {
 			y = this.maxScrollY;
+		}
+
+		if ( this.options.snap ) {
+			var snap = this._nearestSnap(x, y);
+			this.currentPage = snap;
+			x = snap.x;
+			y = snap.y;
 		}
 
 		this.scrollTo(x, y, time, this.options.bounceEasing);
@@ -1117,6 +1125,10 @@ IScroll.prototype = {
 		this.pages = [];
 		this.currentPage = {};
 
+		if ( typeof this.options.snap == 'string' ) {
+			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+		}
+
 		this.on('refresh', function () {
 			var i = 0, l,
 				m = 0, n,
@@ -1130,12 +1142,12 @@ IScroll.prototype = {
 				cx = Math.round( stepX / 2 );
 				cy = Math.round( stepY / 2 );
 
-				while ( x >= -this.scrollerWidth ) {
+				while ( x > -this.scrollerWidth ) {
 					this.pages[i] = [];
 					l = 0;
 					y = 0;
 
-					while ( y >= -this.scrollerHeight ) {
+					while ( y > -this.scrollerHeight ) {
 						this.pages[i][l] = {
 							x: Math.max(x, this.maxScrollX),
 							y: Math.max(y, this.maxScrollY),
@@ -1156,7 +1168,7 @@ IScroll.prototype = {
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( el[i].offsetLeft === 0 ) {
+					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
@@ -1199,6 +1211,18 @@ IScroll.prototype = {
 		if ( Math.abs(x - this.absStartX) < this.options.snapThreshold &&
 			Math.abs(y - this.absStartY) < this.options.snapThreshold ) {
 			return this.currentPage;
+		}
+
+		if ( x > 0 ) {
+			x = 0;
+		} else if ( x < this.maxScrollX ) {
+			x = this.maxScrollX;
+		}
+
+		if ( y > 0 ) {
+			y = 0;
+		} else if ( y < this.maxScrollY ) {
+			y = this.maxScrollY;
 		}
 
 		for ( ; i < l; i++ ) {
@@ -1252,7 +1276,7 @@ IScroll.prototype = {
 	goToPage: function (x, y, time, easing) {
 		if ( x >= this.pages.length ) {
 			x = this.pages.length - 1;
-		} else if ( x < 0) {
+		} else if ( x < 0 ) {
 			x = 0;
 		}
 
@@ -1286,8 +1310,12 @@ IScroll.prototype = {
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x += this.hasHorizontalScroll ? 1 : 0;
-		y += this.hasVericalScroll ? 1 : 0;
+		x++;
+
+		if ( x >= this.pages.length && this.hasVericalScroll ) {
+			x = 0;
+			y++;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},
@@ -1296,8 +1324,12 @@ IScroll.prototype = {
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x -= this.hasHorizontalScroll ? 1 : 0;
-		y -= this.hasVericalScroll ? 1 : 0;
+		x--;
+
+		if ( x < 0 && this.hasVericalScroll ) {
+			x = 0;
+			y--;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},

@@ -3,6 +3,10 @@
 		this.pages = [];
 		this.currentPage = {};
 
+		if ( typeof this.options.snap == 'string' ) {
+			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+		}
+
 		this.on('refresh', function () {
 			var i = 0, l,
 				m = 0, n,
@@ -16,12 +20,12 @@
 				cx = Math.round( stepX / 2 );
 				cy = Math.round( stepY / 2 );
 
-				while ( x >= -this.scrollerWidth ) {
+				while ( x > -this.scrollerWidth ) {
 					this.pages[i] = [];
 					l = 0;
 					y = 0;
 
-					while ( y >= -this.scrollerHeight ) {
+					while ( y > -this.scrollerHeight ) {
 						this.pages[i][l] = {
 							x: Math.max(x, this.maxScrollX),
 							y: Math.max(y, this.maxScrollY),
@@ -42,7 +46,7 @@
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( el[i].offsetLeft === 0 ) {
+					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
@@ -85,6 +89,18 @@
 		if ( Math.abs(x - this.absStartX) < this.options.snapThreshold &&
 			Math.abs(y - this.absStartY) < this.options.snapThreshold ) {
 			return this.currentPage;
+		}
+
+		if ( x > 0 ) {
+			x = 0;
+		} else if ( x < this.maxScrollX ) {
+			x = this.maxScrollX;
+		}
+
+		if ( y > 0 ) {
+			y = 0;
+		} else if ( y < this.maxScrollY ) {
+			y = this.maxScrollY;
 		}
 
 		for ( ; i < l; i++ ) {
@@ -138,7 +154,7 @@
 	goToPage: function (x, y, time, easing) {
 		if ( x >= this.pages.length ) {
 			x = this.pages.length - 1;
-		} else if ( x < 0) {
+		} else if ( x < 0 ) {
 			x = 0;
 		}
 
@@ -172,8 +188,12 @@
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x += this.hasHorizontalScroll ? 1 : 0;
-		y += this.hasVericalScroll ? 1 : 0;
+		x++;
+
+		if ( x >= this.pages.length && this.hasVericalScroll ) {
+			x = 0;
+			y++;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},
@@ -182,8 +202,12 @@
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x -= this.hasHorizontalScroll ? 1 : 0;
-		y -= this.hasVericalScroll ? 1 : 0;
+		x--;
+
+		if ( x < 0 && this.hasVericalScroll ) {
+			x = 0;
+			y--;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},
