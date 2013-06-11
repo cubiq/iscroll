@@ -15,13 +15,14 @@ var releases = {
 
 	iscroll: {
 		files: [
-			'indicator/_initIndicators.js',
+			'indicator/_initIndicators.js',            
 			'wheel/wheel.js',
 			'snap/snap.js',
 			'keys/keys.js',
 			'default/_animate.js',
 			'default/handleEvent.js',
-			'indicator/indicator.js'
+			'indicator/indicator.js',
+            'angular/angular.js',
 		],
 		postProcessing: [ 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json' ]
 	},
