@@ -29,6 +29,8 @@
 						this.pages[i][l] = {
 							x: Math.max(x, this.maxScrollX),
 							y: Math.max(y, this.maxScrollY),
+							width: stepX,
+							height: stepY,
 							cx: x - cx,
 							cy: y - cy
 						};
@@ -63,6 +65,8 @@
 					this.pages[m][n] = {
 						x: x,
 						y: y,
+						width: el[i].offsetWidth,
+						height: el[i].offsetHeight,
 						cx: cx,
 						cy: cy
 					};
@@ -78,6 +82,28 @@
 				pageY: 0
 			};
 
+			// Update snap threshold if needed
+			if ( this.options.snapThreshold % 1 === 0 ) {
+				this.snapThresholdX = this.options.snapThreshold;
+				this.snapThresholdY = this.options.snapThreshold;
+			} else {
+				this.snapThresholdX = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].width * this.options.snapThreshold);
+				this.snapThresholdY = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].height * this.options.snapThreshold);
+			}
+		});
+
+		this.on('flick', function () {
+			var time = this.options.snapSpeed || Math.max(
+					Math.max(
+						Math.min(Math.abs(this.x - this.startX), 1000),
+						Math.min(Math.abs(this.y - this.startY), 1000)
+					), 300);
+
+			this.goToPage(
+				this.currentPage.pageX + this.directionX,
+				this.currentPage.pageY + this.directionY,
+				time
+			);
 		});
 	},
 
@@ -86,8 +112,8 @@
 			l = this.pages.length,
 			m = 0;
 
-		if ( Math.abs(x - this.absStartX) < this.options.snapThreshold &&
-			Math.abs(y - this.absStartY) < this.options.snapThreshold ) {
+		if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
+			Math.abs(y - this.absStartY) < this.snapThresholdY ) {
 			return this.currentPage;
 		}
 
@@ -152,6 +178,8 @@
 	},
 
 	goToPage: function (x, y, time, easing) {
+		easing = easing || this.options.bounceEasing;
+
 		if ( x >= this.pages.length ) {
 			x = this.pages.length - 1;
 		} else if ( x < 0 ) {
@@ -171,8 +199,7 @@
 			Math.max(
 				Math.min(Math.abs(posX - this.x), 1000),
 				Math.min(Math.abs(posY - this.y), 1000)
-			),
-		300);
+			), 300);
 
 		this.currentPage = {
 			x: posX,

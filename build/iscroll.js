@@ -1,4 +1,4 @@
-/*! iScroll v5.0.0-beta.2 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.0 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 
 var rAF = window.requestAnimationFrame	||
@@ -232,7 +232,7 @@ function IScroll (el, options) {
 
 		resizeIndicator: true,
 
-		snapThreshold: 10,
+		snapThreshold: 0.334,
 
 // INSERT POINT: OPTIONS 
 
@@ -299,7 +299,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.0-beta.2',
+	version: '5.0.0',
 
 	_init: function () {
 		this._initEvents();
@@ -488,6 +488,8 @@ IScroll.prototype = {
 			duration = utils.getTime() - this.startTime,
 			newX = Math.round(this.x),
 			newY = Math.round(this.y),
+			distanceX = Math.abs(newX - this.startX),
+			distanceY = Math.abs(newY - this.startY),
 			time = 0,
 			easing = '';
 
@@ -515,6 +517,11 @@ IScroll.prototype = {
 			return;
 		}
 
+		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
+			this._execEvent('flick');
+			return;
+		}
+
 		// start momentum animation if needed
 		if ( this.options.momentum && duration < 300 ) {
 			momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0) : { destination: newX, duration: 0 };
@@ -531,11 +538,10 @@ IScroll.prototype = {
 			newX = snap.x;
 			newY = snap.y;
 			time = this.options.snapSpeed || Math.max(
-				Math.max(
-					Math.min(Math.abs(newX - this.x), 1000),
-					Math.min(Math.abs(newY - this.y), 1000)
-				),
-			300);
+					Math.max(
+						Math.min(distanceX, 1000),
+						Math.min(distanceX, 1000)
+					), 300);
 
 			easing = this.options.bounceEasing;
 		}
@@ -987,6 +993,8 @@ IScroll.prototype = {
 						this.pages[i][l] = {
 							x: Math.max(x, this.maxScrollX),
 							y: Math.max(y, this.maxScrollY),
+							width: stepX,
+							height: stepY,
 							cx: x - cx,
 							cy: y - cy
 						};
@@ -1021,6 +1029,8 @@ IScroll.prototype = {
 					this.pages[m][n] = {
 						x: x,
 						y: y,
+						width: el[i].offsetWidth,
+						height: el[i].offsetHeight,
 						cx: cx,
 						cy: cy
 					};
@@ -1036,6 +1046,28 @@ IScroll.prototype = {
 				pageY: 0
 			};
 
+			// Update snap threshold if needed
+			if ( this.options.snapThreshold % 1 === 0 ) {
+				this.snapThresholdX = this.options.snapThreshold;
+				this.snapThresholdY = this.options.snapThreshold;
+			} else {
+				this.snapThresholdX = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].width * this.options.snapThreshold);
+				this.snapThresholdY = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].height * this.options.snapThreshold);
+			}
+		});
+
+		this.on('flick', function () {
+			var time = this.options.snapSpeed || Math.max(
+					Math.max(
+						Math.min(Math.abs(this.x - this.startX), 1000),
+						Math.min(Math.abs(this.y - this.startY), 1000)
+					), 300);
+
+			this.goToPage(
+				this.currentPage.pageX + this.directionX,
+				this.currentPage.pageY + this.directionY,
+				time
+			);
 		});
 	},
 
@@ -1044,8 +1076,8 @@ IScroll.prototype = {
 			l = this.pages.length,
 			m = 0;
 
-		if ( Math.abs(x - this.absStartX) < this.options.snapThreshold &&
-			Math.abs(y - this.absStartY) < this.options.snapThreshold ) {
+		if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
+			Math.abs(y - this.absStartY) < this.snapThresholdY ) {
 			return this.currentPage;
 		}
 
@@ -1110,6 +1142,8 @@ IScroll.prototype = {
 	},
 
 	goToPage: function (x, y, time, easing) {
+		easing = easing || this.options.bounceEasing;
+
 		if ( x >= this.pages.length ) {
 			x = this.pages.length - 1;
 		} else if ( x < 0 ) {
@@ -1129,8 +1163,7 @@ IScroll.prototype = {
 			Math.max(
 				Math.min(Math.abs(posX - this.x), 1000),
 				Math.min(Math.abs(posY - this.y), 1000)
-			),
-		300);
+			), 300);
 
 		this.currentPage = {
 			x: posX,

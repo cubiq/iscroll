@@ -242,6 +242,8 @@ IScroll.prototype = {
 			duration = utils.getTime() - this.startTime,
 			newX = Math.round(this.x),
 			newY = Math.round(this.y),
+			distanceX = Math.abs(newX - this.startX),
+			distanceY = Math.abs(newY - this.startY),
 			time = 0,
 			easing = '';
 
@@ -269,6 +271,11 @@ IScroll.prototype = {
 			return;
 		}
 
+		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
+			this._execEvent('flick');
+			return;
+		}
+
 		// start momentum animation if needed
 		if ( this.options.momentum && duration < 300 ) {
 			momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0) : { destination: newX, duration: 0 };
@@ -285,11 +292,10 @@ IScroll.prototype = {
 			newX = snap.x;
 			newY = snap.y;
 			time = this.options.snapSpeed || Math.max(
-				Math.max(
-					Math.min(Math.abs(newX - this.x), 1000),
-					Math.min(Math.abs(newY - this.y), 1000)
-				),
-			300);
+					Math.max(
+						Math.min(distanceX, 1000),
+						Math.min(distanceX, 1000)
+					), 300);
 
 			easing = this.options.bounceEasing;
 		}

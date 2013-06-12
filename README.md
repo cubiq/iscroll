@@ -1,4 +1,4 @@
-# iScroll 5 beta 2
+# iScroll 5
 
 Documentation soon to come. In the meantime please reference to the examples in the demos directory.
 
