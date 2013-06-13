@@ -48,6 +48,8 @@ function IScroll (el, options) {
 
 	this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
 
+	this.options.resizePolling = this.options.resizePolling === undefined ? 60 : this.options.resizePolling;
+
 	if ( this.options.tap === true ) {
 		this.options.tap = 'tap';
 	}
@@ -321,7 +323,7 @@ IScroll.prototype = {
 		this.resizeTimeout = setTimeout(function () {
 			that.refresh();
 			that.resetPosition();
-		}, 60);
+		}, this.options.resizePolling);
 	},
 
 	resetPosition: function (time) {
@@ -367,7 +369,7 @@ IScroll.prototype = {
 	},
 
 	refresh: function () {
-		var rf = this.wrapper.offsetHeight;		// Force refresh
+		var rf = this.wrapper.offsetHeight;		// Force reflow
 
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;

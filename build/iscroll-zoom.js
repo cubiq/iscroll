@@ -1,4 +1,4 @@
-/*! iScroll v5.0.0 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.1 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 
 var rAF = window.requestAnimationFrame	||
@@ -279,6 +279,8 @@ function IScroll (el, options) {
 
 	this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
 
+	this.options.resizePolling = this.options.resizePolling === undefined ? 60 : this.options.resizePolling;
+
 	if ( this.options.tap === true ) {
 		this.options.tap = 'tap';
 	}
@@ -304,7 +306,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.0',
+	version: '5.0.1',
 
 	_init: function () {
 		this._initEvents();
@@ -576,7 +578,7 @@ IScroll.prototype = {
 		this.resizeTimeout = setTimeout(function () {
 			that.refresh();
 			that.resetPosition();
-		}, 60);
+		}, this.options.resizePolling);
 	},
 
 	resetPosition: function (time) {
@@ -622,7 +624,7 @@ IScroll.prototype = {
 	},
 
 	refresh: function () {
-		var rf = this.wrapper.offsetHeight;		// Force refresh
+		var rf = this.wrapper.offsetHeight;		// Force reflow
 
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;
@@ -1203,12 +1205,7 @@ IScroll.prototype = {
 				}
 			}
 
-			this.currentPage = {
-				x: this.pages[0][0].x,
-				y: this.pages[0][0].y,
-				pageX: 0,
-				pageY: 0
-			};
+			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
 
 			// Update snap threshold if needed
 			if ( this.options.snapThreshold % 1 === 0 ) {
@@ -1323,11 +1320,11 @@ IScroll.prototype = {
 		var posX = this.pages[x][y].x,
 			posY = this.pages[x][y].y;
 
-		time = time || this.options.snapSpeed || Math.max(
+		time = time === undefined ? this.options.snapSpeed || Math.max(
 			Math.max(
 				Math.min(Math.abs(posX - this.x), 1000),
 				Math.min(Math.abs(posY - this.y), 1000)
-			), 300);
+			), 300) : time;
 
 		this.currentPage = {
 			x: posX,
