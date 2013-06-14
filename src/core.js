@@ -1,4 +1,3 @@
-
 function IScroll (el, options) {
 	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
 	this.scroller = this.wrapper.children[0];
@@ -10,6 +9,8 @@ function IScroll (el, options) {
 
 		startX: 0,
 		startY: 0,
+		startXpoint: 0,
+		startYpoint: 0,
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
@@ -22,7 +23,10 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+
+		horizontalScroll: null,
+		verticalScroll: null
 	};
 
 	for ( var i in options ) {
@@ -135,6 +139,8 @@ IScroll.prototype = {
 		this.absStartY = this.y;
 		this.pointX = point.pageX;
 		this.pointY = point.pageY;
+		this.startXpoint = this.pointX;
+		this.startYpoint = this.pointY;
 
 		this._execEvent('scrollStart');
 	},
@@ -226,6 +232,10 @@ IScroll.prototype = {
 		}
 
 /* REPLACE END: _move */
+		switch ( this.directionLocked ) {
+			case 'h': this._execOptionsFunction('horizontalScroll', 'move', this.startXpoint, this.directionX, this.pointX); break;
+			case 'v': this._execOptionsFunction('verticalScroll', 'move', this.startYpoint, this.directionY, this.pointY); break;
+		}
 
 	},
 
@@ -300,6 +310,11 @@ IScroll.prototype = {
 					), 300);
 
 			easing = this.options.bounceEasing;
+		}
+
+		switch ( this.directionLocked ) {
+			case 'h': this._execOptionsFunction('horizontalScroll', 'end', this.startXpoint, this.directionX, this.pointX); break;
+			case 'v': this._execOptionsFunction('verticalScroll', 'end', this.startYpoint, this.directionY, this.pointY); break;
 		}
 
 		if ( newX != this.x || newY != this.y ) {
@@ -426,6 +441,13 @@ IScroll.prototype = {
 			this._events[type][i].call(this);
 		}
 	},
+
+	_execOptionsFunction: function (name) {
+		if ( typeof this.options[name] == 'function' ) {
+			var args = Array.prototype.slice.call(arguments, 1);
+			this.options[name].apply(this, args);
+		}
+  	},
 
 	scrollBy: function (x, y, time, easing) {
 		x = this.x + x;
