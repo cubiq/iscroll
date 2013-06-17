@@ -3,6 +3,10 @@
 		this.pages = [];
 		this.currentPage = {};
 
+		if ( typeof this.options.snap == 'string' ) {
+			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+		}
+
 		this.on('refresh', function () {
 			var i = 0, l,
 				m = 0, n,
@@ -16,15 +20,17 @@
 				cx = Math.round( stepX / 2 );
 				cy = Math.round( stepY / 2 );
 
-				while ( x >= -this.scrollerWidth ) {
+				while ( x > -this.scrollerWidth ) {
 					this.pages[i] = [];
 					l = 0;
 					y = 0;
 
-					while ( y >= -this.scrollerHeight ) {
+					while ( y > -this.scrollerHeight ) {
 						this.pages[i][l] = {
 							x: Math.max(x, this.maxScrollX),
 							y: Math.max(y, this.maxScrollY),
+							width: stepX,
+							height: stepY,
 							cx: x - cx,
 							cy: y - cy
 						};
@@ -42,7 +48,7 @@
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( el[i].offsetLeft === 0 ) {
+					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
@@ -59,6 +65,8 @@
 					this.pages[m][n] = {
 						x: x,
 						y: y,
+						width: el[i].offsetWidth,
+						height: el[i].offsetHeight,
 						cx: cx,
 						cy: cy
 					};
@@ -67,13 +75,30 @@
 				}
 			}
 
-			this.currentPage = {
-				x: this.pages[0][0].x,
-				y: this.pages[0][0].y,
-				pageX: 0,
-				pageY: 0
-			};
+			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
 
+			// Update snap threshold if needed
+			if ( this.options.snapThreshold % 1 === 0 ) {
+				this.snapThresholdX = this.options.snapThreshold;
+				this.snapThresholdY = this.options.snapThreshold;
+			} else {
+				this.snapThresholdX = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].width * this.options.snapThreshold);
+				this.snapThresholdY = Math.round(this.pages[this.currentPage.pageX][this.currentPage.pageY].height * this.options.snapThreshold);
+			}
+		});
+
+		this.on('flick', function () {
+			var time = this.options.snapSpeed || Math.max(
+					Math.max(
+						Math.min(Math.abs(this.x - this.startX), 1000),
+						Math.min(Math.abs(this.y - this.startY), 1000)
+					), 300);
+
+			this.goToPage(
+				this.currentPage.pageX + this.directionX,
+				this.currentPage.pageY + this.directionY,
+				time
+			);
 		});
 	},
 
@@ -82,9 +107,21 @@
 			l = this.pages.length,
 			m = 0;
 
-		if ( Math.abs(x - this.absStartX) < this.options.snapThreshold &&
-			Math.abs(y - this.absStartY) < this.options.snapThreshold ) {
+		if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
+			Math.abs(y - this.absStartY) < this.snapThresholdY ) {
 			return this.currentPage;
+		}
+
+		if ( x > 0 ) {
+			x = 0;
+		} else if ( x < this.maxScrollX ) {
+			x = this.maxScrollX;
+		}
+
+		if ( y > 0 ) {
+			y = 0;
+		} else if ( y < this.maxScrollY ) {
+			y = this.maxScrollY;
 		}
 
 		for ( ; i < l; i++ ) {
@@ -136,9 +173,11 @@
 	},
 
 	goToPage: function (x, y, time, easing) {
+		easing = easing || this.options.bounceEasing;
+
 		if ( x >= this.pages.length ) {
 			x = this.pages.length - 1;
-		} else if ( x < 0) {
+		} else if ( x < 0 ) {
 			x = 0;
 		}
 
@@ -151,12 +190,11 @@
 		var posX = this.pages[x][y].x,
 			posY = this.pages[x][y].y;
 
-		time = time || this.options.snapSpeed || Math.max(
+		time = time === undefined ? this.options.snapSpeed || Math.max(
 			Math.max(
 				Math.min(Math.abs(posX - this.x), 1000),
 				Math.min(Math.abs(posY - this.y), 1000)
-			),
-		300);
+			), 300) : time;
 
 		this.currentPage = {
 			x: posX,
@@ -172,8 +210,12 @@
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x += this.hasHorizontalScroll ? 1 : 0;
-		y += this.hasVericalScroll ? 1 : 0;
+		x++;
+
+		if ( x >= this.pages.length && this.hasVericalScroll ) {
+			x = 0;
+			y++;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},
@@ -182,8 +224,12 @@
 		var x = this.currentPage.pageX,
 			y = this.currentPage.pageY;
 
-		x -= this.hasHorizontalScroll ? 1 : 0;
-		y -= this.hasVericalScroll ? 1 : 0;
+		x--;
+
+		if ( x < 0 && this.hasVericalScroll ) {
+			x = 0;
+			y--;
+		}
 
 		this.goToPage(x, y, time, easing);
 	},

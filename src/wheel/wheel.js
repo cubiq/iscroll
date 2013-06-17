@@ -23,18 +23,18 @@
 		e.preventDefault();
 
 		if ( 'wheelDeltaX' in e ) {
-			wheelDeltaX = e.wheelDeltaX / Math.abs(e.wheelDeltaX) || 0;
-			wheelDeltaY = e.wheelDeltaY / Math.abs(e.wheelDeltaY) || 0;
+			wheelDeltaX = e.wheelDeltaX / 120;
+			wheelDeltaY = e.wheelDeltaY / 120;
 		} else if ( 'wheelDelta' in e ) {
-			wheelDeltaX = wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
+			wheelDeltaX = wheelDeltaY = e.wheelDelta / 120;
 		} else if ( 'detail' in e ) {
-			wheelDeltaX = wheelDeltaY = -(e.detail / Math.abs(e.detail));
+			wheelDeltaX = wheelDeltaY = -e.detail / 3;
 		} else {
 			return;
 		}
 
-		wheelDeltaX *= 12;
-		wheelDeltaY *= 12;
+		wheelDeltaX *= 10;
+		wheelDeltaY *= 10;
 
 		if ( !this.hasVerticalScroll ) {
 			wheelDeltaX = wheelDeltaY;

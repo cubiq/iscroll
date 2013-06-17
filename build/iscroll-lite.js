@@ -1,4 +1,4 @@
-/*! iScroll v5.0.0-beta1 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.1 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 
 var rAF = window.requestAnimationFrame	||
@@ -83,6 +83,8 @@ var utils = (function () {
 		hasPointer: navigator.msPointerEnabled,
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
+
+	me.isAndroidBrowser = /Android/.test(window.navigator.appVersion) && /Version\/\d/.test(window.navigator.appVersion);
 
 	me.extend(me.style = {}, {
 		transform: _transform,
@@ -183,8 +185,8 @@ var utils = (function () {
 		elastic: {
 			style: '',
 			fn: function (k) {
-				f = 0.225;
-				e = 1;
+				f = 0.22;
+				e = 0.4;
 
 				if ( k === 0 ) { return 0; }
 				if ( k == 1 ) { return 1; }
@@ -233,7 +235,6 @@ function IScroll (el, options) {
 		startX: 0,
 		startY: 0,
 		scrollY: true,
-		lockDirection: true,
 		directionLockThreshold: 5,
 		momentum: true,
 
@@ -266,10 +267,12 @@ function IScroll (el, options) {
 	this.options.scrollX = this.options.eventPassthrough == 'horizontal' ? false : this.options.scrollX;
 
 	// With eventPassthrough we also need lockDirection mechanism
-	this.options.lockDirection = this.options.lockDirection || this.options.eventPassthrough;
+	this.options.freeScroll = this.options.freeScroll && !this.options.eventPassthrough;
 	this.options.directionLockThreshold = this.options.eventPassthrough ? 0 : this.options.directionLockThreshold;
 
 	this.options.bounceEasing = typeof this.options.bounceEasing == 'string' ? utils.ease[this.options.bounceEasing] || utils.ease.circular : this.options.bounceEasing;
+
+	this.options.resizePolling = this.options.resizePolling === undefined ? 60 : this.options.resizePolling;
 
 	if ( this.options.tap === true ) {
 		this.options.tap = 'tap';
@@ -292,7 +295,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.0-beta1',
+	version: '5.0.1',
 
 	_init: function () {
 		this._initEvents();
@@ -323,8 +326,8 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault ) {
-			e.preventDefault();
+		if ( this.options.preventDefault && !utils.isAndroidBrowser ) {
+			e.preventDefault();		// This seems to break default Android browser
 		}
 
 		var point = e.touches ? e.touches[0] : e,
@@ -339,7 +342,7 @@ IScroll.prototype = {
 		this.directionLocked = 0;
 
 		this._transitionTime();
-		
+
 		this.isAnimating = false;
 		this.startTime = utils.getTime();
 
@@ -390,13 +393,13 @@ IScroll.prototype = {
 		}
 
 		// If you are scrolling in one direction lock the other
-		if ( !this.directionLocked && this.options.lockDirection ) {
+		if ( !this.directionLocked && !this.options.freeScroll ) {
 			if ( absDistX > absDistY + this.options.directionLockThreshold ) {
 				this.directionLocked = 'h';		// lock horizontally
 			} else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
 				this.directionLocked = 'v';		// lock vertically
 			} else {
-				this.directionLocked = 0;		// no lock
+				this.directionLocked = 'n';		// no lock
 			}
 		}
 
@@ -456,7 +459,7 @@ IScroll.prototype = {
 		}
 
 		if ( this.options.preventDefault ) {
-			e.preventDefault();
+			e.preventDefault();		// TODO: check if needed
 		}
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
@@ -465,8 +468,12 @@ IScroll.prototype = {
 			duration = utils.getTime() - this.startTime,
 			newX = Math.round(this.x),
 			newY = Math.round(this.y),
+			distanceX = Math.abs(newX - this.startX),
+			distanceY = Math.abs(newY - this.startY),
 			time = 0,
 			easing = '';
+
+		this.scrollTo(newX, newY);	// ensures that the last position is rounded
 
 		this.isInTransition = 0;
 		this.initiated = 0;
@@ -490,6 +497,11 @@ IScroll.prototype = {
 			return;
 		}
 
+		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
+			this._execEvent('flick');
+			return;
+		}
+
 		// start momentum animation if needed
 		if ( this.options.momentum && duration < 300 ) {
 			momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0) : { destination: newX, duration: 0 };
@@ -506,11 +518,10 @@ IScroll.prototype = {
 			newX = snap.x;
 			newY = snap.y;
 			time = this.options.snapSpeed || Math.max(
-				Math.max(
-					Math.min(Math.abs(newX - this.x), 1000),
-					Math.min(Math.abs(newY - this.y), 1000)
-				),
-			300);
+					Math.max(
+						Math.min(distanceX, 1000),
+						Math.min(distanceX, 1000)
+					), 300);
 
 			easing = this.options.bounceEasing;
 		}
@@ -536,7 +547,7 @@ IScroll.prototype = {
 		this.resizeTimeout = setTimeout(function () {
 			that.refresh();
 			that.resetPosition();
-		}, 60);
+		}, this.options.resizePolling);
 	},
 
 	resetPosition: function (time) {
@@ -561,6 +572,13 @@ IScroll.prototype = {
 			y = this.maxScrollY;
 		}
 
+		if ( this.options.snap ) {
+			var snap = this._nearestSnap(x, y);
+			this.currentPage = snap;
+			x = snap.x;
+			y = snap.y;
+		}
+
 		this.scrollTo(x, y, time, this.options.bounceEasing);
 
 		return true;
@@ -575,7 +593,7 @@ IScroll.prototype = {
 	},
 
 	refresh: function () {
-		var rf = this.wrapper.offsetHeight;		// Force refresh
+		var rf = this.wrapper.offsetHeight;		// Force reflow
 
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;
@@ -601,7 +619,9 @@ IScroll.prototype = {
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
 		this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
 
-		this.endTime		= 0;
+		this.endTime = 0;
+
+		this.wrapperOffset = utils.offset(this.wrapper);
 
 		this._execEvent('refresh');
 	},
@@ -651,6 +671,37 @@ IScroll.prototype = {
 		}
 	},
 
+	scrollToElement: function (el, time, offsetX, offsetY, easing) {
+		el = el.nodeType ? el : this.scroller.querySelector(el);
+
+		if ( !el ) {
+			return;
+		}
+
+		var pos = utils.offset(el);
+
+		pos.left -= this.wrapperOffset.left;
+		pos.top  -= this.wrapperOffset.top;
+
+		// if offsetX/Y are true we center the element to the screen
+		if ( offsetX === true ) {
+			offsetX = Math.round(el.offsetWidth / 2 - this.wrapper.offsetWidth / 2);
+		}
+		if ( offsetY === true ) {
+			offsetY = Math.round(el.offsetHeight / 2 - this.wrapper.offsetHeight / 2);
+		}
+
+		pos.left -= offsetX || 0;
+		pos.top  -= offsetY || 0;
+
+		pos.left = pos.left > 0 ? 0 : pos.left < this.maxScrollX ? this.maxScrollX : pos.left;
+		pos.top  = pos.top  > 0 ? 0 : pos.top  < this.maxScrollY ? this.maxScrollY : pos.top;
+
+		time = time === undefined || null || 'auto' ? Math.max(Math.abs(pos.left)*2, Math.abs(pos.top)*2) : time;
+
+		this.scrollTo(pos.left, pos.top, time, easing);
+	},
+
 	_transitionTime: function (time) {
 		time = time || 0;
 		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
@@ -686,7 +737,7 @@ IScroll.prototype = {
 		this.y = y;
 
 // INSERT POINT: _translate
-	
+
 	},
 
 	_initEvents: function (remove) {
