@@ -107,6 +107,9 @@ Indicator.prototype = {
 			utils.removeEvent(window, 'MSPointerUp', this);
 			utils.removeEvent(window, 'mouseup', this);
 		}
+		
+		// remove indicator from DOM
+		this.wrapper.removeChild(this.indicator);
 	},
 
 	_start: function (e) {
