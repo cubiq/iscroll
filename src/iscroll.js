@@ -178,7 +178,8 @@ var m = Math,
 		that._bind(START_EV);
 		if (!hasTouch) {
 			if (that.options.wheelAction != 'none') {
-				that._bind( 'onwheel' in window ? 'wheel' : 'DOMMouseScroll' );
+				that._bind('DOMMouseScroll');
+				that._bind('wheel');
 				that._bind('mousewheel');
 			}
 		}
