@@ -1,4 +1,3 @@
-
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
 	window.mozRequestAnimationFrame		||
@@ -183,8 +182,8 @@ var utils = (function () {
 		elastic: {
 			style: '',
 			fn: function (k) {
-				f = 0.22;
-				e = 0.4;
+				var f = 0.22;
+				var e = 0.4;
 
 				if ( k === 0 ) { return 0; }
 				if ( k == 1 ) { return 1; }
