@@ -1,4 +1,3 @@
-
 	_initSnap: function () {
 		this.currentPage = {};
 
@@ -49,7 +48,7 @@
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
+					if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
