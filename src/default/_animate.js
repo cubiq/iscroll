@@ -14,7 +14,11 @@
 			if ( now >= destTime ) {
 				that.isAnimating = false;
 				that._translate(destX, destY);
-				that.resetPosition(that.options.bounceTime);
+
+				if ( !that.resetPosition(that.options.bounceTime) ) {
+					that._execEvent('scrollEnd');
+				}
+
 				return;
 			}
 

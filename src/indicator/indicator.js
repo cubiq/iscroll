@@ -107,6 +107,10 @@ Indicator.prototype = {
 			utils.removeEvent(window, 'MSPointerUp', this);
 			utils.removeEvent(window, 'mouseup', this);
 		}
+
+		if ( this.options.defaultScrollbars ) {
+			this.wrapper.parentNode.removeChild(this.wrapper);
+		}
 	},
 
 	_start: function (e) {
@@ -118,6 +122,7 @@ Indicator.prototype = {
 		this.transitionTime(0);
 
 		this.initiated = true;
+		this.moved = false;
 		this.lastPointX	= point.pageX;
 		this.lastPointY	= point.pageY;
 
@@ -126,6 +131,8 @@ Indicator.prototype = {
 		utils.addEvent(window, 'touchmove', this);
 		utils.addEvent(window, 'MSPointerMove', this);
 		utils.addEvent(window, 'mousemove', this);
+
+		this.scroller._execEvent('scrollStart');
 	},
 
 	_move: function (e) {
@@ -133,6 +140,8 @@ Indicator.prototype = {
 			deltaX, deltaY,
 			newX, newY,
 			timestamp = utils.getTime();
+
+		this.moved = true;
 
 		deltaX = point.pageX - this.lastPointX;
 		this.lastPointX = point.pageX;
@@ -162,6 +171,10 @@ Indicator.prototype = {
 		utils.removeEvent(window, 'touchmove', this);
 		utils.removeEvent(window, 'MSPointerMove', this);
 		utils.removeEvent(window, 'mousemove', this);
+
+		if ( this.moved ) {
+			this.scroller._execEvent('scrollEnd');
+		}
 	},
 
 	transitionTime: function (time) {

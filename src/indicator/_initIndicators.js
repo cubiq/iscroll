@@ -57,10 +57,12 @@
 		this.on('destroy', function () {
 			if ( this.indicator1 ) {
 				this.indicator1.destroy();
+				this.indicator1 = null;
 			}
 
 			if ( this.indicator2 ) {
 				this.indicator2.destroy();
+				this.indicator2 = null;
 			}
 		});
 	},

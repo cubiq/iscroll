@@ -33,8 +33,8 @@
 			return;
 		}
 
-		wheelDeltaX *= 10;
-		wheelDeltaY *= 10;
+		wheelDeltaX *= this.options.mouseWheelSpeed;
+		wheelDeltaY *= this.options.mouseWheelSpeed;
 
 		if ( !this.hasVerticalScroll ) {
 			wheelDeltaX = wheelDeltaY;

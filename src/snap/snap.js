@@ -1,6 +1,5 @@
 
 	_initSnap: function () {
-		this.pages = [];
 		this.currentPage = {};
 
 		if ( typeof this.options.snap == 'string' ) {
@@ -15,6 +14,8 @@
 				stepX = this.options.snapStepX || this.wrapperWidth,
 				stepY = this.options.snapStepY || this.wrapperHeight,
 				el;
+
+			this.pages = [];
 
 			if ( this.options.snap === true ) {
 				cx = Math.round( stepX / 2 );
@@ -71,7 +72,9 @@
 						cy: cy
 					};
 
-					m++;
+					if ( x > this.maxScrollX ) {
+						m++;
+					}
 				}
 			}
 
@@ -107,6 +110,7 @@
 			l = this.pages.length,
 			m = 0;
 
+		// Check if we exceeded the snap threshold
 		if ( Math.abs(x - this.absStartX) < this.snapThresholdX &&
 			Math.abs(y - this.absStartY) < this.snapThresholdY ) {
 			return this.currentPage;
