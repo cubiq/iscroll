@@ -1,4 +1,4 @@
-/*! iScroll v5.0.2 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.3 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -307,7 +307,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.2',
+	version: '5.0.3',
 
 	_init: function () {
 		this._initEvents();
@@ -1732,7 +1732,10 @@ Indicator.prototype = {
 			y = this.maxPosY;
 		}
 
-		this.scroller.scrollTo(Math.round(x / this.sizeRatioX), Math.round(y / this.sizeRatioY));
+		x = this.options.listenX ? Math.round(x / this.sizeRatioX) : this.scroller.x;
+		y = this.options.listenY ? Math.round(y / this.sizeRatioY) : this.scroller.y;
+
+		this.scroller.scrollTo(x, y);
 	}
 };
 

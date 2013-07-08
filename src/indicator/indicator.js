@@ -293,6 +293,9 @@ Indicator.prototype = {
 			y = this.maxPosY;
 		}
 
-		this.scroller.scrollTo(Math.round(x / this.sizeRatioX), Math.round(y / this.sizeRatioY));
+		x = this.options.listenX ? Math.round(x / this.sizeRatioX) : this.scroller.x;
+		y = this.options.listenY ? Math.round(y / this.sizeRatioY) : this.scroller.y;
+
+		this.scroller.scrollTo(x, y);
 	}
 };
