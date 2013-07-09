@@ -10,6 +10,10 @@
 	},
 
 	_wheel: function (e) {
+		if ( !this.enabled ) {
+			return;
+		}
+
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
 			that = this;

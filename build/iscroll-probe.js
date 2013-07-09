@@ -1,4 +1,4 @@
-/*! iScroll v5.0.3 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.4 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -307,7 +307,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.3',
+	version: '5.0.4',
 
 	_init: function () {
 		this._initEvents();
@@ -870,6 +870,7 @@ IScroll.prototype = {
 	_initIndicators: function () {
 		var interactive = this.options.interactiveScrollbars,
 			defaultScrollbars = typeof this.options.scrollbars != 'object',
+			customStyle = typeof this.options.scrollbars != 'string',
 			indicator1,
 			indicator2;
 
@@ -880,6 +881,7 @@ IScroll.prototype = {
 					el: createDefaultScrollbar('v', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
+					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
 					listenX: false
 				};
@@ -893,6 +895,7 @@ IScroll.prototype = {
 					el: createDefaultScrollbar('h', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
+					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
 					listenY: false
 				};
@@ -946,6 +949,10 @@ IScroll.prototype = {
 	},
 
 	_wheel: function (e) {
+		if ( !this.enabled ) {
+			return;
+		}
+
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
 			that = this;
@@ -1050,7 +1057,7 @@ IScroll.prototype = {
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
+					if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
@@ -1217,7 +1224,7 @@ IScroll.prototype = {
 
 		x++;
 
-		if ( x >= this.pages.length && this.hasVericalScroll ) {
+		if ( x >= this.pages.length && this.hasVerticalScroll ) {
 			x = 0;
 			y++;
 		}
@@ -1231,7 +1238,7 @@ IScroll.prototype = {
 
 		x--;
 
-		if ( x < 0 && this.hasVericalScroll ) {
+		if ( x < 0 && this.hasVerticalScroll ) {
 			x = 0;
 			y--;
 		}
@@ -1276,6 +1283,10 @@ IScroll.prototype = {
 	},
 
 	_key: function (e) {
+		if ( !this.enabled ) {
+			return;
+		}
+
 		var snap = this.options.snap,	// we are using this alot, better to cache it
 			newX = snap ? this.currentPage.pageX : this.x,
 			newY = snap ? this.currentPage.pageY : this.y,
@@ -1640,7 +1651,7 @@ Indicator.prototype = {
 			utils.addClass(this.wrapper, 'iScrollBothScrollbars');
 			utils.removeClass(this.wrapper, 'iScrollLoneScrollbar');
 
-			if ( this.options.defaultScrollbars ) {
+			if ( this.options.defaultScrollbars && this.options.customStyle ) {
 				if ( this.options.listenX ) {
 					this.wrapper.style.right = '8px';
 				} else {
@@ -1651,7 +1662,7 @@ Indicator.prototype = {
 			utils.removeClass(this.wrapper, 'iScrollBothScrollbars');
 			utils.addClass(this.wrapper, 'iScrollLoneScrollbar');
 
-			if ( this.options.defaultScrollbars ) {
+			if ( this.options.defaultScrollbars && this.options.customStyle ) {
 				if ( this.options.listenX ) {
 					this.wrapper.style.right = '2px';
 				} else {

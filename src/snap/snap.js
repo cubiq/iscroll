@@ -49,7 +49,7 @@
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( i === 0 || el[i].offsetLeft < el[i-1].offsetLeft ) {
+					if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
 						m = 0;
 						n++;
 					}
@@ -216,7 +216,7 @@
 
 		x++;
 
-		if ( x >= this.pages.length && this.hasVericalScroll ) {
+		if ( x >= this.pages.length && this.hasVerticalScroll ) {
 			x = 0;
 			y++;
 		}
@@ -230,7 +230,7 @@
 
 		x--;
 
-		if ( x < 0 && this.hasVericalScroll ) {
+		if ( x < 0 && this.hasVerticalScroll ) {
 			x = 0;
 			y--;
 		}
