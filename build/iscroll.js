@@ -626,8 +626,8 @@ IScroll.prototype = {
 
 /* REPLACE START: refresh */
 
-		this.scrollerWidth	= this.scroller.offsetWidth;
-		this.scrollerHeight	= this.scroller.offsetHeight;
+		this.scrollerWidth	= this.scroller.scrollWidth;
+		this.scrollerHeight	= this.scroller.scrollHeight;
 
 /* REPLACE END: refresh */
 
@@ -657,7 +657,7 @@ IScroll.prototype = {
 
 		this.resetPosition();
 
-		if ( this.options.snap ) {
+		if ( this.options.snap && this.pages.length !== 0) {
 			var snap = this._nearestSnap(this.x, this.y);
 			if ( this.x == snap.x && this.y == snap.y ) {
 				return;
@@ -998,7 +998,7 @@ IScroll.prototype = {
 		this.currentPage = {};
 
 		if ( typeof this.options.snap == 'string' ) {
-			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+			this.options.snapElement = this.scroller.querySelectorAll(this.options.snap);
 		}
 
 		this.on('refresh', function () {
@@ -1039,7 +1039,7 @@ IScroll.prototype = {
 					i++;
 				}
 			} else {
-				el = this.options.snap;
+				el = this.scroller.querySelectorAll(this.options.snap);
 				l = el.length;
 				n = -1;
 
@@ -1071,6 +1071,10 @@ IScroll.prototype = {
 						m++;
 					}
 				}
+			}
+
+			if (this.pages.length === 0) {
+				return;
 			}
 
 			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
@@ -1731,7 +1735,48 @@ Indicator.prototype = {
 		this.scroller.scrollTo(x, y);
 	}
 };
+/*
+ * Angular directive for iScroll
+ */
 
+// Detect angular
+if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
+
+    angular.module('iscroll',[])
+
+    .directive('iscrollable', function($parse) {
+        return {
+            restrict: 'A',
+            require: '?ngModel',
+            link: function (scope, element, attrs, controller) {
+
+                // Pass parameters as attributes, looking for a better alternative to the sweet eval
+                var opt = eval('({'+attrs.iscrollable+'})');
+                
+                var iscroll = new IScroll(element[0],opt);
+
+                element.bind('DOMNodeInserted', function() {
+                    console.log("DOMNodeInserted");
+                    iscroll.refresh();
+                });
+                /*scope.$on('$viewContentLoaded', function() {
+                    
+                    console.log('test');
+                });*/
+
+                
+
+                // Funky function to refresh on resize the dom area, make one and forget it
+                /*setInterval(function(){
+                    iscroll.refresh();
+                },1500);*/
+
+            }
+        };
+
+    });
+
+}
 IScroll.ease = utils.ease;
 
 return IScroll;

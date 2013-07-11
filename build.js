@@ -21,7 +21,8 @@ var releases = {
 			'keys/keys.js',
 			'default/_animate.js',
 			'default/handleEvent.js',
-			'indicator/indicator.js'
+			'indicator/indicator.js',
+			'angular/angular.js'
 		],
 		postProcessing: [ 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json' ]
 	},

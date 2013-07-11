@@ -379,8 +379,8 @@ IScroll.prototype = {
 
 /* REPLACE START: refresh */
 
-		this.scrollerWidth	= this.scroller.offsetWidth;
-		this.scrollerHeight	= this.scroller.offsetHeight;
+		this.scrollerWidth	= this.scroller.scrollWidth;
+		this.scrollerHeight	= this.scroller.scrollHeight;
 
 /* REPLACE END: refresh */
 
@@ -410,7 +410,7 @@ IScroll.prototype = {
 
 		this.resetPosition();
 
-		if ( this.options.snap ) {
+		if ( this.options.snap && this.pages.length !== 0) {
 			var snap = this._nearestSnap(this.x, this.y);
 			if ( this.x == snap.x && this.y == snap.y ) {
 				return;

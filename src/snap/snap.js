@@ -3,7 +3,7 @@
 		this.currentPage = {};
 
 		if ( typeof this.options.snap == 'string' ) {
-			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+			this.options.snapElement = this.scroller.querySelectorAll(this.options.snap);
 		}
 
 		this.on('refresh', function () {
@@ -44,7 +44,7 @@
 					i++;
 				}
 			} else {
-				el = this.options.snap;
+				el = this.scroller.querySelectorAll(this.options.snap);
 				l = el.length;
 				n = -1;
 
@@ -76,6 +76,10 @@
 						m++;
 					}
 				}
+			}
+
+			if (this.pages.length === 0) {
+				return;
 			}
 
 			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
