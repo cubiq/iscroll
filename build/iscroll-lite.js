@@ -1,4 +1,4 @@
-/*! iScroll v5.0.4 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.5 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -296,7 +296,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.4',
+	version: '5.0.5',
 
 	_init: function () {
 		this._initEvents();
@@ -602,8 +602,8 @@ IScroll.prototype = {
 
 /* REPLACE START: refresh */
 
-		this.scrollerWidth	= this.scroller.offsetWidth;
-		this.scrollerHeight	= this.scroller.offsetHeight;
+		this.scrollerWidth	= this.scroller.scrollWidth;
+		this.scrollerHeight	= this.scroller.scrollHeight;
 
 /* REPLACE END: refresh */
 
@@ -633,7 +633,7 @@ IScroll.prototype = {
 
 		this.resetPosition();
 
-		if ( this.options.snap ) {
+		if ( this.options.snap && this.pages.length !== 0) {
 			var snap = this._nearestSnap(this.x, this.y);
 			if ( this.x == snap.x && this.y == snap.y ) {
 				return;
