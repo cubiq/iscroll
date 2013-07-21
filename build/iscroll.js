@@ -1755,21 +1755,9 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                 
                 var iscroll = new IScroll(element[0],opt);
 
-                element.bind('DOMNodeInserted', function() {
-                    console.log("DOMNodeInserted");
-                    iscroll.refresh();
+                scope.$on('ngRepeatDone', function(e) {
+                    iscroll.refresh();                  
                 });
-                /*scope.$on('$viewContentLoaded', function() {
-                    
-                    console.log('test');
-                });*/
-
-                
-
-                // Funky function to refresh on resize the dom area, make one and forget it
-                /*setInterval(function(){
-                    iscroll.refresh();
-                },1500);*/
 
             }
         };
