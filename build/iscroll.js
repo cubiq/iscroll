@@ -436,6 +436,7 @@ IScroll.prototype = {
 		}
 
 		if ( this.directionLocked == 'h' ) {
+			this._lockOtherScrollers('h');
 			if ( this.options.eventPassthrough == 'vertical' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'horizontal' ) {
@@ -445,6 +446,7 @@ IScroll.prototype = {
 
 			deltaY = 0;
 		} else if ( this.directionLocked == 'v' ) {
+			this._lockOtherScrollers('v');
 			if ( this.options.eventPassthrough == 'horizontal' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'vertical' ) {
@@ -581,6 +583,23 @@ IScroll.prototype = {
 		this.resizeTimeout = setTimeout(function () {
 			that.refresh();
 		}, this.options.resizePolling);
+	},
+
+	_scrollLock: function(e) {
+		if (this.initiated) {
+			if (this.hasHorizontalScroll && e.lockDirection == 'v') {
+				this.initiated = 0;
+			} else if (this.hasVerticalScroll && e.lockDirection == 'h') {
+				this.initiated = 0;
+			}
+		}
+	},
+
+	_lockOtherScrollers: function(dir) {
+		var ev = document.createEvent('Event');
+		ev.initEvent('scrollLock', true, true);
+		ev.lockDirection = dir;
+		window.dispatchEvent(ev);
 	},
 
 	resetPosition: function (time) {
@@ -816,6 +835,7 @@ IScroll.prototype = {
 
 		eventType(window, 'orientationchange', this);
 		eventType(window, 'resize', this);
+		eventType(window, 'scrollLock', this);
 
 		eventType(this.wrapper, 'mousedown', this);
 		eventType(target, 'mousemove', this);
@@ -1431,6 +1451,9 @@ IScroll.prototype = {
 				break;
 			case 'keydown':
 				this._key(e);
+				break;
+			case 'scrollLock':
+				this._scrollLock(e);
 				break;
 		}
 	}

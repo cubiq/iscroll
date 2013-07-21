@@ -36,6 +36,9 @@
 			case 'keydown':
 				this._key(e);
 				break;
+			case 'scrollLock':
+				this._scrollLock(e);
+				break;
 		}
 	}
 };
