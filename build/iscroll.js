@@ -39,12 +39,83 @@ var utils = (function () {
 		}
 	};
 
-	me.addEvent = function (el, type, fn, capture) {
-		el.addEventListener(type, fn, !!capture);
-	};
+    me.extendEvent = function(e, _this) {
+        if (!e.currentTarget) e.currentTarget = _this;
+        if (!e.target) e.target = e.srcElement;
+
+        if (!e.relatedTarget) {
+            if (e.type == 'mouseover') e.relatedTarget = e.fromElement;
+            if (e.type == 'mouseout') e.relatedTarget = e.toElement;
+        }
+
+        if (e.pageX == null && e.clientX != null ) {
+            var html = document.documentElement;
+            var body = document.body;
+
+            e.pageX = e.clientX + (html.scrollLeft || body && body.scrollLeft || 0);
+            e.pageX -= html.clientLeft || 0;
+
+            e.pageY = e.clientY + (html.scrollTop || body && body.scrollTop || 0);
+            e.pageY -= html.clientTop || 0;
+        }
+        if (!e.which && e.button) {
+            if (e.button == 1) {
+                e.button2 = 0;
+            } else if (e.button == 4) {
+                e.button2 = 1;
+            } else if (e.button == 2) {
+                e.button2 = 2;
+            } else {
+                e.button2 = 0;
+            }
+            e.which = e.button & 1 ? 1 : ( e.button & 2 ? 3 : (e.button & 4 ? 2 : 0) );
+        }
+        return e;
+    };
+
+    // fn arg can be an object or a function, thanks to handleEvent
+    me.addEvent = function(el, type, fn, capture) {
+        if("addEventListener" in el) {
+            // BBOS6 doesn't support handleEvent, catch and polyfill
+            try {
+                el.addEventListener(type, fn, !!capture);
+            } catch(e) {
+                if(typeof fn == "object" && fn.handleEvent) {
+                    el.addEventListener(type, function(e){
+                        // Bind fn as this and set first arg as event object
+                        fn.handleEvent.call(fn,e);
+                    }, !!capture);
+                } else {
+                    throw e;
+                }
+            }
+        } else if("attachEvent" in el) {
+            // check if the callback is an object and contains handleEvent
+            if (el == window) el = document;
+            if(typeof fn == "object" && fn.handleEvent) {
+                el.attachEvent("on" + type, function(e){
+                    // Bind fn as this
+                    e = me.extendEvent(e, el);
+                    fn.handleEvent.call(fn, e);
+                });
+            } else {
+                el.attachEvent("on" + type, fn);
+            }
+        }
+    };
 
 	me.removeEvent = function (el, type, fn, capture) {
 		el.removeEventListener(type, fn, !!capture);
+
+        if (typeof el.addEventListener != undefined) {
+            el.removeEventListener(type, fn, !!capture);
+        }
+        else if (typeof el.attachEvent != undefined) {
+            el.detachEvent("on" + type, el[type + fn]);
+            el[type + fn] = null;
+            el["e" + type + fn] = null;
+        }
+
 	};
 
 	me.momentum = function (current, start, time, lowerMargin, wrapperSize) {
@@ -348,19 +419,19 @@ IScroll.prototype = {
 
 	_start: function (e) {
 		// React to left mouse button only
+        var _button = e.button2 != undefined ? e.button2 : e.button;
 		if ( utils.eventType[e.type] != 1 ) {
-			if ( e.button !== 0 ) {
+			if ( _button !== 0 ) {
 				return;
 			}
 		}
-
 		if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
 			return;
 		}
 
 		if ( this.options.preventDefault && !utils.isAndroidBrowser ) {
-			e.preventDefault();		// This seems to break default Android browser
-		}
+            (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
+        }
 
 		var point = e.touches ? e.touches[0] : e,
 			pos;
@@ -401,8 +472,8 @@ IScroll.prototype = {
 		}
 
 		if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
-			e.preventDefault();
-		}
+            (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
+        }
 
 		var point		= e.touches ? e.touches[0] : e,
 			deltaX		= this.hasHorizontalScroll ? point.pageX - this.pointX : 0,
@@ -437,8 +508,8 @@ IScroll.prototype = {
 
 		if ( this.directionLocked == 'h' ) {
 			if ( this.options.eventPassthrough == 'vertical' ) {
-				e.preventDefault();
-			} else if ( this.options.eventPassthrough == 'horizontal' ) {
+                (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
+            } else if ( this.options.eventPassthrough == 'horizontal' ) {
 				this.initiated = false;
 				return;
 			}
@@ -446,7 +517,7 @@ IScroll.prototype = {
 			deltaY = 0;
 		} else if ( this.directionLocked == 'v' ) {
 			if ( this.options.eventPassthrough == 'horizontal' ) {
-				e.preventDefault();
+                (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
 			} else if ( this.options.eventPassthrough == 'vertical' ) {
 				this.initiated = false;
 				return;
@@ -491,7 +562,7 @@ IScroll.prototype = {
 		}
 
 		if ( this.options.preventDefault ) {
-			e.preventDefault();		// TODO: check if needed
+            (e.preventDefault) ? e.preventDefault() : e.returnValue = false;		// TODO: check if needed
 		}
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
@@ -954,7 +1025,7 @@ IScroll.prototype = {
 			that._execEvent('scrollEnd');
 		}, 400);
 
-		e.preventDefault();
+        (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
 
 		if ( 'wheelDeltaX' in e ) {
 			wheelDeltaX = e.wheelDeltaX / 120;
@@ -1548,7 +1619,7 @@ Indicator.prototype = {
 	_start: function (e) {
 		var point = e.touches ? e.touches[0] : e;
 
-		e.preventDefault();
+        (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
 		e.stopPropagation();
 
 		this.transitionTime(0);
@@ -1586,7 +1657,7 @@ Indicator.prototype = {
 
 		this._pos(newX, newY);
 
-		e.preventDefault();
+        (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
 		e.stopPropagation();
 	},
 
@@ -1597,7 +1668,7 @@ Indicator.prototype = {
 
 		this.initiated = false;
 
-		e.preventDefault();
+        (e.preventDefault) ? e.preventDefault() : e.returnValue = false;
 		e.stopPropagation();
 
 		utils.removeEvent(window, 'touchmove', this);
