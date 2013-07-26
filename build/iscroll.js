@@ -1,4 +1,4 @@
-/*! iScroll v5.0.5 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.8 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -304,7 +304,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.5',
+	version: '5.0.8',
 
 	_init: function () {
 		this._initEvents();
@@ -1762,12 +1762,14 @@ Indicator.prototype = {
  * Angular directive for iScroll
  */
 
+// jshint -W061
+
 // Detect angular
 if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
     angular.module('iscroll',[])
 
-    .directive('iscrollable', function($parse) {
+    .directive('iscrollable', function($parse, $timeout) {
         return {
             restrict: 'A',
             require: '?ngModel',
@@ -1778,6 +1780,22 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                 
                 var iscroll = new IScroll(element[0],opt);
 
+                scope.currentPage = iscroll.currentPage;
+                scope.scrolling = iscroll.initiated;
+
+                var refresh = function() {
+                    $timeout(function() {
+                        scope.currentPage = iscroll.currentPage;
+                        scope.scrolling = iscroll.initiated;                        
+                    });
+                };
+
+                $timeout(refresh, 500);
+
+                iscroll.on('scrollStart', refresh);
+                
+                iscroll.on('scrollEnd', refresh);
+
                 scope.$on('ngRepeatDone', function(e) {
                     iscroll.refresh();                  
                 });
@@ -1786,8 +1804,8 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
         };
 
     });
-
 }
+// jshint +W061
 IScroll.ease = utils.ease;
 
 return IScroll;

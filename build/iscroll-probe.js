@@ -1,4 +1,4 @@
-/*! iScroll v5.0.4 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.8 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -307,7 +307,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.4',
+	version: '5.0.8',
 
 	_init: function () {
 		this._initEvents();
@@ -439,6 +439,7 @@ IScroll.prototype = {
 		}
 
 		if ( this.directionLocked == 'h' ) {
+			this._lockOtherScrollers('h');
 			if ( this.options.eventPassthrough == 'vertical' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'horizontal' ) {
@@ -448,6 +449,7 @@ IScroll.prototype = {
 
 			deltaY = 0;
 		} else if ( this.directionLocked == 'v' ) {
+			this._lockOtherScrollers('v');
 			if ( this.options.eventPassthrough == 'horizontal' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'vertical' ) {
@@ -592,6 +594,23 @@ IScroll.prototype = {
 		}, this.options.resizePolling);
 	},
 
+	_scrollLock: function(e) {
+		if (this.initiated) {
+			if (this.hasHorizontalScroll && e.lockDirection == 'v') {
+				this.initiated = 0;
+			} else if (this.hasVerticalScroll && e.lockDirection == 'h') {
+				this.initiated = 0;
+			}
+		}
+	},
+
+	_lockOtherScrollers: function(dir) {
+		var ev = document.createEvent('Event');
+		ev.initEvent('scrollLock', true, true);
+		ev.lockDirection = dir;
+		window.dispatchEvent(ev);
+	},
+
 	resetPosition: function (time) {
 		var x = this.x,
 			y = this.y;
@@ -635,8 +654,8 @@ IScroll.prototype = {
 
 /* REPLACE START: refresh */
 
-		this.scrollerWidth	= this.scroller.offsetWidth;
-		this.scrollerHeight	= this.scroller.offsetHeight;
+		this.scrollerWidth	= this.scroller.scrollWidth;
+		this.scrollerHeight	= this.scroller.scrollHeight;
 
 /* REPLACE END: refresh */
 
@@ -666,7 +685,7 @@ IScroll.prototype = {
 
 		this.resetPosition();
 
-		if ( this.options.snap ) {
+		if ( this.options.snap && this.pages.length !== 0) {
 			var snap = this._nearestSnap(this.x, this.y);
 			if ( this.x == snap.x && this.y == snap.y ) {
 				return;
@@ -825,6 +844,7 @@ IScroll.prototype = {
 
 		eventType(window, 'orientationchange', this);
 		eventType(window, 'resize', this);
+		eventType(window, 'scrollLock', this);
 
 		eventType(this.wrapper, 'mousedown', this);
 		eventType(target, 'mousemove', this);
@@ -1011,7 +1031,7 @@ IScroll.prototype = {
 		this.currentPage = {};
 
 		if ( typeof this.options.snap == 'string' ) {
-			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+			this.options.snapElement = this.scroller.querySelectorAll(this.options.snap);
 		}
 
 		this.on('refresh', function () {
@@ -1052,7 +1072,7 @@ IScroll.prototype = {
 					i++;
 				}
 			} else {
-				el = this.options.snap;
+				el = this.scroller.querySelectorAll(this.options.snap);
 				l = el.length;
 				n = -1;
 
@@ -1084,6 +1104,10 @@ IScroll.prototype = {
 						m++;
 					}
 				}
+			}
+
+			if (this.pages.length === 0) {
+				return;
 			}
 
 			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
@@ -1445,6 +1469,9 @@ IScroll.prototype = {
 				break;
 			case 'keydown':
 				this._key(e);
+				break;
+			case 'scrollLock':
+				this._scrollLock(e);
 				break;
 		}
 	}
