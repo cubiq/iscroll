@@ -1,4 +1,3 @@
-
 	_initZoom: function () {
 		this.scrollerStyle[utils.style.transformOrigin] = '0 0';
 	},
@@ -10,8 +9,8 @@
 		this.touchesDistanceStart = Math.sqrt(c1 * c1 + c2 * c2);
 		this.startScale = this.scale;
 
-		this.originX = Math.abs(e.touches[0].pageX + e.touches[1].pageX) / 2 + this.wrapperOffset.left - this.x;
-		this.originY = Math.abs(e.touches[0].pageY + e.touches[1].pageY) / 2 + this.wrapperOffset.top - this.y;
+		this.originX = Math.abs(e.touches[0].pageX + e.touches[1].pageX) / 2 + (this.wrapperOffset.left / this.scale) - this.x;
+		this.originY = Math.abs(e.touches[0].pageY + e.touches[1].pageY) / 2 + (this.wrapperOffset.top / this.scale) - this.y;
 
 		this._execEvent('zoomStart');
 	},
@@ -116,8 +115,8 @@
 		y = y === undefined ? this.wrapperHeight / 2 : y;
 		time = time === undefined ? 300 : time;
 
-		x = x + this.wrapperOffset.left - this.x;
-		y = y + this.wrapperOffset.top - this.y;
+		x = x + (this.wrapperOffset.left / this.scale) - this.x;
+		y = y + (this.wrapperOffset.top / this.scale) - this.y;
 
 		x = x - x * relScale + this.x;
 		y = y - y * relScale + this.y;
