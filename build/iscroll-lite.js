@@ -404,15 +404,16 @@ IScroll.prototype = {
 		if ( !this.directionLocked && !this.options.freeScroll ) {
 			if ( absDistX > absDistY + this.options.directionLockThreshold ) {
 				this.directionLocked = 'h';		// lock horizontally
+				this._lockOtherScrollers('h');
 			} else if ( absDistY >= absDistX + this.options.directionLockThreshold ) {
 				this.directionLocked = 'v';		// lock vertically
+				this._lockOtherScrollers('v');
 			} else {
 				this.directionLocked = 'n';		// no lock
 			}
 		}
 
 		if ( this.directionLocked == 'h' ) {
-			this._lockOtherScrollers('h');
 			if ( this.options.eventPassthrough == 'vertical' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'horizontal' ) {
@@ -422,7 +423,6 @@ IScroll.prototype = {
 
 			deltaY = 0;
 		} else if ( this.directionLocked == 'v' ) {
-			this._lockOtherScrollers('v');
 			if ( this.options.eventPassthrough == 'horizontal' ) {
 				e.preventDefault();
 			} else if ( this.options.eventPassthrough == 'vertical' ) {
@@ -447,7 +447,10 @@ IScroll.prototype = {
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
-		this.moved = true;
+		if (!this.moved) {
+			utils.addClass(this.wrapper, 'scrolling');
+			this.moved = true;
+		}
 
 		this._translate(newX, newY);
 
@@ -464,6 +467,9 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
+
+		utils.removeClass(this.wrapper, 'scrolling');
+
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
 		}
@@ -562,6 +568,7 @@ IScroll.prototype = {
 	},
 
 	_scrollLock: function(e) {
+		utils.removeClass(this.wrapper, 'scrolling');
 		if (this.initiated) {
 			if (this.hasHorizontalScroll && e.lockDirection == 'v') {
 				this.initiated = 0;
