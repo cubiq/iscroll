@@ -224,10 +224,7 @@ IScroll.prototype = {
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
-		if (!this.moved) {
-			utils.addClass(this.wrapper, 'scrolling');
-			this.moved = true;
-		}
+		this.moved = true;
 
 		this._translate(newX, newY);
 
@@ -244,8 +241,6 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
-
-		utils.removeClass(this.wrapper, 'scrolling');
 
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
@@ -345,7 +340,6 @@ IScroll.prototype = {
 	},
 
 	_scrollLock: function(e) {
-		utils.removeClass(this.wrapper, 'scrolling');
 		if (this.initiated) {
 			if (this.hasHorizontalScroll && e.lockDirection == 'v') {
 				this.initiated = 0;

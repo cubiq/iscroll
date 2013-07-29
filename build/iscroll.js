@@ -471,10 +471,7 @@ IScroll.prototype = {
 		this.directionX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
-		if (!this.moved) {
-			utils.addClass(this.wrapper, 'scrolling');
-			this.moved = true;
-		}
+		this.moved = true;
 
 		this._translate(newX, newY);
 
@@ -491,8 +488,6 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
-
-		utils.removeClass(this.wrapper, 'scrolling');
 
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
@@ -592,7 +587,6 @@ IScroll.prototype = {
 	},
 
 	_scrollLock: function(e) {
-		utils.removeClass(this.wrapper, 'scrolling');
 		if (this.initiated) {
 			if (this.hasHorizontalScroll && e.lockDirection == 'v') {
 				this.initiated = 0;
@@ -1788,19 +1782,15 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                 var iscroll = new IScroll(element[0],opt);
 
                 scope.currentPage = iscroll.currentPage;
-                scope.scrolling = iscroll.initiated;
 
                 var refresh = function() {
                     $timeout(function() {
                         scope.currentPage = iscroll.currentPage;
-                        scope.scrolling = iscroll.initiated;                        
                     });
                 };
 
                 $timeout(refresh, 500);
 
-                iscroll.on('scrollStart', refresh);
-                
                 iscroll.on('scrollEnd', refresh);
 
                 scope.$on('ngRepeatDone', function(e) {

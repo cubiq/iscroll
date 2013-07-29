@@ -21,19 +21,15 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                 var iscroll = new IScroll(element[0],opt);
 
                 scope.currentPage = iscroll.currentPage;
-                scope.scrolling = iscroll.initiated;
 
                 var refresh = function() {
                     $timeout(function() {
                         scope.currentPage = iscroll.currentPage;
-                        scope.scrolling = iscroll.initiated;                        
                     });
                 };
 
                 $timeout(refresh, 500);
 
-                iscroll.on('scrollStart', refresh);
-                
                 iscroll.on('scrollEnd', refresh);
 
                 scope.$on('ngRepeatDone', function(e) {
