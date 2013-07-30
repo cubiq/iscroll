@@ -36,7 +36,7 @@
         isTouchPad = (/hp-tablet/gi).test(navigator.appVersion),
         isIE = (/MSIE/gi).test(navigator.appVersion),
 
-        has3d = prefixStyle('perspective') in dummyStyle,
+        has3d = prefixStyle('perspective') in dummyStyle && !isIE,
         hasTouch = 'ontouchstart' in window && !isTouchPad,
         hasTransform = vendor !== false,
         hasTransitionEnd = prefixStyle('transition') in dummyStyle,
