@@ -224,12 +224,12 @@ var utils = (function () {
 
 function IScroll (el, options) {
 	this.wrapper = null;
-	if(typeof el === 'string') { // selector
+	if(typeof el === 'string') { // expects selector
 		if((this.wrapper = document.querySelector(el)) === null) {
-			throw new Error('There is no wrapper with selector "' + el + '".');
+			throw new Error('There is no DOM element matching yout selector - "' + el + '".');
 			return;
 		}
-	} else { // expect DOM element
+	} else { // expects DOM element
 		if((this.wrapper = el) === null || !el.nodeName) {
 			throw new Error('IScroll accepts only selector or DOM element.');
 			return;
