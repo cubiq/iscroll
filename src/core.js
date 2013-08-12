@@ -3,7 +3,7 @@ function IScroll (el, options) {
 	this.wrapper = null;
 	if(typeof el === 'string') { // expects selector
 		if((this.wrapper = document.querySelector(el)) === null) {
-			throw new Error('There is no DOM element matching yout selector - "' + el + '".');
+			throw new Error('No DOM element matching your selector - "' + el + '".');
 			return;
 		}
 	} else { // expects DOM element
