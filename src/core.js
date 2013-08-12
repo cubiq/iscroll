@@ -1,6 +1,17 @@
 
 function IScroll (el, options) {
-	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
+	this.wrapper = null;
+	if(typeof el === 'string') { // expects selector
+		if((this.wrapper = document.querySelector(el)) === null) {
+			throw new Error('No DOM element matching your selector - "' + el + '".');
+			return;
+		}
+	} else { // expects DOM element
+		if((this.wrapper = el) === null || !el.nodeName) {
+			throw new Error('IScroll accepts only selector or DOM element.');
+			return;
+		}
+	}
 	this.scroller = this.wrapper.children[0];
 	this.scrollerStyle = this.scroller.style;		// cache style for better performance
 
