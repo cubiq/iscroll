@@ -94,7 +94,6 @@
 				
 			default:	/* return if key is unknown */
 				return;
-				break;
 		}
 
 		if ( snap ) {
