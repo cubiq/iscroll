@@ -1,4 +1,3 @@
-
 	_initKeys: function (e) {
 		// default key bindings
 		var keys = {
@@ -91,6 +90,10 @@
 				break;
 			case this.options.keyBindings.down:
 				newY -= snap ? 1 : 5 + this.keyAcceleration>>0;
+				break;
+				
+			default:	/* return if key is unknown */
+				return;
 				break;
 		}
 
