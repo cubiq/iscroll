@@ -829,7 +829,7 @@ IScroll.prototype = {
 			eventType(target, 'mouseup', this);
 		}
 
-		if ( utils.hasPointer ) {
+		if ( utils.hasPointer && !this.options.disableMouseEvents ) {
 			eventType(this.wrapper, 'MSPointerDown', this);
 			eventType(target, 'MSPointerMove', this);
 			eventType(target, 'MSPointerCancel', this);
