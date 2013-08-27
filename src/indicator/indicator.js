@@ -225,7 +225,7 @@ Indicator.prototype = {
 
 		if ( this.options.listenX ) {
 			this.wrapperWidth = this.wrapper.clientWidth;
-			if ( this.options.resize ) {
+			if ( this.options.resize && this.scroller.scrollerWidth ) {
 				this.indicatorWidth = Math.max(Math.round(this.wrapperWidth * this.wrapperWidth / this.scroller.scrollerWidth), 8);
 				this.indicatorStyle.width = this.indicatorWidth + 'px';
 			} else {
@@ -237,7 +237,7 @@ Indicator.prototype = {
 
 		if ( this.options.listenY ) {
 			this.wrapperHeight = this.wrapper.clientHeight;
-			if ( this.options.resize ) {
+			if ( this.options.resize && this.scroller.scrollerHeight ) {
 				this.indicatorHeight = Math.max(Math.round(this.wrapperHeight * this.wrapperHeight / this.scroller.scrollerHeight), 8);
 				this.indicatorStyle.height = this.indicatorHeight + 'px';
 			} else {
