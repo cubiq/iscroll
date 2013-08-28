@@ -447,16 +447,8 @@ IScroll.prototype = {
 	},
 
 	_preventDefaultException: function (tagName) {
-		var exceptions = ['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT'],
-			allow = false;
-
-		for (var i=0 ; i < exceptions.length; i++ ) {
-			if (tagName == exceptions[i]) {
-				allow = true;
-			}
-		}
-
-		return allow;
+		var patt = /^(INPUT|TEXTAREA|BUTTON|SELECT)$/;
+		return patt.test(tagName);
 	},
 
 	scrollBy: function (x, y, time, easing) {
