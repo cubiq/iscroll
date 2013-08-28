@@ -111,7 +111,7 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault && !utils.isAndroidBrowser ) {
+		if ( this.options.preventDefault && !utils.isAndroidBrowser && !this._preventDefaultException(e.target.tagName) ) {
 			e.preventDefault();		// This seems to break default Android browser
 		}
 
@@ -243,7 +243,7 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault ) {
+		if ( this.options.preventDefault && !this._preventDefaultException(e.target.tagName) ) {
 			e.preventDefault();		// TODO: check if needed
 		}
 
@@ -444,6 +444,11 @@ IScroll.prototype = {
 		for ( ; i < l; i++ ) {
 			this._events[type][i].call(this);
 		}
+	},
+
+	_preventDefaultException: function (tagName) {
+		var patt = /^(INPUT|TEXTAREA|BUTTON|SELECT)$/;
+		return patt.test(tagName);
 	},
 
 	scrollBy: function (x, y, time, easing) {
