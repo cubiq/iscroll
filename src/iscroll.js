@@ -101,6 +101,7 @@ var m = Math,
 			lockDirection: true,
 			useTransform: true,
 			useTransition: false,
+			useTranslateZ: true,
 			topOffset: 0,
 			checkDOMChanges: false,		// Experimental
 			handleClick: true,
@@ -157,6 +158,10 @@ var m = Math,
 		// translate3d and scale doesn't work together!
 		// Ignoring 3d ONLY WHEN YOU SET that.options.zoom
 		if ( that.options.zoom && isAndroid ){
+			translateZ = '';
+		}
+
+		if ( !that.options.useTranslateZ ){
 			translateZ = '';
 		}
 		
