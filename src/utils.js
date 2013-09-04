@@ -37,13 +37,21 @@ var utils = (function () {
 		}
 	};
 
-	me.addEvent = function (el, type, fn, capture) {
-		el.addEventListener(type, fn, !!capture);
-	};
+  me.addEvent = function (el, type, fn, capture) {
+    if (typeof el.addEventListener !== 'undefined') {
+      el.addEventListener(type, fn, !!capture);
+    } else if (el.attachEvent) {
+      el.attachEvent('on'+type, fn);
+    }
+  };
 
-	me.removeEvent = function (el, type, fn, capture) {
-		el.removeEventListener(type, fn, !!capture);
-	};
+  me.removeEvent = function (el, type, fn, capture) {
+    if (typeof el.removeEventListener !== 'undefined') {
+      el.removeEventListener(type, fn, !!capture);
+    } else if (el.detachEvent) {
+      el.detachEvent('on'+type, fn);
+    }
+  };
 
 	me.momentum = function (current, start, time, lowerMargin, wrapperSize) {
 		var distance = current - start,
