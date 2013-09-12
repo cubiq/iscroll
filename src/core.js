@@ -236,6 +236,8 @@ IScroll.prototype = {
 
 /* REPLACE END: _move */
 
+		this._execEvent('scrollMove');
+
 	},
 
 	_end: function (e) {
