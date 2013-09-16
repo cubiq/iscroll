@@ -19,6 +19,7 @@ function IScroll (el, options) {
 		bounceEasing: '',
 
 		preventDefault: true,
+		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
 
 		HWCompositing: true,
 		useTransition: true,
@@ -111,7 +112,7 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault && !utils.isAndroidBrowser ) {
+		if ( this.options.preventDefault && !utils.isAndroidBrowser && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();		// This seems to break default Android browser
 		}
 
@@ -243,8 +244,8 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault ) {
-			e.preventDefault();		// TODO: check if needed
+		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
+			e.preventDefault();
 		}
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
@@ -297,21 +298,7 @@ IScroll.prototype = {
 			this.isInTransition = 1;
 		}
 
-		if ( this.options.snap ) {
-			var snap = this._nearestSnap(newX, newY);
-			this.currentPage = snap;
-			newX = snap.x;
-			newY = snap.y;
-			time = this.options.snapSpeed || Math.max(
-					Math.max(
-						Math.min(distanceX, 1000),
-						Math.min(distanceX, 1000)
-					), 300);
-
-			this.directionX = 0;
-			this.directionY = 0;
-			easing = this.options.bounceEasing;
-		}
+// INSERT POINT: _end
 
 		if ( newX != this.x || newY != this.y ) {
 			// change easing function when scroller goes out of the boundaries
@@ -410,15 +397,8 @@ IScroll.prototype = {
 
 		this.resetPosition();
 
-		if ( this.options.snap ) {
-			var snap = this._nearestSnap(this.x, this.y);
-			if ( this.x == snap.x && this.y == snap.y ) {
-				return;
-			}
+// INSERT POINT: _refresh
 
-			this.currentPage = snap;
-			this.scrollTo(snap.x, snap.y);
-		}
 	},
 
 	on: function (type, fn) {
@@ -492,7 +472,7 @@ IScroll.prototype = {
 		pos.left = pos.left > 0 ? 0 : pos.left < this.maxScrollX ? this.maxScrollX : pos.left;
 		pos.top  = pos.top  > 0 ? 0 : pos.top  < this.maxScrollY ? this.maxScrollY : pos.top;
 
-		time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(pos.left)*2, Math.abs(pos.top)*2) : time;
+		time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(this.x-pos.left), Math.abs(this.y-pos.top)) : time;
 
 		this.scrollTo(pos.left, pos.top, time, easing);
 	},

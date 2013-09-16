@@ -143,7 +143,14 @@
 
 	_wheelZoom: function (e) {
 		var wheelDeltaY,
-			deltaScale;
+			deltaScale,
+			that = this;
+
+		// Execute the zoomEnd event after 400ms the wheel stopped scrolling
+		clearTimeout(this.wheelTimeout);
+		this.wheelTimeout = setTimeout(function () {
+			that._execEvent('zoomEnd');
+		}, 400);
 
 		if ('wheelDeltaX' in e) {
 			wheelDeltaY = e.wheelDeltaY / Math.abs(e.wheelDeltaY);
