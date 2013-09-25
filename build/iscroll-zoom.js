@@ -1189,6 +1189,9 @@ IScroll.prototype = {
 			newY = this.maxScrollY;
 		}
 
+		newX = Math.round(newX);
+		newY = Math.round(newY);
+
 		this.scrollTo(newX, newY, 0);
 
 // INSERT POINT: _wheel
