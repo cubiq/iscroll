@@ -786,9 +786,6 @@ IScroll.prototype = {
 	},
 
 	_translate: function (x, y) {
-		x = Math.round(x);
-		y = Math.round(y);
-
 		if ( this.options.useTransform ) {
 
 /* REPLACE START: _translate */
@@ -798,6 +795,8 @@ IScroll.prototype = {
 /* REPLACE END: _translate */
 
 		} else {
+			x = Math.round(x);
+			y = Math.round(y);
 			this.scrollerStyle.left = x + 'px';
 			this.scrollerStyle.top = y + 'px';
 		}
