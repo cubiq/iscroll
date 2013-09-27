@@ -1,8 +1,6 @@
 
-		if ( this.indicator1 ) {
-			this.indicator1.transitionTimingFunction(easing);
-		}
-
-		if ( this.indicator2 ) {
-			this.indicator2.transitionTimingFunction(easing);
+		if ( this.indicators ) {
+			for ( var i = this.indicators.length; i--; ) {
+				this.indicators[i].transitionTimingFunction(easing);
+			}
 		}
