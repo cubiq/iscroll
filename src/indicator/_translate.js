@@ -1,8 +1,6 @@
 
-	if ( this.indicator1 ) {	// usually the vertical
-		this.indicator1.updatePosition();
-	}
-
-	if ( this.indicator2 ) {
-		this.indicator2.updatePosition();
+	if ( this.indicators ) {
+		for ( var i = this.indicators.length; i--; ) {
+			this.indicators[i].updatePosition();
+		}
 	}
