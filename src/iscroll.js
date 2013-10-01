@@ -136,7 +136,8 @@ var m = Math,
 			onDestroy: null,
 			onZoomStart: null,
 			onZoom: null,
-			onZoomEnd: null
+			onZoomEnd: null,
+			onAnimationMove: null
 		};
 
 		// User defined options
@@ -763,6 +764,7 @@ iScroll.prototype = {
 			newX = (step.x - startX) * easeOut + startX;
 			newY = (step.y - startY) * easeOut + startY;
 			that._pos(newX, newY);
+			if (that.options.onAnimationMove) that.options.onAnimationMove.call(that);
 			if (that.animating) that.aniTime = nextFrame(animate);
 		};
 
