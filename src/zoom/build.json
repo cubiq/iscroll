@@ -1,0 +1,11 @@
+{
+	"insert": {
+		"OPTIONS": "\t\tzoomMin: 1,\n\t\tzoomMax: 4, startZoom: 1,",
+		"DEFAULTS": "\tthis.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);",
+		"_init": "\t\tif ( this.options.zoom ) {\n\t\t\tthis._initZoom();\n\t\t}"
+	},
+	"replace": {
+		"refresh": "zoom/refresh.js",
+		"_translate": "\t\t\tthis.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px) scale(' + this.scale + ') ' + this.translateZ;"
+	}
+}

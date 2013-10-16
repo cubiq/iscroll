@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+
+<title>iScroll demo: minimap</title>
+
+<script type="text/javascript" src="../../build/iscroll.js"></script>
+
+<script type="text/javascript">
+
+var myScroll;
+
+function loaded () {
+	myScroll = new IScroll('#wrapper', {
+		startX: -359,
+		startY: -85,
+		scrollY: true,
+		scrollX: true,
+		freeScroll: true,
+		mouseWheel: true,
+		indicators: {
+			el: document.getElementById('minimap'),
+			interactive: true
+		}
+	});
+}
+
+//document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+
+</script>
+
+<style type="text/css">
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+html {
+	-ms-touch-action: none;
+}
+
+body,ul,li {
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+body {
+	font-size: 12px;
+	font-family: ubuntu, helvetica, arial;
+	overflow: hidden; /* this is important to prevent the whole page to bounce */
+}
+
+#header {
+	position: absolute;
+	z-index: 2;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 45px;
+	line-height: 45px;
+	background: #CD235C;
+	padding: 0;
+	color: #eee;
+	font-size: 20px;
+	text-align: center;
+	font-weight: bold;
+}
+
+#footer {
+	position: absolute;
+	z-index: 2;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 48px;
+	background: #444;
+	padding: 0;
+	border-top: 1px solid #444;
+}
+
+#wrapper {
+	position: absolute;
+	z-index: 1;
+	width: 235px;
+	height: 321px;
+	top: 0;
+	left: 0;
+	background: #555;
+	overflow: hidden;
+}
+
+#scroller {
+	position: absolute;
+	z-index: 1;
+	width: 797px;
+	height: 1087px;
+	background: url(ermine.jpg);
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-text-size-adjust: none;
+	-moz-text-size-adjust: none;
+	-ms-text-size-adjust: none;
+	-o-text-size-adjust: none;
+	text-size-adjust: none;
+}
+
+#minimap {
+	position: absolute;
+	z-index: 1;
+	width: 235px;
+	height: 321px;
+	background: url(ermine.jpg);
+	background-size: 235px 321px;
+	top: 0px;
+	left: 245px;
+}
+
+#minimap-indicator {
+	position: absolute;
+	z-index: 1;
+	border: 1px solid #fe0;
+	box-shadow: 0 0 5px #000;
+	background: rgba(255,255,255,0.15);
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	transform: translateZ(0);
+}
+
+#bookmarks {
+	position: absolute;
+	left: 520px;
+	font-size: 1.4em;
+}
+
+#bookmarks li {
+	margin: 5px 0;
+}
+
+</style>
+</head>
+<body onload="loaded()">
+
+<div id="wrapper">
+	<div id="scroller"></div>
+</div>
+
+<div id="minimap">
+	<div id="minimap-indicator"></div>
+</div>
+
+<ul id="bookmarks">
+	<li><a href="javascript:myScroll.scrollTo(-359, -85, 400, IScroll.ease.back)">Face</a></li>
+	<li><a href="javascript:myScroll.scrollTo(-288, -342, 400, IScroll.ease.back)">Necklace</a></li>
+	<li><a href="javascript:myScroll.scrollTo(-264, -658, 400, IScroll.ease.back)">Hand</a></li>
+	<li><a href="javascript:myScroll.scrollTo(-383, -539, 400, IScroll.ease.back)">Ermine</a></li>
+</ul>
+
+</body>
+</html>

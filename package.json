@@ -1,14 +1,28 @@
 {
-    "name": "iscroll"
-  , "description": "smooth scrolling for mobile webkit"
-  , "version": "4.2.5"
-  , "homepage": "http://cubiq.org/iscroll-4"
-  , "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)"
-  , "keywords": ["ender", "iscroll", "scrolling", "webkit", "iphone", "android"]
-  , "main": "./src/iscroll.js"
-  , "ender": "./src/ender.js"
-  , "repository": {
-      "type": "git"
-    , "url": "https://github.com/cubiq/iscroll.git"
-  }
+  "name": "iscroll",
+  "description": "Smooth scrolling for the web",
+  "version": "5.0.5",
+  "homepage": "http://cubiq.org/iscroll-4",
+  "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
+  "keywords": [
+    "scrolling",
+    "carousel",
+    "zoom",
+    "iphone",
+    "android",
+    "mobile",
+    "desktop"
+  ],
+  "devDependencies": {
+    "jshint": "~2.1.10",
+    "uglify-js": "~2.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cubiq/iscroll.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cubiq/iscroll/issues"
+  },
+  "license": "MIT"
 }
