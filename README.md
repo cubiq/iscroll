@@ -12,3 +12,7 @@ iScroll comes with a custom build system. The required nodejs packages are inclu
 The compiled scripts will be saved in the /build and /dist directories.
 
 Script released under the MIT license.
+
+# MIQ Fork
+
+Use `./build.js miq`
