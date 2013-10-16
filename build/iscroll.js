@@ -1793,7 +1793,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 iscroll.on('scrollEnd', refresh);
 
-                scope.$on('ngRepeatDone', function(e) {
+                scope.$on('layoutChange', function(e) {
                     iscroll.refresh();                  
                 });
 
