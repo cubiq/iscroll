@@ -1,21 +1,20 @@
 {
   "name": "iscroll",
   "description": "Smooth scrolling for the web",
-  "version": "5.0.5",
+  "version": "5.0.4",
   "homepage": "http://cubiq.org/iscroll-4",
   "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
   "keywords": [
     "scrolling",
     "carousel",
-    "zoom",
     "iphone",
     "android",
     "mobile",
     "desktop"
   ],
   "devDependencies": {
-    "jshint": "~2.1.10",
-    "uglify-js": "~2.4.0"
+    "jshint": "~2.1.4",
+    "uglify-js": "~2.3.6"
   },
   "repository": {
     "type": "git",
