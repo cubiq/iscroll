@@ -51,7 +51,22 @@ var releases = {
 			'indicator/indicator.js'
 		],
 		postProcessing: [ 'zoom/build.json', 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json' ]
-	}
+	},
+
+	// MIQ build - merges zoom and probe
+	miq: {
+		files: [
+			'indicator/_initIndicators.js',
+			'zoom/zoom.js',
+			'wheel/wheel.js',
+			'snap/snap.js',
+			'keys/keys.js',
+			'probe/_animate.js',
+			'zoom/handleEvent.js',
+			'indicator/indicator.js'
+		],
+		postProcessing: [ 'zoom/build.json', 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json', 'probe/build.json' ]
+    }
 
 	// Additional releases TBD
 };
@@ -102,7 +117,7 @@ function build (release) {
 
 			// Insert point
 			for ( var i in postProcessing.insert ) {
-				value = postProcessing.insert[i].substr(postProcessing.insert[i].length-3) == '.js' ? 
+				value = postProcessing.insert[i].substr(postProcessing.insert[i].length-3) == '.js' ?
 					fs.readFileSync('src/' + postProcessing.insert[i]) :
 					postProcessing.insert[i];
 
