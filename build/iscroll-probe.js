@@ -1039,12 +1039,14 @@ IScroll.prototype = {
 			var i = 0, l,
 				m = 0, n,
 				cx, cy,
-				x = 0, y,
+				x = 0, y = 0,
 				stepX = this.options.snapStepX || this.wrapperWidth,
 				stepY = this.options.snapStepY || this.wrapperHeight,
 				el;
 
 			this.pages = [];
+			this.currentPage.pageX = 0;
+			this.currentPage.pageY = 0;
 
 			if ( this.options.snap === true ) {
 				cx = Math.round( stepX / 2 );
@@ -1109,6 +1111,18 @@ IScroll.prototype = {
 
 			if (this.pages.length === 0) {
 				return;
+			}
+
+			if (this.pages[0].length === 0) {
+				// make sure we always have at least page 0, 0.
+				this.pages[0][0] = {
+					x: Math.max(x, this.maxScrollX),
+					y: Math.max(y, this.maxScrollY),
+					width: stepX,
+					height: stepY,
+					cx: x - cx,
+					cy: y - cy
+				};
 			}
 
 			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
@@ -1212,13 +1226,13 @@ IScroll.prototype = {
 	goToPage: function (x, y, time, easing) {
 		easing = easing || this.options.bounceEasing;
 
-		if ( x >= this.pages.length ) {
+		if ( ( this.pages.length > 0 ) && ( x >= this.pages.length ) ) {
 			x = this.pages.length - 1;
 		} else if ( x < 0 ) {
 			x = 0;
 		}
 
-		if ( y >= this.pages[0].length ) {
+		if ( ( this.pages[0].length > 0 ) && ( y >= this.pages[0].length ) ) {
 			y = this.pages[0].length - 1;
 		} else if ( y < 0 ) {
 			y = 0;
