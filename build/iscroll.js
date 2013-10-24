@@ -40,11 +40,11 @@ var utils = (function () {
 	};
 
 	me.addEvent = function (el, type, fn, capture) {
-		el.addEventListener(type, fn, !!capture);
+		(typeof el.addEventListener == "undefined") ? el.attachEvent(type, fn) : el.addEventListener(type, fn, !!capture);
 	};
 
 	me.removeEvent = function (el, type, fn, capture) {
-		el.removeEventListener(type, fn, !!capture);
+		(typeof el.removeEventListener == "undefined") ? el.detachEvent(type, fn) : el.removeEventListener(type, fn, !!capture);
 	};
 
 	me.momentum = function (current, start, time, lowerMargin, wrapperSize) {
