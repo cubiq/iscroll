@@ -955,12 +955,6 @@ IScroll.prototype = {
 			newX, newY,
 			that = this;
 
-		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
-		clearTimeout(this.wheelTimeout);
-		this.wheelTimeout = setTimeout(function () {
-			that._execEvent('scrollEnd');
-		}, 400);
-
 		e.preventDefault();
 
 		if ( 'wheelDeltaX' in e ) {
@@ -982,27 +976,6 @@ IScroll.prototype = {
 			wheelDeltaY = 0;
 		}
 
-		if ( this.options.snap ) {
-			newX = this.currentPage.pageX;
-			newY = this.currentPage.pageY;
-
-			if ( wheelDeltaX > 0 ) {
-				newX--;
-			} else if ( wheelDeltaX < 0 ) {
-				newX++;
-			}
-
-			if ( wheelDeltaY > 0 ) {
-				newY--;
-			} else if ( wheelDeltaY < 0 ) {
-				newY++;
-			}
-
-			this.goToPage(newX, newY);
-
-			return;
-		}
-
 		newX = this.x + (this.hasHorizontalScroll ? wheelDeltaX * this.options.invertWheelDirection : 0);
 		newY = this.y + (this.hasVerticalScroll ? wheelDeltaY * this.options.invertWheelDirection : 0);
 
@@ -1017,6 +990,32 @@ IScroll.prototype = {
 		} else if ( newY < this.maxScrollY ) {
 			newY = this.maxScrollY;
 		}
+
+		if ( this.wheelTimeout === undefined ) {
+			this._execEvent('scrollStart');
+		}
+
+		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
+		clearTimeout(this.wheelTimeout);
+
+		this.wheelTimeout = setTimeout(function () {
+
+			that.wheelTimeout = undefined;
+			that._execEvent('scrollEnd');
+
+			if ( that.options.snap ) {
+
+				var snap = that._nearestSnap(newX, newY);
+				that.currentPage = snap;
+				newX = that.currentPage.pageX;
+				newY = that.currentPage.pageY;
+
+				that.goToPage(newX, newY);
+
+				return;
+			}
+
+		}, 400);
 
 		this.scrollTo(newX, newY, 0);
 
