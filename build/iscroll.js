@@ -244,6 +244,8 @@ function IScroll (el, options) {
 		mouseWheelSpeed: 20,
 
 		snapThreshold: 0.334,
+		snapOffsetX: 0,
+		snapOffsetY: 0,
 
 // INSERT POINT: OPTIONS 
 
@@ -1086,8 +1088,8 @@ IScroll.prototype = {
 						this.pages[m] = [];
 					}
 
-					x = Math.max(-el[i].offsetLeft, this.maxScrollX);
-					y = Math.max(-el[i].offsetTop, this.maxScrollY);
+					x = Math.max(-el[i].offsetLeft+this.options.snapOffsetX, this.maxScrollX);
+					y = Math.max(-el[i].offsetTop+this.options.snapOffsetY, this.maxScrollY);
 					cx = x - Math.round(el[i].offsetWidth / 2);
 					cy = y - Math.round(el[i].offsetHeight / 2);
 
