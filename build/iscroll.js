@@ -242,6 +242,7 @@ function IScroll (el, options) {
 		resizeIndicator: true,
 
 		mouseWheelSpeed: 20,
+		mouseWheelScrollsHorizontally: true,
 
 		snapThreshold: 0.334,
 
@@ -977,8 +978,12 @@ IScroll.prototype = {
 		wheelDeltaX *= this.options.mouseWheelSpeed;
 		wheelDeltaY *= this.options.mouseWheelSpeed;
 
-		if ( !this.hasVerticalScroll ) {
+		if ( !this.hasHorizontalScroll ) {
+			wheelDeltaX = 0;
+		} else if ( !this.hasVerticalScroll && this.options.mouseWheelScrollsHorizontally ) {
 			wheelDeltaX = wheelDeltaY;
+			wheelDeltaY = 0;
+		} if ( !this.hasVerticalScroll ) {
 			wheelDeltaY = 0;
 		}
 
