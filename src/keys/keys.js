@@ -92,6 +92,8 @@
 			case this.options.keyBindings.down:
 				newY -= snap ? 1 : 5 + this.keyAcceleration>>0;
 				break;
+			default:
+				return;
 		}
 
 		if ( snap ) {

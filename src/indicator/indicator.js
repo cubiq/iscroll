@@ -59,13 +59,18 @@ function Indicator (scroller, options) {
 	this.maxPosY = 0;
 
 	if ( this.options.interactive ) {
-		utils.addEvent(this.indicator, 'touchstart', this);
-		utils.addEvent(this.indicator, 'MSPointerDown', this);
-		utils.addEvent(this.indicator, 'mousedown', this);
-
-		utils.addEvent(window, 'touchend', this);
-		utils.addEvent(window, 'MSPointerUp', this);
-		utils.addEvent(window, 'mouseup', this);
+		if ( !this.options.disableTouch ) {
+			utils.addEvent(this.indicator, 'touchstart', this);
+			utils.addEvent(window, 'touchend', this);
+		}
+		if ( !this.options.disablePointer ) {
+			utils.addEvent(this.indicator, 'MSPointerDown', this);
+			utils.addEvent(window, 'MSPointerUp', this);
+		}
+		if ( !this.options.disableMouse ) {
+			utils.addEvent(this.indicator, 'mousedown', this);
+			utils.addEvent(window, 'mouseup', this);
+		}
 	}
 }
 
@@ -128,11 +133,17 @@ Indicator.prototype = {
 
 		this.startTime	= utils.getTime();
 
-		utils.addEvent(window, 'touchmove', this);
-		utils.addEvent(window, 'MSPointerMove', this);
-		utils.addEvent(window, 'mousemove', this);
+		if ( !this.options.disableTouch ) {
+			utils.addEvent(window, 'touchmove', this);
+		}
+		if ( !this.options.disablePointer ) {
+			utils.addEvent(window, 'MSPointerMove', this);
+		}
+		if ( !this.options.disableMouse ) {
+			utils.addEvent(window, 'mousemove', this);
+		}
 
-		this.scroller._execEvent('scrollStart');
+		this.scroller._execEvent('beforeScrollStart');
 	},
 
 	_move: function (e) {
@@ -140,6 +151,10 @@ Indicator.prototype = {
 			deltaX, deltaY,
 			newX, newY,
 			timestamp = utils.getTime();
+
+		if ( !this.moved ) {
+			this.scroller._execEvent('scrollStart');
+		}
 
 		this.moved = true;
 

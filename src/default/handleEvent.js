@@ -36,6 +36,12 @@
 			case 'keydown':
 				this._key(e);
 				break;
+			case 'click':
+				if ( !e._constructed ) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				break;
 		}
 	}
 };

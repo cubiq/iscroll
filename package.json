@@ -1,7 +1,7 @@
 {
   "name": "iscroll",
   "description": "Smooth scrolling for the web",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "homepage": "http://cubiq.org/iscroll-4",
   "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
   "keywords": [
@@ -14,8 +14,8 @@
     "desktop"
   ],
   "devDependencies": {
-    "jshint": "~2.1.10",
-    "uglify-js": "~2.4.0"
+    "jshint": "~2.3.0",
+    "uglify-js": "~2.4.1"
   },
   "repository": {
     "type": "git",

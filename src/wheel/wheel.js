@@ -14,6 +14,8 @@
 			return;
 		}
 
+		e.preventDefault();
+
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
 			that = this;
@@ -23,8 +25,6 @@
 		this.wheelTimeout = setTimeout(function () {
 			that._execEvent('scrollEnd');
 		}, 400);
-
-		e.preventDefault();
 
 		if ( 'wheelDeltaX' in e ) {
 			wheelDeltaX = e.wheelDeltaX / 120;
@@ -66,8 +66,8 @@
 			return;
 		}
 
-		newX = this.x + (this.hasHorizontalScroll ? wheelDeltaX * this.options.invertWheelDirection : 0);
-		newY = this.y + (this.hasVerticalScroll ? wheelDeltaY * this.options.invertWheelDirection : 0);
+		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX * this.options.invertWheelDirection : 0);
+		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY * this.options.invertWheelDirection : 0);
 
 		if ( newX > 0 ) {
 			newX = 0;

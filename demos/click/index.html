@@ -135,7 +135,7 @@ body {
 			<li>Pretty row 3</li>
 			<li>Pretty row 4</li>
 			<li>Pretty row 5</li>
-			<li id="me"><a href="javascript:document.getElementById('me').style.background=!document.getElementById('me').style.background?'#a00':''">Click me!</a></li>
+			<li id="me"><a href="#" onclick="console.log(this.parentNode.style.backgroundColor);this.parentNode.style.backgroundColor=this.parentNode.style.backgroundColor==''?'#a00':'';return false">Click me!</a></li>
 			<li>Pretty row 7</li>
 			<li>Pretty row 8</li>
 			<li>Pretty row 9</li>
