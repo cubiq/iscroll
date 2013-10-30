@@ -13,6 +13,7 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		alwaysOverscroll: true,
 
 		bounce: true,
 		bounceTime: 600,
@@ -158,8 +159,8 @@ IScroll.prototype = {
 		}
 
 		var point		= e.touches ? e.touches[0] : e,
-			deltaX		= this.hasHorizontalScroll ? point.pageX - this.pointX : 0,
-			deltaY		= this.hasVerticalScroll   ? point.pageY - this.pointY : 0,
+			deltaX		= this.hasHorizontalScroll || this.options.alwaysOverscroll ? point.pageX - this.pointX : 0,
+			deltaY		= this.hasVerticalScroll || this.options.alwaysOverscroll ? point.pageY - this.pointY : 0,
 			timestamp	= utils.getTime(),
 			newX, newY,
 			absDistX, absDistY;
