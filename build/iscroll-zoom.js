@@ -570,6 +570,8 @@ IScroll.prototype = {
 			this.directionX = 0;
 			this.directionY = 0;
 			easing = this.options.bounceEasing;
+
+			this._execEvent('pageChangePending');
 		}
 
 		if ( newX != this.x || newY != this.y ) {
@@ -1404,6 +1406,8 @@ IScroll.prototype = {
 			pageX: x,
 			pageY: y
 		};
+
+		this._execEvent('pageChangePending');
 
 		this.scrollTo(posX, posY, time, easing);
 	},
