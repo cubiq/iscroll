@@ -561,6 +561,8 @@ IScroll.prototype = {
 			this.directionX = 0;
 			this.directionY = 0;
 			easing = this.options.bounceEasing;
+
+			this._execEvent('pageChangePending');
 		}
 
 		if ( newX != this.x || newY != this.y ) {
@@ -1241,6 +1243,8 @@ IScroll.prototype = {
 			pageY: y
 		};
 
+		this._execEvent('pageChangePending');
+
 		this.scrollTo(posX, posY, time, easing);
 	},
 
@@ -1805,6 +1809,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 $timeout(refresh, 500);
 
+                iscroll.on('pageChangePending', refresh);
                 iscroll.on('scrollEnd', refresh);
 
                 scope.$on('layoutChange', function(e) {

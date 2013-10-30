@@ -225,6 +225,8 @@
 			pageY: y
 		};
 
+		this._execEvent('pageChangePending');
+
 		this.scrollTo(posX, posY, time, easing);
 	},
 
