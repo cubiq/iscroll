@@ -242,6 +242,7 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		pageStops: false,
 		alwaysOverscroll: true,
 
 		bounce: true,
@@ -546,6 +547,13 @@ IScroll.prototype = {
 			newY = momentumY.destination;
 			time = Math.max(momentumX.duration, momentumY.duration);
 			this.isInTransition = 1;
+
+			if (this.options.pageStops) {
+				var direction = ((this.x - this.startX) < 0 ? -1 : 1);
+				if (Math.abs(newX - this.startX) > this.wrapperWidth) {
+					newX = (direction * this.wrapperWidth) + this.startX;
+				}
+			}			
 		}
 
 		if ( this.options.snap ) {
