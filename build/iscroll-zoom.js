@@ -154,7 +154,11 @@ var utils = (function () {
 
 		MSPointerDown: 3,
 		MSPointerMove: 3,
-		MSPointerUp: 3
+		MSPointerUp: 3,
+		
+		pointerdown: 3,
+		pointermove: 3,
+		pointerup: 3
 	});
 
 	me.extend(me.ease = {}, {
@@ -844,9 +848,13 @@ IScroll.prototype = {
 
 		if ( utils.hasPointer && !this.options.disablePointer ) {
 			eventType(this.wrapper, 'MSPointerDown', this);
+			eventType(this.wrapper, 'pointerdown', this);
 			eventType(target, 'MSPointerMove', this);
+			eventType(target, 'pointermove', this);
 			eventType(target, 'MSPointerCancel', this);
+			eventType(target, 'pointercancel', this);
 			eventType(target, 'MSPointerUp', this);
+			eventType(target, 'pointerup', this);
 		}
 
 		if ( utils.hasTouch && !this.options.disableTouch ) {
@@ -1613,6 +1621,7 @@ IScroll.prototype = {
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'MSPointerDown':
+			case 'pointerdown':
 			case 'mousedown':
 				this._start(e);
 
@@ -1622,6 +1631,7 @@ IScroll.prototype = {
 				break;
 			case 'touchmove':
 			case 'MSPointerMove':
+			case 'pointermove':
 			case 'mousemove':
 				if ( this.options.zoom && e.touches && e.touches[1] ) {
 					this._zoom(e);
@@ -1631,9 +1641,11 @@ IScroll.prototype = {
 				break;
 			case 'touchend':
 			case 'MSPointerUp':
+			case 'pointerup':
 			case 'mouseup':
 			case 'touchcancel':
 			case 'MSPointerCancel':
+			case 'pointercancel':
 			case 'mousecancel':
 				if ( this.scaled ) {
 					this._zoomEnd(e);
@@ -1733,6 +1745,8 @@ function Indicator (scroller, options) {
 		if ( !this.options.disablePointer ) {
 			utils.addEvent(this.indicator, 'MSPointerDown', this);
 			utils.addEvent(window, 'MSPointerUp', this);
+			utils.addEvent(this.indicator, 'pointerdown', this);
+			utils.addEvent(window, 'pointerup', this);
 		}
 		if ( !this.options.disableMouse ) {
 			utils.addEvent(this.indicator, 'mousedown', this);
@@ -1746,19 +1760,23 @@ Indicator.prototype = {
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'MSPointerDown':
+			case 'pointerdown':
 			case 'mousedown':
 				this._start(e);
 				break;
 			case 'touchmove':
 			case 'MSPointerMove':
+			case 'pointermove':
 			case 'mousemove':
 				this._move(e);
 				break;
 			case 'touchend':
 			case 'MSPointerUp':
+			case 'pointerup':
 			case 'mouseup':
 			case 'touchcancel':
 			case 'MSPointerCancel':
+			case 'pointercancel':
 			case 'mousecancel':
 				this._end(e);
 				break;
@@ -1769,14 +1787,17 @@ Indicator.prototype = {
 		if ( this.options.interactive ) {
 			utils.removeEvent(this.indicator, 'touchstart', this);
 			utils.removeEvent(this.indicator, 'MSPointerDown', this);
+			utils.removeEvent(this.indicator, 'pointerdown', this);
 			utils.removeEvent(this.indicator, 'mousedown', this);
 
 			utils.removeEvent(window, 'touchmove', this);
 			utils.removeEvent(window, 'MSPointerMove', this);
+			utils.removeEvent(window, 'pointermove', this);
 			utils.removeEvent(window, 'mousemove', this);
 
 			utils.removeEvent(window, 'touchend', this);
 			utils.removeEvent(window, 'MSPointerUp', this);
+			utils.removeEvent(window, 'pointerup', this);
 			utils.removeEvent(window, 'mouseup', this);
 		}
 
@@ -1805,6 +1826,7 @@ Indicator.prototype = {
 		}
 		if ( !this.options.disablePointer ) {
 			utils.addEvent(window, 'MSPointerMove', this);
+			utils.addEvent(window, 'pointermove', this);
 		}
 		if ( !this.options.disableMouse ) {
 			utils.addEvent(window, 'mousemove', this);
@@ -1852,6 +1874,7 @@ Indicator.prototype = {
 
 		utils.removeEvent(window, 'touchmove', this);
 		utils.removeEvent(window, 'MSPointerMove', this);
+		utils.removeEvent(window, 'pointermove', this);
 		utils.removeEvent(window, 'mousemove', this);
 
 		if ( this.scroller.options.snap ) {
