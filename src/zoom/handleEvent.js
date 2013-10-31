@@ -3,6 +3,7 @@
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'MSPointerDown':
+			case 'pointerdown':
 			case 'mousedown':
 				this._start(e);
 
@@ -12,6 +13,7 @@
 				break;
 			case 'touchmove':
 			case 'MSPointerMove':
+			case 'pointermove':
 			case 'mousemove':
 				if ( this.options.zoom && e.touches && e.touches[1] ) {
 					this._zoom(e);
@@ -21,9 +23,11 @@
 				break;
 			case 'touchend':
 			case 'MSPointerUp':
+			case 'pointerup':
 			case 'mouseup':
 			case 'touchcancel':
 			case 'MSPointerCancel':
+			case 'pointercancel':
 			case 'mousecancel':
 				if ( this.scaled ) {
 					this._zoomEnd(e);

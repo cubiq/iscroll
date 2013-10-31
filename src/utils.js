@@ -152,7 +152,11 @@ var utils = (function () {
 
 		MSPointerDown: 3,
 		MSPointerMove: 3,
-		MSPointerUp: 3
+		MSPointerUp: 3,
+		
+		pointerdown: 3,
+		pointermove: 3,
+		pointerup: 3
 	});
 
 	me.extend(me.ease = {}, {

@@ -3,16 +3,19 @@
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'MSPointerDown':
+			case 'pointerdown':
 			case 'mousedown':
 				this._start(e);
 				break;
 			case 'touchmove':
 			case 'MSPointerMove':
+			case 'pointermove':
 			case 'mousemove':
 				this._move(e);
 				break;
 			case 'touchend':
 			case 'MSPointerUp':
+			case 'pointerup':
 			case 'mouseup':
 			case 'touchcancel':
 			case 'MSPointerCancel':
