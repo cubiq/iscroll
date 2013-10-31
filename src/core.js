@@ -101,6 +101,9 @@ IScroll.prototype = {
 	},
 
 	_start: function (e) {
+		if (this.options.disableMouse && e.pointerType && (e.pointerType === "mouse" || e.pointerType === 4))
+			return;
+
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
 			if ( e.button !== 0 ) {
