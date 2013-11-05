@@ -34,11 +34,13 @@
 
 		this.scaled = true;
 
+		// CUSTOM: Modified to add switch to turn off 'bounce' effect on zooming - will default to normal behaviour
 		if ( scale < this.options.zoomMin ) {
-			scale = 0.5 * this.options.zoomMin * Math.pow(2.0, scale / this.options.zoomMin);
+			scale = this.options.zoomBounce ? 0.5 * this.options.zoomMin * Math.pow(2.0, scale / this.options.zoomMin) : this.options.zoomMin;
 		} else if ( scale > this.options.zoomMax ) {
-			scale = 2.0 * this.options.zoomMax * Math.pow(0.5, this.options.zoomMax / scale);
+			scale = this.options.zoomBounce ? 2.0 * this.options.zoomMax * Math.pow(0.5, this.options.zoomMax / scale) : this.options.zoomMax;
 		}
+
 
 		lastScale = scale / this.startScale;
 		x = this.originX - this.originX * lastScale + this.startX;
@@ -47,6 +49,9 @@
 		this.scale = scale;
 
 		this.scrollTo(x, y, 0);
+
+		// CUSTOM: Added event to hook code into during zoom function
+		this._execEvent('zoom');
 	},
 
 	_zoomEnd: function (e) {
@@ -141,21 +146,31 @@
 		this.scrollTo(x, y, time);
 	},
 
+	// Updated to allow the Wheel Zoom to function in Firefox
 	_wheelZoom: function (e) {
 		var wheelDeltaY,
 			deltaScale;
 
-		if ('wheelDeltaX' in e) {
-			wheelDeltaY = e.wheelDeltaY / Math.abs(e.wheelDeltaY);
-		} else if('wheelDelta' in e) {
-			wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
-		} else if ('detail' in e) {
-			wheelDeltaY = -e.detail / Math.abs(e.wheelDelta);
+		e.preventDefault();
+
+		if ( 'wheelDeltaX' in e ) {
+			wheelDeltaY = e.wheelDeltaY / 120;
+		} else if ( 'wheelDelta' in e ) {
+			wheelDeltaY = e.wheelDelta / 120;
+		} else if ( 'detail' in e ) {
+			// FIX: Assign it to a value that exists and increase it.
+			wheelDeltaY = (-e.detail / Math.abs(e.detail)) * 2;
 		} else {
 			return;
 		}
 
+		// FIX: Adjust the Y by the mouse wheel speed
+		wheelDeltaY *= this.options.mouseWheelSpeed;
+
 		deltaScale = this.scale + wheelDeltaY / 5;
 
 		this.zoom(deltaScale, e.pageX, e.pageY, 0);
+
+		// CUSTOM: Dispatch an event to hook into when scrolling
+		this._execEvent('wheelZoom');
 	},

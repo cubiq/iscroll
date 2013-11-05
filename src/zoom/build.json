@@ -1,6 +1,7 @@
 {
 	"insert": {
-		"OPTIONS": "\t\tzoomMin: 1,\n\t\tzoomMax: 4, startZoom: 1,",
+		"OPTIONS": "\t\tzoomMin: 1,\n\t\tzoomMax: 4,\n\t\tstartZoom: 1,\n\t\t// CUSTOM: Added option to prevent 'bounce/pinch' effect on Zooming
+		\n\t\tzoomBounce : true,",
 		"DEFAULTS": "\tthis.scale = Math.min(Math.max(this.options.startZoom, this.options.zoomMin), this.options.zoomMax);",
 		"_init": "\t\tif ( this.options.zoom ) {\n\t\t\tthis._initZoom();\n\t\t}"
 	},
