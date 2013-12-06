@@ -354,6 +354,7 @@ IScroll.prototype = {
 
 		this._transitionTime();
 		if ( !this.resetPosition(this.options.bounceTime) ) {
+			this.isInTransition = false;
 			this._execEvent('scrollEnd');
 		}
 	},
@@ -391,11 +392,11 @@ IScroll.prototype = {
 		this.startTime = utils.getTime();
 
 		if ( this.options.useTransition && this.isInTransition ) {
-			pos = this.getComputedPosition();
+			this.isInTransition = false;
 
+			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
 			this._execEvent('scrollEnd');
-			this.isInTransition = false;
 		}
 
 		this.startX    = this.x;
@@ -719,6 +720,8 @@ IScroll.prototype = {
 
 	scrollTo: function (x, y, time, easing) {
 		easing = easing || utils.ease.circular;
+
+		this.isInTransition = this.options.useTransition && time > 0;
 
 		if ( !time || (this.options.useTransition && easing.style) ) {
 			this._transitionTimingFunction(easing.style);
