@@ -397,14 +397,15 @@ IScroll.prototype = {
 
 		this._transitionTime();
 
-		this.isAnimating = false;
 		this.startTime = utils.getTime();
 
 		if ( this.options.useTransition && this.isInTransition ) {
 			this.isInTransition = false;
-
 			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
+			this._execEvent('scrollEnd');
+		} else if ( !this.options.useTransition && this.isAnimating ) {
+			this.isAnimating = false;
 			this._execEvent('scrollEnd');
 		}
 
