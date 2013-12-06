@@ -15,7 +15,7 @@
   ],
   "devDependencies": {
     "jshint": "~2.3.0",
-    "uglify-js": "~2.4.1"
+    "uglify-js": "~2.4.6"
   },
   "repository": {
     "type": "git",
