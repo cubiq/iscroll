@@ -964,10 +964,12 @@ IScroll.prototype = {
 	},
 
 	_initWheel: function () {
+		utils.addEvent(this.wrapper, 'wheel', this);
 		utils.addEvent(this.wrapper, 'mousewheel', this);
 		utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
 
 		this.on('destroy', function () {
+			utils.removeEvent(this.wrapper, 'wheel', this);
 			utils.removeEvent(this.wrapper, 'mousewheel', this);
 			utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
 		});
@@ -979,6 +981,7 @@ IScroll.prototype = {
 		}
 
 		e.preventDefault();
+		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
@@ -990,19 +993,22 @@ IScroll.prototype = {
 			that._execEvent('scrollEnd');
 		}, 400);
 
-		if ( 'wheelDeltaX' in e ) {
-			wheelDeltaX = e.wheelDeltaX / 120;
-			wheelDeltaY = e.wheelDeltaY / 120;
+		if ( 'deltaX' in e ) {
+			wheelDeltaX = -e.deltaX;
+			wheelDeltaY = -e.deltaY;
+		} else if ( 'wheelDeltaX' in e ) {
+			wheelDeltaX = e.wheelDeltaX / 120 * this.options.mouseWheelSpeed;
+			wheelDeltaY = e.wheelDeltaY / 120 * this.options.mouseWheelSpeed;
 		} else if ( 'wheelDelta' in e ) {
-			wheelDeltaX = wheelDeltaY = e.wheelDelta / 120;
+			wheelDeltaX = wheelDeltaY = e.wheelDelta / 120 * this.options.mouseWheelSpeed;
 		} else if ( 'detail' in e ) {
-			wheelDeltaX = wheelDeltaY = -e.detail / 3;
+			wheelDeltaX = wheelDeltaY = -e.detail / 3 * this.options.mouseWheelSpeed;
 		} else {
 			return;
 		}
 
-		wheelDeltaX *= this.options.mouseWheelSpeed;
-		wheelDeltaY *= this.options.mouseWheelSpeed;
+		wheelDeltaX *= this.options.invertWheelDirection;
+		wheelDeltaY *= this.options.invertWheelDirection;
 
 		if ( !this.hasVerticalScroll ) {
 			wheelDeltaX = wheelDeltaY;
@@ -1030,8 +1036,8 @@ IScroll.prototype = {
 			return;
 		}
 
-		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX * this.options.invertWheelDirection : 0);
-		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY * this.options.invertWheelDirection : 0);
+		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
+		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
 
 		if ( newX > 0 ) {
 			newX = 0;
@@ -1496,6 +1502,7 @@ IScroll.prototype = {
 			case 'MSTransitionEnd':
 				this._transitionEnd(e);
 				break;
+			case 'wheel':
 			case 'DOMMouseScroll':
 			case 'mousewheel':
 				this._wheel(e);

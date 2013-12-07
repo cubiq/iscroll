@@ -41,6 +41,7 @@
 			case 'MSTransitionEnd':
 				this._transitionEnd(e);
 				break;
+			case 'wheel':
 			case 'DOMMouseScroll':
 			case 'mousewheel':
 				if ( this.options.wheelAction == 'zoom' ) {
