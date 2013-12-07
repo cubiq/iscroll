@@ -1,4 +1,4 @@
-/*! iScroll v5.0.7 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.0.8 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
 var IScroll = (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -321,7 +321,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.7',
+	version: '5.0.8',
 
 	_init: function () {
 		this._initEvents();
@@ -1854,6 +1854,8 @@ Indicator.prototype = {
 		newY = this.y + deltaY;
 
 		this._pos(newX, newY);
+
+// INSERT POINT: indicator._move
 
 		e.preventDefault();
 		e.stopPropagation();

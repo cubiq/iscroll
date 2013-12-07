@@ -169,6 +169,8 @@ Indicator.prototype = {
 
 		this._pos(newX, newY);
 
+// INSERT POINT: indicator._move
+
 		e.preventDefault();
 		e.stopPropagation();
 	},
