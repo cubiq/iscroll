@@ -88,6 +88,7 @@ var utils = (function () {
 		transform: _transform,
 		transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
 		transitionDuration: _prefixStyle('transitionDuration'),
+		transitionDelay: _prefixStyle('transitionDelay'),
 		transformOrigin: _prefixStyle('transformOrigin')
 	});
 

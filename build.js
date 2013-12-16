@@ -8,7 +8,6 @@ var uglify = require('uglify-js');
 var banner = '/*! iScroll v' + pkg.version + ' ~ (c) 2008-' + (new Date().getFullYear()) + ' Matteo Spinelli ~ http://cubiq.org/license */\n';
 
 var releases = {
-	// Main releases
 	lite: {
 		files: ['default/_animate.js', 'default/handleEvent.js']
 	},
@@ -52,8 +51,6 @@ var releases = {
 		],
 		postProcessing: [ 'zoom/build.json', 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json' ]
 	}
-
-	// Additional releases TBD
 };
 
 var args = process.argv.slice(2);

@@ -6,6 +6,8 @@
 			indicators = [],
 			indicator;
 
+		var that = this;
+
 		this.indicators = [];
 
 		if ( this.options.scrollbars ) {
@@ -17,6 +19,8 @@
 					defaultScrollbars: true,
 					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
+					shrink: this.options.shrinkScrollbars,
+					fade: this.options.fadeScrollbars,
 					listenX: false
 				};
 
@@ -32,6 +36,8 @@
 					defaultScrollbars: true,
 					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
+					shrink: this.options.shrinkScrollbars,
+					fade: this.options.fadeScrollbars,
 					listenY: false
 				};
 
@@ -41,28 +47,58 @@
 		}
 
 		if ( this.options.indicators ) {
-			// works fine for arrays and non-arrays
+			// TODO: check concat compatibility
 			indicators = indicators.concat(this.options.indicators);
 		}
 
 		for ( var i = indicators.length; i--; ) {
-			this.indicators[i] = new Indicator(this, indicators[i]);
+			this.indicators.push( new Indicator(this, indicators[i]) );
 		}
 
-		this.on('refresh', function () {
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].refresh();
-				}
+		// TODO: check if we can use array.map (wide compatibility and performance issues)
+		function _indicatorsMap (fn) {
+			for ( var i = that.indicators.length; i--; ) {
+				fn.call(that.indicators[i]);
 			}
+		}
+
+		if ( this.options.fadeScrollbars ) {
+			this.on('scrollEnd', function () {
+				_indicatorsMap(function () {
+					this.fade();
+				});
+			});
+
+			this.on('scrollCancel', function () {
+				_indicatorsMap(function () {
+					this.fade();
+				});
+			});
+
+			this.on('scrollStart', function () {
+				_indicatorsMap(function () {
+					this.fade(1);
+				});
+			});
+
+			this.on('beforeScrollStart', function () {
+				_indicatorsMap(function () {
+					this.fade(1, true);
+				});
+			});
+		}
+
+
+		this.on('refresh', function () {
+			_indicatorsMap(function () {
+				this.refresh();
+			});
 		});
 
 		this.on('destroy', function () {
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].destroy();
-				}
-			}
+			_indicatorsMap(function () {
+				this.destroy();
+			});
 
 			delete this.indicators;
 		});

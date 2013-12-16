@@ -90,6 +90,7 @@ var utils = (function () {
 		transform: _transform,
 		transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
 		transitionDuration: _prefixStyle('transitionDuration'),
+		transitionDelay: _prefixStyle('transitionDelay'),
 		transformOrigin: _prefixStyle('transformOrigin')
 	});
 
@@ -295,6 +296,10 @@ function IScroll (el, options) {
 		this.options.tap = 'tap';
 	}
 
+	if ( this.options.shrinkScrollbars == 'scale' ) {
+		this.options.useTransition = false;
+	}
+
 	this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;
 
 	if ( this.options.probeType == 3 ) {
@@ -317,6 +322,9 @@ function IScroll (el, options) {
 	this.scrollTo(this.options.startX, this.options.startY);
 	this.enable();
 }
+
+// Expose the utils
+IScroll.utils = utils;
 
 IScroll.prototype = {
 	version: '5.0.8',
@@ -536,8 +544,6 @@ IScroll.prototype = {
 			time = 0,
 			easing = '';
 
-		this.scrollTo(newX, newY);	// ensures that the last position is rounded
-
 		this.isInTransition = 0;
 		this.initiated = 0;
 		this.endTime = utils.getTime();
@@ -546,6 +552,8 @@ IScroll.prototype = {
 		if ( this.resetPosition(this.options.bounceTime) ) {
 			return;
 		}
+
+		this.scrollTo(newX, newY);	// ensures that the last position is rounded
 
 		// we scrolled less than 10 pixels
 		if ( !this.moved ) {
@@ -557,6 +565,7 @@ IScroll.prototype = {
 				utils.click(e);
 			}
 
+			this._execEvent('scrollCancel');
 			return;
 		}
 
@@ -901,6 +910,8 @@ IScroll.prototype = {
 			indicators = [],
 			indicator;
 
+		var that = this;
+
 		this.indicators = [];
 
 		if ( this.options.scrollbars ) {
@@ -912,6 +923,8 @@ IScroll.prototype = {
 					defaultScrollbars: true,
 					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
+					shrink: this.options.shrinkScrollbars,
+					fade: this.options.fadeScrollbars,
 					listenX: false
 				};
 
@@ -927,6 +940,8 @@ IScroll.prototype = {
 					defaultScrollbars: true,
 					customStyle: customStyle,
 					resize: this.options.resizeIndicator,
+					shrink: this.options.shrinkScrollbars,
+					fade: this.options.fadeScrollbars,
 					listenY: false
 				};
 
@@ -936,28 +951,58 @@ IScroll.prototype = {
 		}
 
 		if ( this.options.indicators ) {
-			// works fine for arrays and non-arrays
+			// TODO: check concat compatibility
 			indicators = indicators.concat(this.options.indicators);
 		}
 
 		for ( var i = indicators.length; i--; ) {
-			this.indicators[i] = new Indicator(this, indicators[i]);
+			this.indicators.push( new Indicator(this, indicators[i]) );
 		}
 
-		this.on('refresh', function () {
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].refresh();
-				}
+		// TODO: check if we can use array.map (wide compatibility and performance issues)
+		function _indicatorsMap (fn) {
+			for ( var i = that.indicators.length; i--; ) {
+				fn.call(that.indicators[i]);
 			}
+		}
+
+		if ( this.options.fadeScrollbars ) {
+			this.on('scrollEnd', function () {
+				_indicatorsMap(function () {
+					this.fade();
+				});
+			});
+
+			this.on('scrollCancel', function () {
+				_indicatorsMap(function () {
+					this.fade();
+				});
+			});
+
+			this.on('scrollStart', function () {
+				_indicatorsMap(function () {
+					this.fade(1);
+				});
+			});
+
+			this.on('beforeScrollStart', function () {
+				_indicatorsMap(function () {
+					this.fade(1, true);
+				});
+			});
+		}
+
+
+		this.on('refresh', function () {
+			_indicatorsMap(function () {
+				this.refresh();
+			});
 		});
 
 		this.on('destroy', function () {
-			if ( this.indicators ) {
-				for ( var i = this.indicators.length; i--; ) {
-					this.indicators[i].destroy();
-				}
-			}
+			_indicatorsMap(function () {
+				this.destroy();
+			});
 
 			delete this.indicators;
 		});
@@ -987,10 +1032,15 @@ IScroll.prototype = {
 			newX, newY,
 			that = this;
 
+		if ( this.wheelTimeout === undefined ) {
+			that._execEvent('scrollStart');
+		}
+
 		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
 		clearTimeout(this.wheelTimeout);
 		this.wheelTimeout = setTimeout(function () {
 			that._execEvent('scrollEnd');
+			that.wheelTimeout = undefined;
 		}, 400);
 
 		if ( 'deltaX' in e ) {
@@ -1544,6 +1594,8 @@ function createDefaultScrollbar (direction, interactive, type) {
 		scrollbar.className = 'iScrollVerticalScrollbar';
 	}
 
+	scrollbar.style.cssText += ';overflow:hidden';
+
 	if ( !interactive ) {
 		scrollbar.style.pointerEvents = 'none';
 	}
@@ -1555,6 +1607,7 @@ function createDefaultScrollbar (direction, interactive, type) {
 
 function Indicator (scroller, options) {
 	this.wrapper = typeof options.el == 'string' ? document.querySelector(options.el) : options.el;
+	this.wrapperStyle = this.wrapper.style;
 	this.indicator = this.wrapper.children[0];
 	this.indicatorStyle = this.indicator.style;
 	this.scroller = scroller;
@@ -1565,6 +1618,8 @@ function Indicator (scroller, options) {
 		interactive: false,
 		resize: true,
 		defaultScrollbars: false,
+		shrink: false,
+		fade: false,
 		speedRatioX: 0,
 		speedRatioY: 0
 	};
@@ -1591,6 +1646,12 @@ function Indicator (scroller, options) {
 			utils.addEvent(this.indicator, 'mousedown', this);
 			utils.addEvent(window, 'mouseup', this);
 		}
+	}
+
+	if ( this.options.fade ) {
+		this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
+		this.wrapperStyle[utils.style.transitionDuration] = utils.isBadAndroid ? '0.001s' : '0ms';
+		this.wrapperStyle.opacity = '0';
 	}
 }
 
@@ -1798,7 +1859,17 @@ Indicator.prototype = {
 			} else {
 				this.indicatorWidth = this.indicator.clientWidth;
 			}
+
 			this.maxPosX = this.wrapperWidth - this.indicatorWidth;
+
+			if ( this.options.shrink == 'clip' ) {
+				this.minBoundaryX = -this.indicatorWidth + 8;
+				this.maxBoundaryX = this.wrapperWidth - 8;
+			} else {
+				this.minBoundaryX = 0;
+				this.maxBoundaryX = this.maxPosX;
+			}
+
 			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
 		}
 
@@ -1812,6 +1883,16 @@ Indicator.prototype = {
 			}
 
 			this.maxPosY = this.wrapperHeight - this.indicatorHeight;
+
+			if ( this.options.shrink == 'clip' ) {
+				this.minBoundaryY = -this.indicatorHeight + 8;
+				this.maxBoundaryY = this.wrapperHeight - 8;
+			} else {
+				this.minBoundaryY = 0;
+				this.maxBoundaryY = this.maxPosY;
+			}
+
+			this.maxPosY = this.wrapperHeight - this.indicatorHeight;
 			this.sizeRatioY = this.options.speedRatioY || (this.scroller.maxScrollY && (this.maxPosY / this.scroller.maxScrollY));
 		}
 
@@ -1819,21 +1900,47 @@ Indicator.prototype = {
 	},
 
 	updatePosition: function () {
-		var x = Math.round(this.sizeRatioX * this.scroller.x) || 0,
-			y = Math.round(this.sizeRatioY * this.scroller.y) || 0;
+		var x = this.options.listenX && Math.round(this.sizeRatioX * this.scroller.x) || 0,
+			y = this.options.listenY && Math.round(this.sizeRatioY * this.scroller.y) || 0;
 
 		if ( !this.options.ignoreBoundaries ) {
-			if ( x < 0 ) {
-				x = 0;
-			} else if ( x > this.maxPosX ) {
-				x = this.maxPosX;
+			if ( x < this.minBoundaryX ) {
+				if ( this.options.shrink == 'scale' ) {
+					this.width = Math.max(this.indicatorWidth + x, 8);
+					this.indicatorStyle.width = this.width + 'px';
+				}
+				x = this.minBoundaryX;
+			} else if ( x > this.maxBoundaryX ) {
+				if ( this.options.shrink == 'scale' ) {
+					this.width = Math.max(this.indicatorWidth - (x - this.maxPosX), 8);
+					this.indicatorStyle.width = this.width + 'px';
+					x = this.maxPosX + this.indicatorWidth - this.width;
+				} else {
+					x = this.maxBoundaryX;
+				}
+			} else if ( this.options.shrink == 'scale' && this.width != this.indicatorWidth ) {
+				this.width = this.indicatorWidth;
+				this.indicatorStyle.width = this.width + 'px';
 			}
 
-			if ( y < 0 ) {
-				y = 0;
-			} else if ( y > this.maxPosY ) {
-				y = this.maxPosY;
-			}		
+			if ( y < this.minBoundaryY ) {
+				if ( this.options.shrink == 'scale' ) {
+					this.height = Math.max(this.indicatorHeight + y * 3, 8);
+					this.indicatorStyle.height = this.height + 'px';
+				}
+				y = this.minBoundaryY;
+			} else if ( y > this.maxBoundaryY ) {
+				if ( this.options.shrink == 'scale' ) {
+					this.height = Math.max(this.indicatorHeight - (y - this.maxPosY) * 3, 8);
+					this.indicatorStyle.height = this.height + 'px';
+					y = this.maxPosY + this.indicatorHeight - this.height;
+				} else {
+					y = this.maxBoundaryY;
+				}
+			} else if ( this.options.shrink == 'scale' && this.height != this.indicatorHeight ) {
+				this.height = this.indicatorHeight;
+				this.indicatorStyle.height = this.height + 'px';
+			}
 		}
 
 		this.x = x;
@@ -1864,6 +1971,27 @@ Indicator.prototype = {
 		y = this.options.listenY ? Math.round(y / this.sizeRatioY) : this.scroller.y;
 
 		this.scroller.scrollTo(x, y);
+	},
+
+	fade: function (val, hold) {
+		if ( hold && !this.visible ) {
+			return;
+		}
+
+		clearTimeout(this.fadeTimeout);
+		this.fadeTimeout = null;
+
+		var time = val ? 250 : 500,
+			delay = val ? 0 : 300;
+
+		val = val ? '1' : '0';
+
+		this.wrapperStyle[utils.style.transitionDuration] = time + 'ms';
+
+		this.fadeTimeout = setTimeout((function (val) {
+			this.wrapperStyle.opacity = val;
+			this.visible = +val;
+		}).bind(this, val), delay);
 	}
 };
 

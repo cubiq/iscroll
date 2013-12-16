@@ -90,6 +90,7 @@ var utils = (function () {
 		transform: _transform,
 		transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
 		transitionDuration: _prefixStyle('transitionDuration'),
+		transitionDelay: _prefixStyle('transitionDelay'),
 		transformOrigin: _prefixStyle('transformOrigin')
 	});
 
@@ -307,6 +308,9 @@ function IScroll (el, options) {
 	this.enable();
 }
 
+// Expose the utils
+IScroll.utils = utils;
+
 IScroll.prototype = {
 	version: '5.0.8',
 
@@ -503,8 +507,6 @@ IScroll.prototype = {
 			time = 0,
 			easing = '';
 
-		this.scrollTo(newX, newY);	// ensures that the last position is rounded
-
 		this.isInTransition = 0;
 		this.initiated = 0;
 		this.endTime = utils.getTime();
@@ -513,6 +515,8 @@ IScroll.prototype = {
 		if ( this.resetPosition(this.options.bounceTime) ) {
 			return;
 		}
+
+		this.scrollTo(newX, newY);	// ensures that the last position is rounded
 
 		// we scrolled less than 10 pixels
 		if ( !this.moved ) {
@@ -524,6 +528,7 @@ IScroll.prototype = {
 				utils.click(e);
 			}
 
+			this._execEvent('scrollCancel');
 			return;
 		}
 
