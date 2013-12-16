@@ -73,9 +73,6 @@ function IScroll (el, options) {
 	this.enable();
 }
 
-// Expose the utils
-IScroll.utils = utils;
-
 IScroll.prototype = {
 	version: '/* VERSION */',
 

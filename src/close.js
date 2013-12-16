@@ -1,6 +1,10 @@
 
-IScroll.ease = utils.ease;
+IScroll.utils = utils;
 
-return IScroll;
+if ( typeof module != 'undefined' && module.exports ) {
+	module.exports = IScroll;
+} else {
+	window.IScroll = IScroll;
+}
 
 })(window, document, Math);

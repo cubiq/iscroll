@@ -1,5 +1,5 @@
-/*! iScroll v5.0.8 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
-var IScroll = (function (window, document, Math) {
+/*! iScroll v5.0.9 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+(function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
 	window.mozRequestAnimationFrame		||
@@ -325,11 +325,8 @@ function IScroll (el, options) {
 	this.enable();
 }
 
-// Expose the utils
-IScroll.utils = utils;
-
 IScroll.prototype = {
-	version: '5.0.8',
+	version: '5.0.9',
 
 	_init: function () {
 		this._initEvents();
@@ -2152,8 +2149,12 @@ Indicator.prototype = {
 	}
 };
 
-IScroll.ease = utils.ease;
+IScroll.utils = utils;
 
-return IScroll;
+if ( typeof module != 'undefined' && module.exports ) {
+	module.exports = IScroll;
+} else {
+	window.IScroll = IScroll;
+}
 
 })(window, document, Math);

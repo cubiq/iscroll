@@ -1,1 +1,1 @@
-var IScroll = (function (window, document, Math) {
+(function (window, document, Math) {
