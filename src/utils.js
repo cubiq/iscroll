@@ -215,9 +215,10 @@ var utils = (function () {
 
 	me.click = function (e) {
 		var target = e.target,
-			ev;
+			ev,
+			tag = target.tagName.toUpperCase();
 
-		if (target.tagName != 'SELECT' && target.tagName != 'INPUT' && target.tagName != 'TEXTAREA') {
+		if (tag != 'SELECT' && tag.tagName != 'INPUT' && tag.tagName != 'TEXTAREA') {
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
 				target.screenX, target.screenY, target.clientX, target.clientY,
