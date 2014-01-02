@@ -3,7 +3,7 @@
 		this.currentPage = {};
 
 		if ( typeof this.options.snap == 'string' ) {
-			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+			this._snapEl = this.scroller.querySelectorAll(this.options.snap);
 		}
 
 		this.on('refresh', function () {
@@ -48,7 +48,10 @@
 					i++;
 				}
 			} else {
-				el = this.options.snap;
+        if (typeof this.options.snap == 'string' ) {
+          this._snapEl = this.scroller.querySelectorAll(this.options.snap);
+        }
+				el = this._snapEl;
 				l = el.length;
 				n = -1;
 
