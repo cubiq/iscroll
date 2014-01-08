@@ -9,7 +9,10 @@ var banner = '/*! iScroll v' + pkg.version + ' ~ (c) 2008-' + (new Date().getFul
 
 var releases = {
 	lite: {
-		files: ['default/_animate.js', 'default/handleEvent.js']
+		files: [
+			'default/_animate.js',
+			'default/handleEvent.js'
+		]
 	},
 
 	iscroll: {
@@ -50,6 +53,18 @@ var releases = {
 			'indicator/indicator.js'
 		],
 		postProcessing: [ 'zoom/build.json', 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json' ]
+	},
+
+	infinite: {
+		files: [
+			'wheel/wheel.js',
+			'snap/snap.js',
+			'keys/keys.js',
+			'probe/_animate.js',
+			'infinite/infinite.js',
+			'default/handleEvent.js',
+		],
+		postProcessing: [ 'wheel/build.json', 'snap/build.json', 'keys/build.json', 'infinite/build.json', 'probe/build.json' ]
 	}
 };
 
@@ -60,7 +75,7 @@ if ( !args.length ) {
 }
 
 if ( args[0] == 'dist' ) {
-	args = ['lite', 'iscroll', 'zoom', 'probe'];
+	args = ['lite', 'iscroll', 'zoom', 'probe', 'infinite'];
 }
 
 // Get the list of files

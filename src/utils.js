@@ -82,7 +82,7 @@ var utils = (function () {
 	});
 
 	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android/.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
 
 	me.extend(me.style = {}, {
 		transform: _transform,

@@ -1,0 +1,9 @@
+{
+	"insert": {
+		"NORMALIZATION": "\tif ( this.options.infiniteElements ) {\n\t\tthis.options.probeType = 3;\n\t}",
+		"_init": "\t\tif ( this.options.infiniteElements ) {\n\t\t\tthis._initInfinite();\n\t\t}"
+	},
+	"replace": {
+		"refresh": "infinite/refresh.js"
+	}
+}

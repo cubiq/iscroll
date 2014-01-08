@@ -1,6 +1,6 @@
 {
 	"insert": {
-		"OPTIONS": "\t\tresizeIndicator: true,",
+		"OPTIONS": "\t\tresizeScrollbars: true,",
 		"NORMALIZATION": "\tif ( this.options.shrinkScrollbars == 'scale' ) {\n\t\tthis.options.useTransition = false;\n\t}",
 		"_init": "\t\tif ( this.options.scrollbars || this.options.indicators ) {\n\t\t\tthis._initIndicators();\n\t\t}",
 		"_transitionTime": "indicator/_transitionTime.js",

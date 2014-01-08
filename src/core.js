@@ -380,10 +380,10 @@ IScroll.prototype = {
 		this.scrollerWidth	= this.scroller.offsetWidth;
 		this.scrollerHeight	= this.scroller.offsetHeight;
 
-/* REPLACE END: refresh */
-
 		this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
 		this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
+
+/* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
 		this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
@@ -433,7 +433,7 @@ IScroll.prototype = {
 		}
 
 		for ( ; i < l; i++ ) {
-			this._events[type][i].call(this);
+			this._events[type][i].apply(this, [].slice.call(arguments, 1));
 		}
 	},
 

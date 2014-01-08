@@ -1,4 +1,4 @@
-/*! iScroll v5.0.9 ~ (c) 2008-2013 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.0 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -84,7 +84,7 @@ var utils = (function () {
 	});
 
 	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android/.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
 
 	me.extend(me.style = {}, {
 		transform: _transform,
@@ -241,7 +241,7 @@ function IScroll (el, options) {
 
 	this.options = {
 
-		resizeIndicator: true,
+		resizeScrollbars: true,
 
 		mouseWheelSpeed: 20,
 
@@ -324,7 +324,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.0.9',
+	version: '5.1.0',
 
 	_init: function () {
 		this._initEvents();
@@ -669,10 +669,10 @@ IScroll.prototype = {
 		this.scrollerWidth	= this.scroller.offsetWidth;
 		this.scrollerHeight	= this.scroller.offsetHeight;
 
-/* REPLACE END: refresh */
-
 		this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
 		this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
+
+/* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
 		this.hasVerticalScroll		= this.options.scrollY && this.maxScrollY < 0;
@@ -722,7 +722,7 @@ IScroll.prototype = {
 		}
 
 		for ( ; i < l; i++ ) {
-			this._events[type][i].call(this);
+			this._events[type][i].apply(this, [].slice.call(arguments, 1));
 		}
 	},
 
@@ -919,7 +919,7 @@ IScroll.prototype = {
 					interactive: interactive,
 					defaultScrollbars: true,
 					customStyle: customStyle,
-					resize: this.options.resizeIndicator,
+					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
 					listenX: false
@@ -936,7 +936,7 @@ IScroll.prototype = {
 					interactive: interactive,
 					defaultScrollbars: true,
 					customStyle: customStyle,
-					resize: this.options.resizeIndicator,
+					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
 					listenY: false
