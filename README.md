@@ -1,4 +1,4 @@
-# iScroll, smooth scrolling for the web
+<h1 id="intro">iScroll, smooth scrolling for the web</h1>
 
 iScroll is a high performance, small footprint, dependency free, multi-platform javascript scroller.
 
@@ -71,7 +71,9 @@ So basically either you pass the element directly or a string that will be given
 Note that iScroll uses `querySelector` not `querySelectorAll`, so only the first occurrence of the selector is used. If you need to apply iScroll to multiple objects you'll have to build your own cycle.
 
 <div class="tip">
-<p>You don't strictly need to assign the instance to a variable (<code>myScroll</code>), but it is handy to keep a reference to the iScroll (for example you could later check the scroller position).</p>
+<p>You don't strictly need to assign the instance to a variable (<code>myScroll</code>), but it is handy to keep a reference to the iScroll.</p>
+
+For example you could later check the <a href="#scroller-info">scroller position</a> or <a href="#destroy">unload unnecessary events</a> when you don't need the iScroll anymore.</p>
 </div>
 
 <h2 id="initialization">Initialization</h2>
@@ -415,7 +417,7 @@ These are the same options we explored in the [scrollbars section](#scrollbars),
 
 Have a look at the [minimap demo](http://lab.cubiq.org/iscroll5/demos/minimap/) to get a glance at the power of the `indicators` option.
 
-The wittiest of you would have noticed that `indicators` is actually plural... Yes, exactly, passing an array of objects you can have a virtually infinite number of indicators. I don't what you may need them for, but hey! who am I to argue about your scrollbar preferences?
+The wittiest of you would have noticed that `indicators` is actually plural... Yes, exactly, passing an array of objects you can have a virtually infinite number of indicators. I don't know what you may need them for, but hey! who am I to argue about your scrollbar preferences?
 
 ## <span id="parallax-scrolling">Parallax scrolling</span>
 
@@ -610,6 +612,12 @@ Duration in millisecond of the bounce animation.
 
 Default: `600`
 
+### <small>options.</small>deceleration
+
+This value can be altered to change the momentum animation duration/speed. Higher numbers make the animation shorter. Sensible results can be experienced starting with a value of `0.01`, bigger than that basically doesn't make any momentum at all.
+
+Default: `0.0006`
+
 ### <small>options.</small>mouseWheelSpeed
 
 Set the speed of the mouse wheel.
@@ -766,7 +774,7 @@ It's impossible to track all the websites and applications that use the iScroll.
 <h2 id="license">License (MIT)</h2>
 
 
-Copyright (c) 2014 Matteo Spinelli, http://cubiq.org/
+Copyright (c) 2014 Matteo Spinelli, [cubiq.org](http://cubiq.org/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

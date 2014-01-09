@@ -50,7 +50,11 @@
 
 				if ( this.infiniteElements[i]._phase < this.options.infiniteLimit ) {
 					this.infiniteElements[i]._top = top;
-					this.infiniteElements[i].style.top = top + 'px';
+					if ( this.options.infiniteUseTransform ) {
+						this.infiniteElements[i].style[utils.style.transform] = 'translate(0, ' + top + 'px)' + this.translateZ;
+					} else {
+						this.infiniteElements[i].style.top = top + 'px';
+					}
 					update.push(this.infiniteElements[i]);
 				}
 			}

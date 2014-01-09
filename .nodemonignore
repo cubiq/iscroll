@@ -2,3 +2,4 @@
 /dist/*
 /demos/*
 *.md
+*.tmp

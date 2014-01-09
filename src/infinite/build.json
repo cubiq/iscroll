@@ -1,6 +1,7 @@
 {
 	"insert": {
-		"NORMALIZATION": "\tif ( this.options.infiniteElements ) {\n\t\tthis.options.probeType = 3;\n\t}",
+		"OPTIONS": "\t\tinfiniteUseTransform: true,\n\t\tdeceleration: 0.004,",
+		"NORMALIZATION": "\tif ( this.options.infiniteElements ) {\n\t\tthis.options.probeType = 3;\n\t}\n\tthis.options.infiniteUseTransform = this.options.infiniteUseTransform && this.options.useTransform;",
 		"_init": "\t\tif ( this.options.infiniteElements ) {\n\t\t\tthis._initInfinite();\n\t\t}"
 	},
 	"replace": {
