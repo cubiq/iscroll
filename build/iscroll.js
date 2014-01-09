@@ -242,6 +242,8 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		pageStops: false,
+		alwaysOverscroll: true,
 
 		bounce: true,
 		bounceTime: 600,
@@ -405,8 +407,8 @@ IScroll.prototype = {
 		}
 
 		var point		= e.touches ? e.touches[0] : e,
-			deltaX		= this.hasHorizontalScroll ? point.pageX - this.pointX : 0,
-			deltaY		= this.hasVerticalScroll   ? point.pageY - this.pointY : 0,
+			deltaX		= this.hasHorizontalScroll || this.options.alwaysOverscroll ? point.pageX - this.pointX : 0,
+			deltaY		= this.hasVerticalScroll || this.options.alwaysOverscroll ? point.pageY - this.pointY : 0,
 			timestamp	= utils.getTime(),
 			newX, newY,
 			absDistX, absDistY;
@@ -545,6 +547,13 @@ IScroll.prototype = {
 			newY = momentumY.destination;
 			time = Math.max(momentumX.duration, momentumY.duration);
 			this.isInTransition = 1;
+
+			if (this.options.pageStops) {
+				var direction = ((this.x - this.startX) < 0 ? -1 : 1);
+				if (Math.abs(newX - this.startX) > this.wrapperWidth) {
+					newX = (direction * this.wrapperWidth) + this.startX;
+				}
+			}			
 		}
 
 		if ( this.options.snap ) {
@@ -561,6 +570,8 @@ IScroll.prototype = {
 			this.directionX = 0;
 			this.directionY = 0;
 			easing = this.options.bounceEasing;
+
+			this._execEvent('pageChangePending');
 		}
 
 		if ( newX != this.x || newY != this.y ) {
@@ -1058,12 +1069,14 @@ IScroll.prototype = {
 			var i = 0, l,
 				m = 0, n,
 				cx, cy,
-				x = 0, y,
+				x = 0, y = 0,
 				stepX = this.options.snapStepX || this.wrapperWidth,
 				stepY = this.options.snapStepY || this.wrapperHeight,
 				el;
 
 			this.pages = [];
+			this.currentPage.pageX = 0;
+			this.currentPage.pageY = 0;
 
 			if ( this.options.snap === true ) {
 				cx = Math.round( stepX / 2 );
@@ -1128,6 +1141,18 @@ IScroll.prototype = {
 
 			if (this.pages.length === 0) {
 				return;
+			}
+
+			if (this.pages[0].length === 0) {
+				// make sure we always have at least page 0, 0.
+				this.pages[0][0] = {
+					x: Math.max(x, this.maxScrollX),
+					y: Math.max(y, this.maxScrollY),
+					width: stepX,
+					height: stepY,
+					cx: x - cx,
+					cy: y - cy
+				};
 			}
 
 			this.goToPage(this.currentPage.pageX || 0, this.currentPage.pageY || 0, 0);
@@ -1231,13 +1256,13 @@ IScroll.prototype = {
 	goToPage: function (x, y, time, easing) {
 		easing = easing || this.options.bounceEasing;
 
-		if ( x >= this.pages.length ) {
+		if ( ( this.pages.length > 0 ) && ( x >= this.pages.length ) ) {
 			x = this.pages.length - 1;
 		} else if ( x < 0 ) {
 			x = 0;
 		}
 
-		if ( y >= this.pages[0].length ) {
+		if ( ( this.pages[0].length > 0 ) && ( y >= this.pages[0].length ) ) {
 			y = this.pages[0].length - 1;
 		} else if ( y < 0 ) {
 			y = 0;
@@ -1258,6 +1283,8 @@ IScroll.prototype = {
 			pageX: x,
 			pageY: y
 		};
+
+		this._execEvent('pageChangePending');
 
 		this.scrollTo(posX, posY, time, easing);
 	},
@@ -1823,6 +1850,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 $timeout(refresh, 500);
 
+                iscroll.on('pageChangePending', refresh);
                 iscroll.on('scrollEnd', refresh);
 
                 scope.$on('layoutChange', function(e) {

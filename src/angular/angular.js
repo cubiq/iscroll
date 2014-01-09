@@ -30,6 +30,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 $timeout(refresh, 500);
 
+                iscroll.on('pageChangePending', refresh);
                 iscroll.on('scrollEnd', refresh);
 
                 scope.$on('layoutChange', function(e) {

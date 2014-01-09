@@ -13,6 +13,8 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		pageStops: false,
+		alwaysOverscroll: true,
 
 		bounce: true,
 		bounceTime: 600,
@@ -158,8 +160,8 @@ IScroll.prototype = {
 		}
 
 		var point		= e.touches ? e.touches[0] : e,
-			deltaX		= this.hasHorizontalScroll ? point.pageX - this.pointX : 0,
-			deltaY		= this.hasVerticalScroll   ? point.pageY - this.pointY : 0,
+			deltaX		= this.hasHorizontalScroll || this.options.alwaysOverscroll ? point.pageX - this.pointX : 0,
+			deltaY		= this.hasVerticalScroll || this.options.alwaysOverscroll ? point.pageY - this.pointY : 0,
 			timestamp	= utils.getTime(),
 			newX, newY,
 			absDistX, absDistY;
@@ -298,6 +300,13 @@ IScroll.prototype = {
 			newY = momentumY.destination;
 			time = Math.max(momentumX.duration, momentumY.duration);
 			this.isInTransition = 1;
+
+			if (this.options.pageStops) {
+				var direction = ((this.x - this.startX) < 0 ? -1 : 1);
+				if (Math.abs(newX - this.startX) > this.wrapperWidth) {
+					newX = (direction * this.wrapperWidth) + this.startX;
+				}
+			}			
 		}
 
 		if ( this.options.snap ) {
@@ -314,6 +323,8 @@ IScroll.prototype = {
 			this.directionX = 0;
 			this.directionY = 0;
 			easing = this.options.bounceEasing;
+
+			this._execEvent('pageChangePending');
 		}
 
 		if ( newX != this.x || newY != this.y ) {
