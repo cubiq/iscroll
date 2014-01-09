@@ -44,6 +44,38 @@
 			wheelDeltaX = wheelDeltaY;
 		}
 
+		if ( this.options.snap) {
+			if (this.snapped) {
+				clearInterval(this.snapTimeout);
+				this.snapTimeout = setTimeout(function () {
+					that.snapped = false;
+				}, 100);
+				return;
+			}
+			newX = this.currentPage.pageX;
+			newY = this.currentPage.pageY;
+
+			if ( wheelDeltaX > 0 ) {
+				newX--;
+			} else if ( wheelDeltaX < 0 ) {
+				newX++;
+			}
+
+			if ( wheelDeltaY > 0 ) {
+				newY--;
+			} else if ( wheelDeltaY < 0 ) {
+				newY++;
+			}
+			this.snapped = true;
+			clearInterval(this.slowSnapInterval);
+			this.slowSnapInterval = setTimeout(function() {
+				that.snapped = false;
+			},800);
+			this.goToPage(newX, newY);
+
+			return;
+		}
+
 		newX = this.x + (this.hasHorizontalScroll ? wheelDeltaX * this.options.invertWheelDirection : 0);
 		newY = this.y + (this.hasVerticalScroll ? wheelDeltaY * this.options.invertWheelDirection : 0);
 
