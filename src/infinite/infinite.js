@@ -1,8 +1,9 @@
 
 	_initInfinite: function () {
 		var el = this.options.infiniteElements;
+        var root = this.wrapper || document;
 
-		this.infiniteElements = typeof el == 'string' ? document.querySelectorAll(el) : el;
+		this.infiniteElements = typeof el == 'string' ? root.querySelectorAll(el) : el;
 		this.infiniteLength = this.infiniteElements.length;
 		this.infiniteMaster = this.infiniteElements[0];
 		this.infiniteElementHeight = this.infiniteMaster.offsetHeight;
