@@ -25,6 +25,14 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                     iscroll.goToPage.call(iscroll, x, y, time, easing);
                 };
 
+                scope.next = function (time, easing) {
+                    iscroll.next.call(iscroll, time, easing);
+                };
+
+                scope.prev = function (time, easing) {
+                    iscroll.prev.call(iscroll, time, easing);
+                };
+
                 var refresh = function() {
                     $timeout(function() {
                         scope.currentPage = iscroll.currentPage;
