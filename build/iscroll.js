@@ -1836,11 +1836,22 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
             link: function (scope, element, attrs, controller) {
 
                 // Pass parameters as attributes, looking for a better alternative to the sweet eval
-                var opt = eval('({'+attrs.iscrollable+'})');
-                
+                var opt = eval('({'+attrs.iscrollable+'})');                
                 var iscroll = new IScroll(element[0],opt);
-
                 scope.currentPage = iscroll.currentPage;
+
+                // Inject iScroll methods into the caller scope
+                scope.goToPage = function (x, y, time, easing) {
+                    iscroll.goToPage.call(iscroll, x, y, time, easing);
+                };
+
+                scope.next = function (time, easing) {
+                    iscroll.next.call(iscroll, time, easing);
+                };
+
+                scope.prev = function (time, easing) {
+                    iscroll.prev.call(iscroll, time, easing);
+                };
 
                 var refresh = function() {
                     $timeout(function() {
