@@ -795,6 +795,14 @@ IScroll.prototype = {
 			this.indicator2.transitionTime(time);
 		}
 
+		if ( this.indicatorY ) {
+			this.indicatorY.transitionTime(time);
+		}
+
+		if ( this.indicatorX ) {
+			this.indicatorX.transitionTime(time);
+		}
+
 // INSERT POINT: _transitionTime
 
 	},
@@ -809,6 +817,14 @@ IScroll.prototype = {
 
 		if ( this.indicator2 ) {
 			this.indicator2.transitionTimingFunction(easing);
+		}
+
+		if ( this.indicatorY ) {
+			this.indicatorY.transitionTimingFunction(easing);
+		}
+
+		if ( this.indicatorX ) {
+			this.indicatorX.transitionTimingFunction(easing);
 		}
 
 
@@ -839,6 +855,15 @@ IScroll.prototype = {
 	if ( this.indicator2 ) {
 		this.indicator2.updatePosition();
 	}
+
+	if ( this.indicatorY ) {	// usually the vertical
+		this.indicatorY.updatePosition();
+	}
+
+	if ( this.indicatorX ) {
+		this.indicatorX.updatePosition();
+	}
+
 
 // INSERT POINT: _translate
 
@@ -898,12 +923,14 @@ IScroll.prototype = {
 			defaultScrollbars = typeof this.options.scrollbars != 'object',
 			customStyle = typeof this.options.scrollbars != 'string',
 			indicator1,
-			indicator2;
+			indicator2,
+			indicatorY,
+			indicatorX;
 
 		if ( this.options.scrollbars ) {
 			// Vertical scrollbar
 			if ( this.options.scrollY ) {
-				indicator1 = {
+				indicatorY = {
 					el: createDefaultScrollbar('v', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
@@ -912,12 +939,12 @@ IScroll.prototype = {
 					listenX: false
 				};
 
-				this.wrapper.appendChild(indicator1.el);
+				this.wrapper.appendChild(indicatorY.el);
 			}
 
 			// Horizontal scrollbar
 			if ( this.options.scrollX ) {
-				indicator2 = {
+				indicatorX = {
 					el: createDefaultScrollbar('h', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
@@ -926,9 +953,11 @@ IScroll.prototype = {
 					listenY: false
 				};
 
-				this.wrapper.appendChild(indicator2.el);
+				this.wrapper.appendChild(indicatorX.el);
 			}
-		} else {
+		} 
+
+		if (this.options.indicators) {
 			indicator1 = this.options.indicators.length ? this.options.indicators[0] : this.options.indicators;
 			indicator2 = this.options.indicators[1] && this.options.indicators[1];
 		}
@@ -941,6 +970,14 @@ IScroll.prototype = {
 			this.indicator2 = new Indicator(this, indicator2);
 		}
 
+		if ( indicatorY ) {
+			this.indicatorY = new Indicator(this, indicatorY);
+		}
+
+		if ( indicatorX ) {
+			this.indicatorX = new Indicator(this, indicatorX);
+		}
+
 		this.on('refresh', function () {
 			if ( this.indicator1 ) {
 				this.indicator1.refresh();
@@ -948,6 +985,14 @@ IScroll.prototype = {
 
 			if ( this.indicator2 ) {
 				this.indicator2.refresh();
+			}
+
+			if ( this.indicatorY ) {
+				this.indicatorY.refresh();
+			}
+
+			if ( this.indicatorX ) {
+				this.indicatorX.refresh();
 			}
 		});
 
@@ -960,6 +1005,16 @@ IScroll.prototype = {
 			if ( this.indicator2 ) {
 				this.indicator2.destroy();
 				this.indicator2 = null;
+			}
+
+			if ( this.indicatorY ) {
+				this.indicatorY.destroy();
+				this.indicatorY = null;
+			}
+
+			if ( this.indicatorX ) {
+				this.indicatorX.destroy();
+				this.indicatorX = null;
 			}
 		});
 	},

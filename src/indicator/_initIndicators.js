@@ -4,12 +4,14 @@
 			defaultScrollbars = typeof this.options.scrollbars != 'object',
 			customStyle = typeof this.options.scrollbars != 'string',
 			indicator1,
-			indicator2;
+			indicator2,
+			indicatorY,
+			indicatorX;
 
 		if ( this.options.scrollbars ) {
 			// Vertical scrollbar
 			if ( this.options.scrollY ) {
-				indicator1 = {
+				indicatorY = {
 					el: createDefaultScrollbar('v', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
@@ -18,12 +20,12 @@
 					listenX: false
 				};
 
-				this.wrapper.appendChild(indicator1.el);
+				this.wrapper.appendChild(indicatorY.el);
 			}
 
 			// Horizontal scrollbar
 			if ( this.options.scrollX ) {
-				indicator2 = {
+				indicatorX = {
 					el: createDefaultScrollbar('h', interactive, this.options.scrollbars),
 					interactive: interactive,
 					defaultScrollbars: true,
@@ -32,9 +34,11 @@
 					listenY: false
 				};
 
-				this.wrapper.appendChild(indicator2.el);
+				this.wrapper.appendChild(indicatorX.el);
 			}
-		} else {
+		} 
+
+		if (this.options.indicators) {
 			indicator1 = this.options.indicators.length ? this.options.indicators[0] : this.options.indicators;
 			indicator2 = this.options.indicators[1] && this.options.indicators[1];
 		}
@@ -47,6 +51,14 @@
 			this.indicator2 = new Indicator(this, indicator2);
 		}
 
+		if ( indicatorY ) {
+			this.indicatorY = new Indicator(this, indicatorY);
+		}
+
+		if ( indicatorX ) {
+			this.indicatorX = new Indicator(this, indicatorX);
+		}
+
 		this.on('refresh', function () {
 			if ( this.indicator1 ) {
 				this.indicator1.refresh();
@@ -54,6 +66,14 @@
 
 			if ( this.indicator2 ) {
 				this.indicator2.refresh();
+			}
+
+			if ( this.indicatorY ) {
+				this.indicatorY.refresh();
+			}
+
+			if ( this.indicatorX ) {
+				this.indicatorX.refresh();
 			}
 		});
 
@@ -66,6 +86,16 @@
 			if ( this.indicator2 ) {
 				this.indicator2.destroy();
 				this.indicator2 = null;
+			}
+
+			if ( this.indicatorY ) {
+				this.indicatorY.destroy();
+				this.indicatorY = null;
+			}
+
+			if ( this.indicatorX ) {
+				this.indicatorX.destroy();
+				this.indicatorX = null;
 			}
 		});
 	},
