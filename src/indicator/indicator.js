@@ -291,7 +291,7 @@ Indicator.prototype = {
 				this.maxBoundaryX = this.maxPosX;
 			}
 
-			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));
 		}
 
 		if ( this.options.listenY ) {
@@ -399,11 +399,15 @@ Indicator.prototype = {
 			return;
 		}
 
+		if( !this.options.fade ){
+				return;
+		}
+
 		clearTimeout(this.fadeTimeout);
 		this.fadeTimeout = null;
 
 		var time = val ? 250 : 500,
-			delay = val ? 0 : 300;
+				delay = val ? 0 : 300;
 
 		val = val ? '1' : '0';
 
