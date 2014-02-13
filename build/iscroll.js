@@ -1930,10 +1930,19 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                 $timeout(refresh, 500);
 
                 iscroll.on('pageChangePending', refresh);
-                iscroll.on('scrollEnd', refresh);
+
+                var scrollEndHandler = $parse(attrs.aceOnScrollEnd);
+                iscroll.on('scrollEnd', function() {
+                    refresh();
+                    if (scrollEndHandler) {
+                      scope.$apply(function() {
+                        scrollEndHandler(scope);
+                      });
+                    }
+                });
 
                 scope.$on('layoutChange', function(e) {
-                    iscroll.refresh();                  
+                    iscroll.refresh();
                 });
 
             }
@@ -1942,6 +1951,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
     });
 }
 // jshint +W061
+
 IScroll.ease = utils.ease;
 
 return IScroll;
