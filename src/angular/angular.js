@@ -25,12 +25,44 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                     iscroll.goToPage.call(iscroll, x, y, time, easing);
                 };
 
-                scope.next = function (time, easing) {
-                    iscroll.next.call(iscroll, time, easing);
+                scope.prev = function (time, easing) {
+                    var shouldLoop = false;
+                    if (opt.enableInfiniteScroll) {
+                        if (iscroll.hasVerticalScroll) {
+                            if (iscroll.currentPage.pageY <= 0) {
+                                shouldLoop = true;
+                                iscroll.goToPage.call(iscroll, iscroll.currentPage.pageX, iscroll.pages.length - 1, time, easing);
+                            }
+                        } else {
+                            if (iscroll.currentPage.pageX <= 0) {
+                                shouldLoop = true;
+                                iscroll.goToPage.call(iscroll, iscroll.pages.length - 1, iscroll.currentPage.pageY, time, easing);
+                            }
+                        }
+                    }
+                    if (!shouldLoop) {
+                        iscroll.prev.call(iscroll, time, easing);
+                    }
                 };
 
-                scope.prev = function (time, easing) {
-                    iscroll.prev.call(iscroll, time, easing);
+                scope.next = function (time, easing) {
+                    var shouldLoop = false;
+                    if (opt.enableInfiniteScroll) {
+                        if (iscroll.hasVerticalScroll) {
+                            if (iscroll.currentPage.pageY >= iscroll.pages.length - 1) {
+                                shouldLoop = true;
+                                iscroll.goToPage.call(iscroll, iscroll.currentPage.pageX, 0, time, easing);
+                            }
+                        } else {
+                            if (iscroll.currentPage.pageX >= iscroll.pages.length - 1) {
+                                shouldLoop = true;
+                                iscroll.goToPage.call(iscroll, 0, iscroll.currentPage.pageY, time, easing);
+                            }
+                        }
+                    }
+                    if (!shouldLoop) {
+                        iscroll.next.call(iscroll, time, easing);
+                    }
                 };
 
                 var refresh = function() {
@@ -38,14 +70,22 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                         scope.currentPage = iscroll.currentPage;
                     });
                 };
-
                 $timeout(refresh, 500);
 
                 iscroll.on('pageChangePending', refresh);
-                iscroll.on('scrollEnd', refresh);
+
+                var scrollEndHandler = $parse(attrs.aceOnScrollEnd);
+                iscroll.on('scrollEnd', function() {
+                    refresh();
+                    if (scrollEndHandler) {
+                      scope.$apply(function() {
+                        scrollEndHandler(scope);
+                      });
+                    }
+                });
 
                 scope.$on('layoutChange', function(e) {
-                    iscroll.refresh();                  
+                    iscroll.refresh();
                 });
 
             }
