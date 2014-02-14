@@ -22,7 +22,15 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 // Inject iScroll methods into the caller scope
                 scope.goToPage = function (x, y, time, easing) {
-                    iscroll.goToPage.call(iscroll, x, y, time, easing);
+                    if (iscroll.hasVerticalScroll) {
+                        if ((y >= 0) && (y <= iscroll.pages.length - 1)) {
+                            iscroll.goToPage.call(iscroll, x, y, time, easing);
+                        }
+                    } else {
+                        if ((x >= 0) && (x <= iscroll.pages.length - 1)) {
+                            iscroll.goToPage.call(iscroll, x, y, time, easing);
+                        }
+                    }
                 };
 
                 scope.prev = function (time, easing) {
@@ -31,12 +39,12 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                         if (iscroll.hasVerticalScroll) {
                             if (iscroll.currentPage.pageY <= 0) {
                                 shouldLoop = true;
-                                iscroll.goToPage.call(iscroll, iscroll.currentPage.pageX, iscroll.pages.length - 1, time, easing);
+                                scope.goToPage(iscroll.currentPage.pageX, iscroll.pages.length - 1, time, easing);
                             }
                         } else {
                             if (iscroll.currentPage.pageX <= 0) {
                                 shouldLoop = true;
-                                iscroll.goToPage.call(iscroll, iscroll.pages.length - 1, iscroll.currentPage.pageY, time, easing);
+                                scope.goToPage(iscroll.pages.length - 1, iscroll.currentPage.pageY, time, easing);
                             }
                         }
                     }
@@ -51,12 +59,12 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                         if (iscroll.hasVerticalScroll) {
                             if (iscroll.currentPage.pageY >= iscroll.pages.length - 1) {
                                 shouldLoop = true;
-                                iscroll.goToPage.call(iscroll, iscroll.currentPage.pageX, 0, time, easing);
+                                scope.goToPage(iscroll.currentPage.pageX, 0, time, easing);
                             }
                         } else {
                             if (iscroll.currentPage.pageX >= iscroll.pages.length - 1) {
                                 shouldLoop = true;
-                                iscroll.goToPage.call(iscroll, 0, iscroll.currentPage.pageY, time, easing);
+                                scope.goToPage(0, iscroll.currentPage.pageY, time, easing);
                             }
                         }
                     }
