@@ -96,6 +96,10 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
                     iscroll.refresh();
                 });
 
+                scope.refreshIScroll = function() {
+                    iscroll.refresh();
+                };
+
             }
         };
 
