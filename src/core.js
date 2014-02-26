@@ -258,7 +258,7 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 
-		this._execEvent('touchEnd');
+		this._execEvent('beforeScrollEnd');
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
