@@ -258,6 +258,8 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 
+		this._execEvent('touchEnd');
+
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
 			momentumY,
