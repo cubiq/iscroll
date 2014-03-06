@@ -612,6 +612,15 @@ Duration in millisecond of the bounce animation.
 
 Default: `600`
 
+
+### <small>options.</small>forceBounce
+
+Force bounce effect even when the scroll container (wrapper) fits into the scrolling area.
+
+Note that enabling `forceBounce` options set `bounce` option to `true`.
+
+Default: `false`
+
 ### <small>options.</small>deceleration
 
 This value can be altered to change the momentum animation duration/speed. Higher numbers make the animation shorter. Sensible results can be experienced starting with a value of `0.01`, bigger than that basically doesn't make any momentum at all.
