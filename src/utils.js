@@ -10,7 +10,7 @@ var cAF = window.cancelAnimationFrame ||
 	window.mozcancelAnimationFrame ||
 	window.ocancelAnimationFrame ||
 	window.mscancelAnimationFrame ||
-	clearTimeout;
+	function (id) { window.clearTimeout(id); };
 
 var utils = (function () {
 	var me = {};
