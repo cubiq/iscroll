@@ -1,4 +1,3 @@
-
 function IScroll (el, options) {
 	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
 	this.scroller = this.wrapper.children[0];
@@ -138,6 +137,12 @@ IScroll.prototype = {
 			this._translate(Math.round(pos.x), Math.round(pos.y));
 			this._execEvent('scrollEnd');
 		} else if ( !this.options.useTransition && this.isAnimating ) {
+			
+			if (this.rAFId) {
+				cAF(this.rAFId);
+				this.rAFId = 0;
+			}
+			
 			this.isAnimating = false;
 			this._execEvent('scrollEnd');
 		}
