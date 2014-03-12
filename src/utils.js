@@ -6,10 +6,10 @@ var rAF = window.requestAnimationFrame	||
 	function (callback) { window.setTimeout(callback, 1000 / 60); };
 	
 var cAF = window.cancelAnimationFrame ||
-	window.webkitcancelAnimationFrame ||
-	window.mozcancelAnimationFrame ||
-	window.ocancelAnimationFrame ||
-	window.mscancelAnimationFrame ||
+	window.webkitCancelAnimationFrame ||
+	window.mozCancelAnimationFrame ||
+	window.oCancelAnimationFrame ||
+	window.msCancelAnimationFrame ||
 	function (id) { window.clearTimeout(id); };
 
 var utils = (function () {
