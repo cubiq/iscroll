@@ -4,6 +4,13 @@ var rAF = window.requestAnimationFrame	||
 	window.oRequestAnimationFrame		||
 	window.msRequestAnimationFrame		||
 	function (callback) { window.setTimeout(callback, 1000 / 60); };
+	
+var cAF = window.cancelAnimationFrame ||
+	window.webkitcancelAnimationFrame ||
+	window.mozcancelAnimationFrame ||
+	window.ocancelAnimationFrame ||
+	window.mscancelAnimationFrame ||
+	clearTimeout;
 
 var utils = (function () {
 	var me = {};
