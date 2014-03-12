@@ -1,4 +1,3 @@
-
 	_animate: function (destX, destY, duration, easingFn) {
 		var that = this,
 			startX = this.x,
@@ -29,7 +28,7 @@
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
-				rAF(step);
+				that.rAFId = rAF(step);
 			}
 		}
 
