@@ -1,4 +1,3 @@
-
 function createDefaultScrollbar (direction, interactive, type) {
 	var scrollbar = document.createElement('div'),
 		indicator = document.createElement('div');
@@ -395,7 +394,7 @@ Indicator.prototype = {
 	},
 
 	fade: function (val, hold) {
-		if ( hold && !this.visible ) {
+		if ( hold && !this.visible || utils.isBadAndroid ) {
 			return;
 		}
 
