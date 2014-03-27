@@ -143,6 +143,10 @@
 			}
 		}
 
+		if ( i == l ) {
+			return this.currentPage;
+		}
+
 		l = this.pages[i].length;
 
 		for ( ; m < l; m++ ) {
