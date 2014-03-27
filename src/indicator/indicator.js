@@ -408,10 +408,10 @@ Indicator.prototype = {
 		val = val ? '1' : '0';
 
 		this.wrapperStyle[utils.style.transitionDuration] = time + 'ms';
-
-		this.fadeTimeout = setTimeout((function (val) {
-			this.wrapperStyle.opacity = val;
-			this.visible = +val;
-		}).bind(this, val), delay);
+		var $this = this;
+		this.fadeTimeout = setTimeout(function () {
+			$this.wrapperStyle.opacity = val;
+			$this.visible = +val;
+		}, delay);
 	}
 };
