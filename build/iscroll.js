@@ -1963,6 +1963,7 @@ if ( (typeof(angular) === 'object') && (typeof(angular.version) === 'object')){
 
                 var refresh = function() {
                     $timeout(function() {
+                        scope.pageCount = iscroll.pages.length;
                         scope.currentPage = iscroll.currentPage;
                     });
                 };
