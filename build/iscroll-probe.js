@@ -1,3 +1,4 @@
+define(function(require, exports, module) {
 /*! iScroll v5.1.1 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
@@ -249,7 +250,7 @@ function IScroll (el, options) {
 		snapThreshold: 0.334,
 
 // INSERT POINT: OPTIONS 
-
+		topOffset : 0,
 		startX: 0,
 		startY: 0,
 		scrollY: true,
@@ -641,7 +642,7 @@ IScroll.prototype = {
 		} else if ( this.y < this.maxScrollY ) {
 			y = this.maxScrollY;
 		}
-
+		y = this.y >= this.minScrollY || this.maxScrollY > 0 ? this.minScrollY : this.y < this.maxScrollY ? this.maxScrollY : this.y;
 		if ( x == this.x && y == this.y ) {
 			return false;
 		}
@@ -664,14 +665,14 @@ IScroll.prototype = {
 
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;
-
+		this.minScrollY = -this.options.topOffset || 0;  
 /* REPLACE START: refresh */
 
 		this.scrollerWidth	= this.scroller.offsetWidth;
-		this.scrollerHeight	= this.scroller.offsetHeight;
+		this.scrollerHeight = this.scroller.offsetHeight+ this.minScrollY;  
 
 		this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
-		this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
+		this.maxScrollY     = this.wrapperHeight - this.scrollerHeight+ this.minScrollY;  
 
 /* REPLACE END: refresh */
 
@@ -2012,4 +2013,4 @@ if ( typeof module != 'undefined' && module.exports ) {
 	window.IScroll = IScroll;
 }
 
-})(window, document, Math);
+})(window, document, Math);})
