@@ -1,4 +1,3 @@
-define(function(require, exports, module) {
 /*! iScroll v5.1.1 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
@@ -2013,4 +2012,4 @@ if ( typeof module != 'undefined' && module.exports ) {
 	window.IScroll = IScroll;
 }
 
-})(window, document, Math);})
+})(window, document, Math);
