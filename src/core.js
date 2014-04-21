@@ -161,7 +161,9 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 		
-		this.scroller.style[utils.style.transitionDuration] = '0s';
+		if(utils.isBadAndroid){
+			this.scroller.style[utils.style.transitionDuration] = '0s';
+		}
 
 		var point		= e.touches ? e.touches[0] : e,
 			deltaX		= point.pageX - this.pointX,
