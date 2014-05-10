@@ -527,7 +527,8 @@ IScroll.prototype = {
 
 /* REPLACE START: _translate */
 
-			this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px)' + this.translateZ;
+			this.scrollerStyle[utils.style.transform] = !this.translateZ ?
+				'translate(' + x + 'px,' + y + 'px)' : 'translate3d(' + x + 'px,' + y + 'px, 0)';
 
 /* REPLACE END: _translate */
 
