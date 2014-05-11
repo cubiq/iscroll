@@ -132,15 +132,7 @@ IScroll.prototype = {
 
 		this.startTime = utils.getTime();
 
-		if ( this.options.useTransition && this.isInTransition ) {
-			this.isInTransition = false;
-			pos = this.getComputedPosition();
-			this._translate(Math.round(pos.x), Math.round(pos.y));
-			this._execEvent('scrollEnd');
-		} else if ( !this.options.useTransition && this.isAnimating ) {
-			this.isAnimating = false;
-			this._execEvent('scrollEnd');
-		}
+		this.stop();
 
 		this.startX    = this.x;
 		this.startY    = this.y;
@@ -369,6 +361,9 @@ IScroll.prototype = {
 		this.enabled = true;
 	},
 
+
+
+
 	refresh: function () {
 		var rf = this.wrapper.offsetHeight;		// Force reflow
 
@@ -500,6 +495,18 @@ IScroll.prototype = {
 		time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(this.x-pos.left), Math.abs(this.y-pos.top)) : time;
 
 		this.scrollTo(pos.left, pos.top, time, easing);
+	},
+
+	stop: function () {
+		if ( this.options.useTransition && this.isInTransition ) {
+			this.isInTransition = false;
+			pos = this.getComputedPosition();
+			this._translate(Math.round(pos.x), Math.round(pos.y));
+			this._execEvent('scrollEnd');
+		} else if ( !this.options.useTransition && this.isAnimating ) {
+			this.isAnimating = false;
+			this._execEvent('scrollEnd');
+		}
 	},
 
 	_transitionTime: function (time) {
