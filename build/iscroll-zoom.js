@@ -1171,7 +1171,7 @@ IScroll.prototype = {
 		} else if('wheelDelta' in e) {
 			wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
 		} else if ('detail' in e) {
-			wheelDeltaY = -e.detail / Math.abs(e.wheelDelta);
+			wheelDeltaY = -e.detail / Math.abs(e.detail);
 		} else {
 			return;
 		}
