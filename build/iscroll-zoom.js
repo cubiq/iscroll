@@ -1154,6 +1154,11 @@ IScroll.prototype = {
 	},
 
 	_wheelZoom: function (e) {
+
+		if ( !this.enabled ) {
+			return;
+		}
+
 		var wheelDeltaY,
 			deltaScale,
 			that = this;
