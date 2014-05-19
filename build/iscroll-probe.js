@@ -934,7 +934,8 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
-					listenX: false
+					listenX: false,
+					isScrollbar: true
 				};
 
 				this.wrapper.appendChild(indicator.el);
@@ -951,7 +952,8 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
-					listenY: false
+					listenY: false,
+					isScrollbar: true
 				};
 
 				this.wrapper.appendChild(indicator.el);
@@ -1630,7 +1632,8 @@ function Indicator (scroller, options) {
 		shrink: false,
 		fade: false,
 		speedRatioX: 0,
-		speedRatioY: 0
+		speedRatioY: 0,
+		isScrollbar: false
 	};
 
 	for ( var i in options ) {
@@ -1826,12 +1829,14 @@ Indicator.prototype = {
 	refresh: function () {
 		this.transitionTime();
 
-		if ( this.options.listenX && !this.options.listenY ) {
-			this.indicatorStyle.display = this.scroller.hasHorizontalScroll ? 'block' : 'none';
-		} else if ( this.options.listenY && !this.options.listenX ) {
-			this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
-		} else {
-			this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
+		if( this.options.isScrollbar ) {
+			if ( this.options.listenX && !this.options.listenY ) {
+				this.indicatorStyle.display = this.scroller.hasHorizontalScroll ? 'block' : 'none';
+			} else if ( this.options.listenY && !this.options.listenX ) {
+				this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
+			} else {
+				this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
+			}
 		}
 
 		if ( this.scroller.hasHorizontalScroll && this.scroller.hasVerticalScroll ) {
