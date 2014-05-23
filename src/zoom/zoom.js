@@ -169,7 +169,8 @@
 			return;
 		}
 
-		deltaScale = this.scale + wheelDeltaY / 5;
-
-		this.zoom(deltaScale, e.pageX, e.pageY, 0);
+		if(wheelDeltaY) {
+			deltaScale = this.scale + wheelDeltaY / 5;
+			this.zoom(deltaScale, e.pageX, e.pageY, 0);
+		}
 	},
