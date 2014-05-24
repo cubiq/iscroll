@@ -161,7 +161,7 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 		
-		if( utils.isBadAndroid ){
+		if( utils.isBadAndroid && this.options.useTransition ){
 			this.scroller.style[utils.style.transitionDuration] = '0s'; // Eliminates jerkiness when scrolling on Android
 		}
 
