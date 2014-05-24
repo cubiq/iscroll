@@ -78,7 +78,7 @@ var utils = (function () {
 		hasTransform: _transform !== false,
 		hasPerspective: _prefixStyle('perspective') in _elementStyle,
 		hasTouch: 'ontouchstart' in window,
-		hasPointer: navigator.msPointerEnabled,
+		hasPointer: window.MSPointerEvent,
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
