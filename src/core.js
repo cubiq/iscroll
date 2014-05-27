@@ -113,6 +113,11 @@ IScroll.prototype = {
 			return;
 		}
 
+		// another pointer controls the panel
+		if ( utils.eventType[e.type] === 3 && this.pointerId !== e.pointerId) {
+			return;
+		}
+
 		if ( this.options.preventDefault && !utils.isBadAndroid && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
@@ -127,6 +132,10 @@ IScroll.prototype = {
 		this.directionX = 0;
 		this.directionY = 0;
 		this.directionLocked = 0;
+
+		if ( utils.eventType[e.type] === 3 ) { // save pointerId if pointerevent
+			this.pointerId = e.pointerId;
+		}
 
 		this._transitionTime();
 
@@ -154,6 +163,11 @@ IScroll.prototype = {
 
 	_move: function (e) {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
+			return;
+		}
+
+		// do not move if pointer changed
+		if ( utils.eventType[e.type] === 3 && this.pointerId !== e.pointerId ) {
 			return;
 		}
 
@@ -252,6 +266,15 @@ IScroll.prototype = {
 	_end: function (e) {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
+		}
+
+		// do not move if pointer changed
+		if ( utils.eventType[e.type] === 3 && this.pointerId !== e.pointerId ) {
+			return;
+		}
+
+		if ( this.pointerId ) {
+			this.pointerId = null;	
 		}
 
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
