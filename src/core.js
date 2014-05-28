@@ -114,7 +114,7 @@ IScroll.prototype = {
 		}
 
 		// another pointer controls the panel
-		if ( utils.eventType[e.type] === 3 && this.pointerId !== e.pointerId) {
+		if ( utils.eventType[e.type] === 3 && this.pointerId && this.pointerId !== e.pointerId) {
 			return;
 		}
 
