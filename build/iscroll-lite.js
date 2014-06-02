@@ -1,4 +1,4 @@
-/*! iScroll v5.1.1 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.2 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -47,6 +47,12 @@ var utils = (function () {
 		el.removeEventListener(type, fn, !!capture);
 	};
 
+	me.prefixPointerEvent = function (pointerEvent) {
+		return window.MSPointerEvent ? 
+			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
+			pointerEvent;
+	};
+
 	me.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration) {
 		var distance = current - start,
 			speed = Math.abs(distance) / time,
@@ -80,7 +86,7 @@ var utils = (function () {
 		hasTransform: _transform !== false,
 		hasPerspective: _prefixStyle('perspective') in _elementStyle,
 		hasTouch: 'ontouchstart' in window,
-		hasPointer: navigator.msPointerEnabled,
+		hasPointer: window.PointerEvent || window.MSPointerEvent, // IE10 is prefixed
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
@@ -154,6 +160,10 @@ var utils = (function () {
 		mousedown: 2,
 		mousemove: 2,
 		mouseup: 2,
+
+		pointerdown: 3,
+		pointermove: 3,
+		pointerup: 3,
 
 		MSPointerDown: 3,
 		MSPointerMove: 3,
@@ -310,7 +320,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.1.1',
+	version: '5.1.2',
 
 	_init: function () {
 		this._initEvents();
@@ -800,10 +810,10 @@ IScroll.prototype = {
 		}
 
 		if ( utils.hasPointer && !this.options.disablePointer ) {
-			eventType(this.wrapper, 'MSPointerDown', this);
-			eventType(target, 'MSPointerMove', this);
-			eventType(target, 'MSPointerCancel', this);
-			eventType(target, 'MSPointerUp', this);
+			eventType(this.wrapper, utils.prefixPointerEvent('pointerdown'), this);
+			eventType(target, utils.prefixPointerEvent('pointermove'), this);
+			eventType(target, utils.prefixPointerEvent('pointercancel'), this);
+			eventType(target, utils.prefixPointerEvent('pointerup'), this);
 		}
 
 		if ( utils.hasTouch && !this.options.disableTouch ) {
@@ -875,19 +885,23 @@ IScroll.prototype = {
 	handleEvent: function (e) {
 		switch ( e.type ) {
 			case 'touchstart':
+			case 'pointerdown':
 			case 'MSPointerDown':
 			case 'mousedown':
 				this._start(e);
 				break;
 			case 'touchmove':
+			case 'pointermove':
 			case 'MSPointerMove':
 			case 'mousemove':
 				this._move(e);
 				break;
 			case 'touchend':
+			case 'pointerup':
 			case 'MSPointerUp':
 			case 'mouseup':
 			case 'touchcancel':
+			case 'pointercancel':
 			case 'MSPointerCancel':
 			case 'mousecancel':
 				this._end(e);
