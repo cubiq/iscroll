@@ -73,7 +73,7 @@ Note that iScroll uses `querySelector` not `querySelectorAll`, so only the first
 <div class="tip">
 <p>You don't strictly need to assign the instance to a variable (<code>myScroll</code>), but it is handy to keep a reference to the iScroll.</p>
 
-For example you could later check the <a href="#scroller-info">scroller position</a> or <a href="#destroy">unload unnecessary events</a> when you don't need the iScroll anymore.</p>
+<p>For example you could later check the <a href="#scroller-info">scroller position</a> or <a href="#destroy">unload unnecessary events</a> when you don't need the iScroll anymore.</p>
 </div>
 
 <h2 id="initialization">Initialization</h2>
@@ -126,7 +126,7 @@ The example above turns on mouse wheel support and scrollbars.
 
 After initialization you can access the *normalized* values from the `options` object. Eg:
 
-    console.log(myScroll.options);
+    console.dir(myScroll.options);
 
 The above will return the configuration the `myScroll` instance will run on. By *normalized* I mean that if you set `useTransform:true` (for example) but the browser doesn't support CSS transforms, `useTransform` will be `false`.
 
