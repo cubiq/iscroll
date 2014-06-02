@@ -151,5 +151,12 @@ function build (release) {
 	// Write dist file
 	var distFile = buildFile.replace('/build/', '/dist/').replace('.js', '-min.js');
 	out = uglify.minify(out, { fromString: true });
+
+	// Make sure dist folder exists
+	if ( !fs.existsSync('dist') ) {
+		fs.mkdirSync('dist');
+	}
+
+	// Write files to target
 	fs.writeFileSync(distFile, banner + out.code);
 }
