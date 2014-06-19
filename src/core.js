@@ -258,7 +258,7 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 
-		if( e.touches && e.changedTouches && e.touches.length + e.changedTouches.length > 1){
+		if ( e.touches && e.changedTouches && e.touches.length + e.changedTouches.length > 1 ) {
 			return;
 		}
 
@@ -295,7 +295,9 @@ IScroll.prototype = {
 			}
 
 			this._execEvent('scrollCancel');
-			return;
+			if ( !this.options.snap ) {
+				return;
+			}
 		}
 
 		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {

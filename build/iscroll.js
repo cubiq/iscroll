@@ -569,7 +569,10 @@ IScroll.prototype = {
 			}
 
 			this._execEvent('scrollCancel');
-			return;
+
+			if( !this.options.snap ){
+				return;
+			}
 		}
 
 		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
