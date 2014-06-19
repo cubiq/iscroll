@@ -532,6 +532,10 @@ IScroll.prototype = {
 			e.preventDefault();
 		}
 
+		if( e.touches && e.changedTouches && e.touches.length + e.changedTouches.length > 1){
+			return;
+		}
+
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
 			momentumY,
