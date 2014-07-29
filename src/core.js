@@ -19,6 +19,7 @@ function IScroll (el, options) {
 		bounceEasing: '',
 
 		preventDefault: true,
+		preventDefaultOnMove: true,
 		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
 
 		HWCompositing: true,
@@ -157,7 +158,7 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
+		if ( this.options.preventDefault || this.options.preventDefaultOnMove ) {	// increases performance on Android? TODO: check!
 			e.preventDefault();
 		}
 
