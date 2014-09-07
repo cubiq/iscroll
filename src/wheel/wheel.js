@@ -91,7 +91,7 @@
 			newY = this.maxScrollY;
 		}
 
-		if( newY !== 0 && newY !== this.maxScrollY){
+		if( newY > 0 && newY < this.maxScrollY){
 			e.preventDefault();
 		}
 
