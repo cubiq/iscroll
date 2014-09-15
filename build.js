@@ -41,6 +41,14 @@ var releases = {
 		postProcessing: [ 'indicator/build.json', 'wheel/build.json', 'snap/build.json', 'keys/build.json', 'probe/build.json' ]
 	},
 
+	"probe-lite": {
+		files: [
+			'probe/_animate.js',
+			'default/handleEvent.js'
+		],
+		postProcessing: [ 'probe/build.json' ]
+	},
+
 	zoom: {
 		files: [
 			'indicator/_initIndicators.js',
