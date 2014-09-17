@@ -9,6 +9,52 @@
 <script type="text/javascript" src="../../build/iscroll-infinite.js"></script>
 
 <script type="text/javascript">
+/******************************************************************************
+ *
+ * For the sake of keeping the script dependecy free I'm including a custom
+ * AJAX function. You should probably use a third party plugin
+ *
+ */
+function ajax (url, parms) {
+	parms = parms || {};
+	var req = new XMLHttpRequest(),
+		post = parms.post || null,
+		callback = parms.callback || null,
+		timeout = parms.timeout || null;
+
+	req.onreadystatechange = function () {
+		if ( req.readyState != 4 ) return;
+
+		// Error
+		if ( req.status != 200 && req.status != 304 ) {
+			if ( callback ) callback(false);
+			return;
+		}
+
+		if ( callback ) callback(req.responseText);
+	};
+
+	if ( post ) {
+		req.open('POST', url, true);
+		req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	} else {
+		req.open('GET', url, true);
+	}
+
+	req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+	req.send(post);
+
+	if ( timeout ) {
+		setTimeout(function () {
+			req.onreadystatechange = function () {};
+			req.abort();
+			if ( callback ) callback(false);
+		}, timeout);
+	}
+}
+/*
+ *****************************************************************************/
 
 var myScroll;
 
@@ -26,15 +72,12 @@ function loaded () {
 }
 
 function requestData (start, count) {
-	// this could be an ajax request
-	setTimeout(function () {
-		start = start || 0;
-		count = Math.min(count || 100, 2000);
-		data = Array.apply(null, Array(count)).map(function (_, i) {
-			return start + i;
-		});
-		myScroll.updateCache(start, data);
-	}, 200);
+	ajax('../infinite/dataset.php?start=' + +start + '&count=' + +count, {
+		callback: function (data) {
+			data = JSON.parse(data);
+			myScroll.updateCache(start, data);
+		}
+	});
 }
 
 function updateContent (el, data) {
