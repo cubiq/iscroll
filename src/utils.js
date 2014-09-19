@@ -88,9 +88,9 @@ var utils = (function () {
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
-	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
-
+	// This should find all Android browsers lower than build 534.30 (both stock browser and webview)
+	var _ver = window.navigator.appVersion;
+	me.isBadAndroid = /Android /.test(_ver) && ((_ver = _ver.match(/AppleWebKit\/(\d+\.\d+)/)) && _ver[1] < 534.30);
 	me.extend(me.style = {}, {
 		transform: _transform,
 		transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
