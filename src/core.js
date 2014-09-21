@@ -6,7 +6,7 @@ function IScroll (el, options) {
 
 	this.options = {
 
-// INSERT POINT: OPTIONS 
+// INSERT POINT: OPTIONS
 
 		startX: 0,
 		startY: 0,
@@ -57,7 +57,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this.directionX = 0;
@@ -294,7 +294,9 @@ IScroll.prototype = {
 			return;
 		}
 
-		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
+		var flickThresholdX = this.options.snap && this.snapThresholdX ? this.snapThresholdX : 100;
+		var flickThresholdY = this.options.snap && this.snapThresholdY ? this.snapThresholdY : 100;
+		if ( this._events.flick && duration < 200 && distanceX < flickThresholdX && distanceY < flickThresholdY ) {
 			this._execEvent('flick');
 			return;
 		}
