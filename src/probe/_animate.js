@@ -40,6 +40,6 @@
 			}
 		}
 
-		this.isAnimating = true;
+		this.isAnimating = animationId;
 		step(animationId);
 	},
