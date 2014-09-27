@@ -753,6 +753,8 @@ IScroll.prototype = {
 
 		this.isInTransition = this.options.useTransition && time > 0;
 
+		this._execEvent('scrollStart');
+
 		if ( !time || (this.options.useTransition && easing.style) ) {
 			this._transitionTimingFunction(easing.style);
 			this._transitionTime(time);
