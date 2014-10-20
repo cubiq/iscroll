@@ -497,6 +497,8 @@ IScroll.prototype = {
 			this._execEvent('scrollStart');
 		}
 
+		this._execEvent('scrollMove');
+
 		this.moved = true;
 
 		this._translate(newX, newY);
@@ -521,6 +523,8 @@ IScroll.prototype = {
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
+		
+		this._execEvent('scrollRelease');
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
