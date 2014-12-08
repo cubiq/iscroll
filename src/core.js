@@ -287,7 +287,9 @@ IScroll.prototype = {
 			}
 
 			if ( this.options.click ) {
-				utils.click(e);
+			        if(this.endTime - this.startTime > 100) {
+			            utils.click(e);
+			        }
 			}
 
 			this._execEvent('scrollCancel');
