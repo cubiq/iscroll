@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -1035,7 +1035,6 @@ IScroll.prototype = {
 			return;
 		}
 
-		e.preventDefault();
 		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
@@ -1103,6 +1102,16 @@ IScroll.prototype = {
 
 		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
 		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+		if (
+			!this.options.releaseScroll ||
+			(
+				(this.hasVerticalScroll && newY < 0 && newY > this.maxScrollY) ||
+				(this.hasHorizontalScroll && newX < 0 && newX > this.maxScrollX)
+			)
+		) {
+			e.preventDefault();
+		}
 
 		if ( newX > 0 ) {
 			newX = 0;

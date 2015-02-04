@@ -16,7 +16,6 @@
 			return;
 		}
 
-		e.preventDefault();
 		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
@@ -84,6 +83,16 @@
 
 		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
 		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+		if (
+			!this.options.releaseScroll ||
+			(
+				(this.hasVerticalScroll && newY < 0 && newY > this.maxScrollY) ||
+				(this.hasHorizontalScroll && newX < 0 && newX > this.maxScrollX)
+			)
+		) {
+			e.preventDefault();
+		}
 
 		if ( newX > 0 ) {
 			newX = 0;
