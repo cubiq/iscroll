@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -218,7 +218,7 @@ var utils = (function () {
 		}
 	});
 
-	me.tap = function (e, eventName) {
+	me.tap = me.press = function (e, eventName) {
 		var ev = document.createEvent('Event');
 		ev.initEvent(eventName, true, true);
 		ev.pageX = e.pageX;
@@ -300,6 +300,10 @@ function IScroll (el, options) {
 	if ( this.options.tap === true ) {
 		this.options.tap = 'tap';
 	}
+
+    if ( this.options.press === true ) {
+      this.options.press = 'press';
+    }
 
 // INSERT POINT: NORMALIZATION
 
@@ -528,9 +532,13 @@ IScroll.prototype = {
 
 		// we scrolled less than 10 pixels
 		if ( !this.moved ) {
-			if ( this.options.tap ) {
+			if ( this.options.tap && duration < 500) {
 				utils.tap(e, this.options.tap);
 			}
+
+          if ( this.options.press && duration >= 500) {
+            utils.press(e, this.options.press);
+          }
 
 			if ( this.options.click ) {
 				utils.click(e);
