@@ -24,6 +24,19 @@
 
 				return;
 			}
+      
+          offsetY = that.y - lastY;
+          offsetX = that.x - lastX;
+
+          if (offsetX) {
+            startX += offsetX;
+            destX += offsetX;
+          }
+
+          if (offsetY) {
+            startY += offsetX;
+            destY += offsetX;
+          }
 
           offsetY = that.y - lastY;
           offsetX = that.x - lastX;
