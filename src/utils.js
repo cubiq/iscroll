@@ -216,7 +216,7 @@ var utils = (function () {
 		}
 	});
 
-	me.tap = function (e, eventName) {
+	me.tap = me.press = function (e, eventName) {
 		var ev = document.createEvent('Event');
 		ev.initEvent(eventName, true, true);
 		ev.pageX = e.pageX;

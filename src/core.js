@@ -55,6 +55,10 @@ function IScroll (el, options) {
 		this.options.tap = 'tap';
 	}
 
+    if ( this.options.press === true ) {
+      this.options.press = 'press';
+    }
+
 // INSERT POINT: NORMALIZATION
 
 	// Some defaults	
@@ -282,9 +286,13 @@ IScroll.prototype = {
 
 		// we scrolled less than 10 pixels
 		if ( !this.moved ) {
-			if ( this.options.tap ) {
+			if ( this.options.tap && duration < 500) {
 				utils.tap(e, this.options.tap);
 			}
+
+          if ( this.options.press && duration >= 500) {
+            utils.press(e, this.options.press);
+          }
 
 			if ( this.options.click ) {
 				utils.click(e);
