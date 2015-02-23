@@ -3,12 +3,15 @@
 		var that = this,
 			startX = this.x,
 			startY = this.y,
+          lastX = startX,
+          lastY = startY,
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
 
 		function step () {
 			var now = utils.getTime(),
 				newX, newY,
+             offsetX, offsetY,
 				easing;
 
 			if ( now >= destTime ) {
@@ -21,6 +24,19 @@
 
 				return;
 			}
+      
+          offsetY = that.y - lastY;
+          offsetX = that.x - lastX;
+
+          if (offsetX) {
+            startX += offsetX;
+            destX += offsetX;
+          }
+
+          if (offsetY) {
+            startY += offsetX;
+            destY += offsetX;
+          }
 
 			now = ( now - startTime ) / duration;
 			easing = easingFn(now);
