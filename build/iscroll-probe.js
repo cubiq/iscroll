@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -1508,12 +1508,15 @@ IScroll.prototype = {
 		var that = this,
 			startX = this.x,
 			startY = this.y,
+          lastX = startX,
+          lastY = startY,
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
 
 		function step () {
 			var now = utils.getTime(),
 				newX, newY,
+             offsetX, offsetY,
 				easing;
 
 			if ( now >= destTime ) {
@@ -1526,11 +1529,37 @@ IScroll.prototype = {
 
 				return;
 			}
+      
+          offsetY = that.y - lastY;
+          offsetX = that.x - lastX;
+
+          if (offsetX) {
+            startX += offsetX;
+            destX += offsetX;
+          }
+
+          if (offsetY) {
+            startY += offsetY;
+            destY += offsetY;
+          }
+
+          offsetY = that.y - lastY;
+          offsetX = that.x - lastX;
+
+          if (offsetX) {
+            startX += offsetX;
+            destX += offsetX;
+          }
+
+          if (offsetY) {
+            startY += offsetY;
+            destY += offsetY;
+          }
 
 			now = ( now - startTime ) / duration;
 			easing = easingFn(now);
-			newX = ( destX - startX ) * easing + startX;
-			newY = ( destY - startY ) * easing + startY;
+			newX = lastX = ( destX - startX ) * easing + startX;
+			newY = lastY = ( destY - startY ) * easing + startY;
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
