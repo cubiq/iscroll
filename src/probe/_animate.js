@@ -34,8 +34,8 @@
           }
 
           if (offsetY) {
-            startY += offsetX;
-            destY += offsetX;
+            startY += offsetY;
+            destY += offsetY;
           }
 
           offsetY = that.y - lastY;
