@@ -1543,10 +1543,23 @@ IScroll.prototype = {
             destY += offsetX;
           }
 
+          offsetY = that.y - lastY;
+          offsetX = that.x - lastX;
+
+          if (offsetX) {
+            startX += offsetX;
+            destX += offsetX;
+          }
+
+          if (offsetY) {
+            startY += offsetY;
+            destY += offsetY;
+          }
+
 			now = ( now - startTime ) / duration;
 			easing = easingFn(now);
-			newX = ( destX - startX ) * easing + startX;
-			newY = ( destY - startY ) * easing + startY;
+			newX = lastX = ( destX - startX ) * easing + startX;
+			newY = lastY = ( destY - startY ) * easing + startY;
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
