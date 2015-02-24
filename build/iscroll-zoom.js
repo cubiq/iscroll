@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -228,12 +228,13 @@ var utils = (function () {
 
 	me.click = function (e) {
 		var target = e.target,
+            point = utils.hasTouch ? e.changedTouches[ 0 ] : e,
 			ev;
 
 		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
-				target.screenX, target.screenY, target.clientX, target.clientY,
+                point.screenX, point.screenY, point.clientX, point.clientY,
 				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
 				0, null);
 

@@ -226,12 +226,13 @@ var utils = (function () {
 
 	me.click = function (e) {
 		var target = e.target,
+            point = utils.hasTouch ? e.changedTouches[ 0 ] : e,
 			ev;
 
 		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
-				target.screenX, target.screenY, target.clientX, target.clientY,
+                point.screenX, point.screenY, point.clientX, point.clientY,
 				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
 				0, null);
 
