@@ -258,6 +258,8 @@ function IScroll (el, options) {
 
 		snapThreshold: 0.334,
 
+		killFlicker: false,
+
 // INSERT POINT: OPTIONS 
 
 		startX: 0,
@@ -321,6 +323,7 @@ function IScroll (el, options) {
 	this.directionX = 0;
 	this.directionY = 0;
 	this._events = {};
+	this.flickRange = this.options.killFlicker ? 500 : 1000; //500 for iPhone4 1000 for IPHONE5 & 6
 
 // INSERT POINT: DEFAULTS
 
@@ -329,6 +332,7 @@ function IScroll (el, options) {
 
 	this.scrollTo(this.options.startX, this.options.startY);
 	this.enable();
+	
 }
 
 IScroll.prototype = {
@@ -607,6 +611,24 @@ IScroll.prototype = {
 			if ( newX > 0 || newX < this.maxScrollX || newY > 0 || newY < this.maxScrollY ) {
 				easing = utils.ease.quadratic;
 			}
+
+
+			/* Prevent Flicker */
+			if(this.options.killFlicker){
+
+				var distanceToGo = Math.abs(newY-this.y);
+
+				if (distanceToGo > this.flickRange ) {
+					// check direction
+					if ( this.directionY > 0 ) {	
+						newY = this.y - this.flickRange;
+					}else{
+						newY = this.y + this.flickRange;
+					}
+				}
+			}			
+			/* Prevent Flicker */
+
 
 			this.scrollTo(newX, newY, time, easing);
 			return;
