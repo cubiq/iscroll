@@ -1116,7 +1116,7 @@ IScroll.prototype = {
 			newY = this.maxScrollY;
 		}
 
-		this.scrollTo(newX, newY, this.options.mouseWheelDuration || 0, this.options.mouseWheelEase || undefined);
+		this.scrollTo(newX, newY, this.options.mouseWheelDuration || 0, this.options.mouseWheelEase);
 
 // INSERT POINT: _wheel
 	},
@@ -1762,7 +1762,8 @@ Indicator.prototype = {
 		newX = this.x + deltaX;
 		newY = this.y + deltaY;
 
-		this._pos(newX, newY);
+		// this._pos(newX, newY);
+		this.scroller.scrollTo(newX, newY, this.scroller.options.scrollbarDuration || 0, this.scroller.options.scrollbarEase);
 
 // INSERT POINT: indicator._move
 
