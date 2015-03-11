@@ -97,7 +97,7 @@
 			newY = this.maxScrollY;
 		}
 
-		this.scrollTo(newX, newY, 0);
+		this.scrollTo(newX, newY, this.options.mouseWheelDuration || 0, this.options.mouseWheelEase);
 
 // INSERT POINT: _wheel
 	},
