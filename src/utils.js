@@ -46,7 +46,7 @@ var utils = (function () {
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
-		return window.MSPointerEvent ? 
+		return window.MSPointerEvent ?
 			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
 			pointerEvent;
 	};
@@ -217,10 +217,11 @@ var utils = (function () {
 	});
 
 	me.tap = function (e, eventName) {
-		var ev = document.createEvent('Event');
+		var ev = document.createEvent('Event'),
+			point = e.changedTouches ? e.changedTouches[0] : e;
 		ev.initEvent(eventName, true, true);
-		ev.pageX = e.pageX;
-		ev.pageY = e.pageY;
+		ev.pageX = point.pageX;
+		ev.pageY = point.pageY;
 		e.target.dispatchEvent(ev);
 	};
 
