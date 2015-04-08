@@ -6,7 +6,7 @@ function IScroll (el, options) {
 
 	this.options = {
 
-// INSERT POINT: OPTIONS 
+// INSERT POINT: OPTIONS
 
 		startX: 0,
 		startY: 0,
@@ -57,7 +57,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this.directionX = 0;
@@ -424,6 +424,10 @@ IScroll.prototype = {
 		if ( !this._events[type] ) {
 			return;
 		}
+
+    if ( !fn ) {
+      return this._events[type] = [];
+    }
 
 		var index = this._events[type].indexOf(fn);
 
