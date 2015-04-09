@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -1427,7 +1427,7 @@ IScroll.prototype = {
 			newY = snap ? this.currentPage.pageY : this.y,
 			now = utils.getTime(),
 			prevTime = this.keyTime || 0,
-			acceleration = 0.250,
+			acceleration = typeof this.options.acceleration === 'number' ? this.options.acceleration : 0.250,
 			pos;
 
 		if ( this.options.useTransition && this.isInTransition ) {
