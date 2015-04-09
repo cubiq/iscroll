@@ -45,7 +45,7 @@
 			newY = snap ? this.currentPage.pageY : this.y,
 			now = utils.getTime(),
 			prevTime = this.keyTime || 0,
-			acceleration = 0.250,
+			acceleration = typeof this.options.acceleration === 'number' ? this.options.acceleration : 0.250,
 			pos;
 
 		if ( this.options.useTransition && this.isInTransition ) {
