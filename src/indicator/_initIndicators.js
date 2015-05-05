@@ -56,8 +56,9 @@
 
 		// TODO: check if we can use array.map (wide compatibility and performance issues)
 		function _indicatorsMap (fn) {
-			for ( var i = that.indicators.length; i--; ) {
-				fn.call(that.indicators[i]);
+			var indicators = that.indicators || [];
+			for ( var i = indicators.length; i--; ) {
+				fn.call(indicators[i]);
 			}
 		}
 
