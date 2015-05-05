@@ -618,6 +618,19 @@ This value can be altered to change the momentum animation duration/speed. Highe
 
 Default: `0.0006`
 
+
+### <small>options.</small>maxSpeedX
+
+Limit the maximum horizontal scroll speed. Set this to a value between 1 and 3 to avoid insane scroll speeds.
+
+Default: `null`
+
+### <small>options.</small>maxSpeedY
+
+Limit the maximum vertical scroll speed. Set this to a value between 1 and 3 to avoid insane scroll speeds.
+
+Default: `null`
+
 ### <small>options.</small>mouseWheelSpeed
 
 Set the speed of the mouse wheel.
