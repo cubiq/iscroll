@@ -62,9 +62,13 @@ function loaded () {
 	myScroll = new IScroll('#wrapper', {
 		mouseWheel: true,
 		infiniteElements: '#scroller .row',
+		// You can set a fixed row limit here. If you don't, the limit is reached
+		// when no further data is available for scrolling.
 		//infiniteLimit: 2000,
 		dataset: requestData,
 		dataFiller: updateContent,
+		// Remember: This should be at least 4 times the number of fixed rows
+		// (aka li elements) in your scroller.
 		cacheSize: 1000
 	});
 }
@@ -73,7 +77,8 @@ function requestData (start, count) {
 	ajax('dataset.php?start=' + +start + '&count=' + +count, {
 		callback: function (data) {
 			data = JSON.parse(data);
-			myScroll.updateCache(start, data);
+			// Remember: The server must return an empty array if no further data is available!
+			if(data.length > 0) myScroll.updateCache(start, data);
 		}
 	});
 }
