@@ -681,6 +681,8 @@ To register them you use the `on(type, fn)` method.
 
 The above code executes the `doSomething` function every time the content stops scrolling.
 
+Removing these event listeners is possible by using the `off(type, fn)` method, with the same type and function that where used to register them.
+
 The available types are:
 
 * **beforeScrollStart**, executed as soon as user touches the screen but before the scrolling has initiated.
