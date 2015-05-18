@@ -250,6 +250,10 @@ Indicator.prototype = {
 			this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
 		}
 
+		if(this.options.hideScrollbarWhenNoNeedScroll){
+			this.wrapper.style.display = this.indicatorStyle.display;
+		}
+
 		if ( this.scroller.hasHorizontalScroll && this.scroller.hasVerticalScroll ) {
 			utils.addClass(this.wrapper, 'iScrollBothScrollbars');
 			utils.removeClass(this.wrapper, 'iScrollLoneScrollbar');

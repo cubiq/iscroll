@@ -23,7 +23,9 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+
+		hideScrollbarWhenNoNeedScroll: true //hide whole scrollbar when content was short,no need scrolling
 	};
 
 	for ( var i in options ) {
