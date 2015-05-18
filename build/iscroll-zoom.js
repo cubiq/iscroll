@@ -940,7 +940,8 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
-					listenX: false
+					listenX: false,
+					hideScrollbarWhenNoNeedScroll: this.options.hideScrollbarWhenNoNeedScroll
 				};
 
 				this.wrapper.appendChild(indicator.el);
@@ -957,7 +958,8 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
-					listenY: false
+					listenY: false,
+					hideScrollbarWhenNoNeedScroll: this.options.hideScrollbarWhenNoNeedScroll
 				};
 
 				this.wrapper.appendChild(indicator.el);
