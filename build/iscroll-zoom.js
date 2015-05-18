@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -278,7 +278,9 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+
+		hideScrollbarWhenNoNeedScroll: true //hide whole scrollbar when content was short,no need scrolling
 	};
 
 	for ( var i in options ) {
@@ -2012,6 +2014,10 @@ Indicator.prototype = {
 			this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
 		} else {
 			this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
+		}
+
+		if(this.options.hideScrollbarWhenNoNeedScroll){
+			this.wrapper.style.display = this.indicatorStyle.display;
 		}
 
 		if ( this.scroller.hasHorizontalScroll && this.scroller.hasVerticalScroll ) {
