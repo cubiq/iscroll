@@ -676,8 +676,8 @@ IScroll.prototype = {
 		this.wrapperHeight	= this.wrapper.clientHeight;
 
 /* REPLACE START: refresh */
-	this.scrollerWidth	= Math.round(this.scroller.offsetWidth * this.scale);
-	this.scrollerHeight	= Math.round(this.scroller.offsetHeight * this.scale);
+	this.scrollerWidth	= Math.round(this.scroller.parentNode.offsetWidth * this.scale);
+	this.scrollerHeight	= Math.round(this.scroller.parentNode.offsetHeight * this.scale);
 
 	this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
 	this.maxScrollY		= this.wrapperHeight - this.scrollerHeight;
@@ -839,7 +839,7 @@ IScroll.prototype = {
 	_translate: function (x, y) {
 		if ( this.options.useTransform ) {
 
-/* REPLACE START: _translate */			this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px) scale(' + this.scale + ') ' + this.translateZ;/* REPLACE END: _translate */
+/* REPLACE START: _translate */			this.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px) scale(' + this.scale + ') ';// + this.translateZ;/* REPLACE END: _translate */
 
 		} else {
 			x = Math.round(x);
