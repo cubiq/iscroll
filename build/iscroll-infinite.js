@@ -768,13 +768,24 @@ IScroll.prototype = {
 
 		this.isInTransition = this.options.useTransition && time > 0;
 
-		if ( !time || (this.options.useTransition && easing.style) ) {
-			this._transitionTimingFunction(easing.style);
-			this._transitionTime(time);
-			this._translate(x, y);
-		} else {
-			this._animate(x, y, time, easing.fn);
-		}
+		var scrollable = true;
+            if ( this.infiniteCache ) {
+                var lastKey = null;
+                Object.keys( this.infiniteCache ).forEach( function ( it ) {
+                    lastKey = parseInt( it );
+                } );
+                scrollable  = this.scrollDirection.up ? this.y != 0 : scrollable;
+                scrollable  = this.scrollDirection.down ? this.y + (lastKey * this.infiniteElementHeight - this.wrapperHeight) > 0 : scrollable;
+            }
+            if ( scrollable ) {
+                if ( !time || (this.options.useTransition && easing.style) ) {
+                    this._transitionTimingFunction( easing.style );
+                    this._transitionTime( time );
+                    this._translate( x, y );
+                } else {
+                    this._animate( x, y, time, easing.fn );
+                }
+            }
 	},
 
 	scrollToElement: function (el, time, offsetX, offsetY, easing) {
@@ -1002,6 +1013,11 @@ IScroll.prototype = {
 		} else if ( newY < this.maxScrollY ) {
 			newY = this.maxScrollY;
 		}
+
+                this.scrollDirection = {
+                    up  : wheelDeltaY > 0,
+                    down: wheelDeltaY < 0
+                };
 
 		this.scrollTo(newX, newY, 0);
 
@@ -1432,7 +1448,7 @@ IScroll.prototype = {
 		this.infiniteMaster = this.infiniteElements[0];
 		this.infiniteElementHeight = this.infiniteMaster.offsetHeight;
 		this.infiniteHeight = this.infiniteLength * this.infiniteElementHeight;
-
+		this.scrollDirection = {};
 		this.options.cacheSize = this.options.cacheSize || 1000;
 		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
 
