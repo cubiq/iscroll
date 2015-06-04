@@ -1,5 +1,6 @@
 
 	handleEvent: function (e) {
+		e = e || window.event;
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'pointerdown':
@@ -43,8 +44,8 @@
 				break;
 			case 'click':
 				if ( !e._constructed ) {
-					e.preventDefault();
-					e.stopPropagation();
+					utils.preventDefault(e);
+					utils.stopPropagation(e);
 				}
 				break;
 		}

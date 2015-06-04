@@ -5,7 +5,7 @@ function createDefaultScrollbar (direction, interactive, type) {
 
 	if ( type === true ) {
 		scrollbar.style.cssText = 'position:absolute;z-index:9999';
-		indicator.style.cssText = '-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:absolute;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.9);border-radius:3px';
+		indicator.style.cssText = '-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:absolute;background: #7f7f7f;background:rgba(0,0,0,0.5);border: 1px solid #fafafa;border:1px solid rgba(255,255,255,0.9);border-radius:3px';
 	}
 
 	indicator.className = 'iScrollIndicator';
@@ -87,6 +87,8 @@ function Indicator (scroller, options) {
 
 Indicator.prototype = {
 	handleEvent: function (e) {
+		e = e || window.event;
+
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'pointerdown':
@@ -136,8 +138,8 @@ Indicator.prototype = {
 	_start: function (e) {
 		var point = e.touches ? e.touches[0] : e;
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 
 		this.transitionTime();
 
@@ -186,8 +188,8 @@ Indicator.prototype = {
 
 // INSERT POINT: indicator._move
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 	},
 
 	_end: function (e) {
@@ -197,8 +199,8 @@ Indicator.prototype = {
 
 		this.initiated = false;
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 
 		utils.removeEvent(window, 'touchmove', this);
 		utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
@@ -295,7 +297,7 @@ Indicator.prototype = {
 				this.maxBoundaryX = this.maxPosX;
 			}
 
-			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));
 		}
 
 		if ( this.options.listenY ) {
