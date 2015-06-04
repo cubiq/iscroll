@@ -22,7 +22,7 @@
 		}
 
 		if ( this.options.preventDefault ) {
-			e.preventDefault();
+			utils.preventDefault(e);
 		}
 
 		var c1 = Math.abs( e.touches[0].pageX - e.touches[1].pageX ),
@@ -55,7 +55,7 @@
 		}
 
 		if ( this.options.preventDefault ) {
-			e.preventDefault();
+			utils.preventDefault(e);
 		}
 
 		var newX, newY,

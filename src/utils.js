@@ -46,7 +46,7 @@ var utils = (function () {
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
-		return window.MSPointerEvent ? 
+		return window.MSPointerEvent ?
 			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
 			pointerEvent;
 	};
@@ -148,6 +148,30 @@ var utils = (function () {
 		}
 
 		return false;
+	};
+
+	me.preventDefault = function (event) {
+
+		// If preventDefault exists, run it on the original event
+		if ( event.preventDefault ) {
+		    event.preventDefault();
+
+		// Support: IE
+		// Otherwise set the returnValue property of the original event to false
+		} else {
+		    event.returnValue = false;
+		}
+	};
+
+	me.stopPropagation = function (event) {
+		// If stopPropagation exists, run it on the original event
+		if ( event.stopPropagation ) {
+		    event.stopPropagation();
+		}
+
+		// Support: IE
+		// Set the cancelBubble property of the original event to true
+		event.cancelBubble = true;
 	};
 
 	me.extend(me.eventType = {}, {

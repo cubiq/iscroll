@@ -43,8 +43,8 @@
 				break;
 			case 'click':
 				if ( !e._constructed ) {
-					e.preventDefault();
-					e.stopPropagation();
+					utils.preventDefault(e);
+					utils.stopPropagation(e);
 				}
 				break;
 		}

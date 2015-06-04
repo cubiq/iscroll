@@ -136,8 +136,8 @@ Indicator.prototype = {
 	_start: function (e) {
 		var point = e.touches ? e.touches[0] : e;
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 
 		this.transitionTime();
 
@@ -186,8 +186,8 @@ Indicator.prototype = {
 
 // INSERT POINT: indicator._move
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 	},
 
 	_end: function (e) {
@@ -197,8 +197,8 @@ Indicator.prototype = {
 
 		this.initiated = false;
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 
 		utils.removeEvent(window, 'touchmove', this);
 		utils.removeEvent(window, utils.prefixPointerEvent('pointermove'), this);
@@ -295,7 +295,7 @@ Indicator.prototype = {
 				this.maxBoundaryX = this.maxPosX;
 			}
 
-			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));
 		}
 
 		if ( this.options.listenY ) {

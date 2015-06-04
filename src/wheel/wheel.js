@@ -16,8 +16,8 @@
 			return;
 		}
 
-		e.preventDefault();
-		e.stopPropagation();
+		utils.preventDefault(e);
+		utils.stopPropagation(e);
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
