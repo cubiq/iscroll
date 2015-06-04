@@ -87,6 +87,8 @@ function Indicator (scroller, options) {
 
 Indicator.prototype = {
 	handleEvent: function (e) {
+		e = e || window.event;
+
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'pointerdown':
