@@ -1,5 +1,6 @@
 
 	handleEvent: function (e) {
+		e = e || window.event;
 		switch ( e.type ) {
 			case 'touchstart':
 			case 'pointerdown':
