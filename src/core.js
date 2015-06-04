@@ -536,6 +536,13 @@ IScroll.prototype = {
 			y = Math.round(y);
 			this.scrollerStyle.left = x + 'px';
 			this.scrollerStyle.top = y + 'px';
+
+			/**
+			 * if not support transform
+			 * if we want the scroller move by set left and top
+			 * the scroller should be position absolute
+			 */
+			this.scrollerStyle.position = 'absolute';
 		}
 
 		this.x = x;
