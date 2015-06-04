@@ -38,7 +38,31 @@ var utils = (function () {
 	};
 
 	me.addEvent = function (el, type, fn, capture) {
-		el.addEventListener(type, fn, !!capture);
+		if (el.addEventListener) {
+
+		    // BBOS6 doesn't support handleEvent, catch and polyfill
+		    // take code from: http://www.thecssninja.com/javascript/handleevent
+		    try{
+		        el.addEventListener(type, fn, !!capture);
+		    } catch(e) {
+		        if (typeof fn === 'object' && fn.handleEvent) {
+		            el.addEventListener(type, function(e){
+		                // Bind fn as this and set first arg as event object
+		                fn.handleEvent.call(fn, e);
+		            }, !!capture)
+		        }
+		    }
+		} else {
+		    // check if the callback is an object and contains handleEvent
+		    if(typeof fn == "object" && fn.handleEvent) {
+		        el.attachEvent("on" + type, function(){
+		            // Bind fn as this
+		            fn.handleEvent.call(fn);
+		        });
+		    } else {
+		        el.attachEvent("on" + type, fn);
+		    }
+		}
 	};
 
 	me.removeEvent = function (el, type, fn, capture) {
