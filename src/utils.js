@@ -66,7 +66,11 @@ var utils = (function () {
 	};
 
 	me.removeEvent = function (el, type, fn, capture) {
-		el.removeEventListener(type, fn, !!capture);
+		if (el.removeEventListener) {
+			el.removeEventListener(type, fn, !!capture);
+		} else {
+			el.detachEvent('on'+type, fn);
+		}
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
