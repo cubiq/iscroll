@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -258,7 +258,7 @@ function IScroll (el, options) {
 
 		snapThreshold: 0.334,
 
-// INSERT POINT: OPTIONS 
+// INSERT POINT: OPTIONS
 
 		startX: 0,
 		startY: 0,
@@ -315,7 +315,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this.directionX = 0;
@@ -794,6 +794,9 @@ IScroll.prototype = {
 	},
 
 	_transitionTime: function (time) {
+		if(!this.options.useTransition) {
+			return;
+		}
 		time = time || 0;
 
 		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
