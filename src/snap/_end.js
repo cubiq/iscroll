@@ -1,4 +1,3 @@
-
 		if ( this.options.snap ) {
 			var snap = this._nearestSnap(newX, newY);
 			this.currentPage = snap;
