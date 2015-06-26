@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -601,6 +601,8 @@ IScroll.prototype = {
 		if ( x == this.x && y == this.y ) {
 			return false;
 		}
+
+// INSERT POINT: _reset
 
 		this.scrollTo(x, y, time, this.options.bounceEasing);
 

@@ -356,6 +356,8 @@ IScroll.prototype = {
 			return false;
 		}
 
+// INSERT POINT: _reset
+
 		this.scrollTo(x, y, time, this.options.bounceEasing);
 
 		return true;

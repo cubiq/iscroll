@@ -2,6 +2,7 @@
 	"insert": {
 		"OPTIONS": "\t\tsnapThreshold: 0.334,",
 		"_end": "snap/_end.js",
+		"_reset": "snap/_reset.js",
 		"refresh": "snap/refresh.js",
 		"_init": "\t\tif ( this.options.snap ) {\n\t\t\tthis._initSnap();\n\t\t}"
 	}
