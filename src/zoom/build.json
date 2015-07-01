@@ -6,6 +6,7 @@
 	},
 	"replace": {
 		"refresh": "zoom/refresh.js",
+		"scrollToElement": "zoom/scrollToElement.js",
 		"_translate": "\t\t\tthis.scrollerStyle[utils.style.transform] = 'translate(' + x + 'px,' + y + 'px) scale(' + this.scale + ') ' + this.translateZ;"
 	}
 }

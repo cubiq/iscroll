@@ -1,0 +1,1 @@
+this.scrollTo(pos.left * this.scale, pos.top * this.scale, time, easing);
