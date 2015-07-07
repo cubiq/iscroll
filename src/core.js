@@ -250,7 +250,7 @@ IScroll.prototype = {
 	},
 
 	_end: function (e) {
-		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
+		if ( !this.enabled || utils.eventType[e.type] !== this.initiated || this.isInTransition ) {
 			return;
 		}
 
@@ -460,9 +460,10 @@ IScroll.prototype = {
 	scrollTo: function (x, y, time, easing) {
 		easing = easing || utils.ease.circular;
 
-		this.isInTransition = this.options.useTransition && time > 0;
-
-		if ( !time || (this.options.useTransition && easing.style) ) {
+		if (!time) {
+			this._translate(x, y);
+		} else if (this.options.useTransition && easing.style) {
+			this.isInTransition = true;
 			this._transitionTimingFunction(easing.style);
 			this._transitionTime(time);
 			this._translate(x, y);
