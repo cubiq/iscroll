@@ -27,6 +27,9 @@
 			case 'resize':
 				this._resize();
 				break;
+			case 'scroll':
+          			this._preventWrraperScroll(e);
+          			break;
 			case 'transitionend':
 			case 'webkitTransitionEnd':
 			case 'oTransitionEnd':

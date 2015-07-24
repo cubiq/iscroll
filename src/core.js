@@ -20,6 +20,7 @@ function IScroll (el, options) {
 
 		preventDefault: true,
 		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
+		preventWrapperScroll: false,
 
 		HWCompositing: true,
 		useTransition: true,
@@ -551,6 +552,10 @@ IScroll.prototype = {
 
 		eventType(window, 'orientationchange', this);
 		eventType(window, 'resize', this);
+		
+		if (this.options.preventWrapperScroll) {
+        		eventType(this.wrapper, 'scroll', this);
+      		}
 
 		if ( this.options.click ) {
 			eventType(this.wrapper, 'click', this, true);
@@ -597,4 +602,19 @@ IScroll.prototype = {
 		}
 
 		return { x: x, y: y };
+	},
+	_preventWrraperScroll: function (e) {
+      		var delta = this.wrapper.scrollTop;
+      		if (delta > 0) {
+        		var that = this;
+        		this.wrapper.scrollTop = 0;
+        		setTimeout(function (delta) {
+          			that.scrollBy(0, -delta);
+          			
+          			// Force reflow and repaint
+          			that.wrapper.style.display = 'none';
+          			var rf = that.wrapper.offsetHeight;		
+          			that.wrapper.style.display = '';
+        		}, 0, delta);
+      		}
 	},
