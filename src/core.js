@@ -20,6 +20,7 @@ function IScroll (el, options) {
 
 		preventDefault: true,
 		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
+		preventWrapperScroll: false,
 
 		HWCompositing: true,
 		useTransition: true,
@@ -551,6 +552,10 @@ IScroll.prototype = {
 
 		eventType(window, 'orientationchange', this);
 		eventType(window, 'resize', this);
+		
+		if (this.options.preventWrapperScroll) {
+        		eventType(this.wrapper, 'scroll', this);
+      		}
 
 		if ( this.options.click ) {
 			eventType(this.wrapper, 'click', this, true);
