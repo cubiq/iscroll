@@ -504,7 +504,9 @@ IScroll.prototype = {
 
 	_transitionTime: function (time) {
 		time = time || 0;
-
+		if(!this.options.useTransition) {
+			return;
+		}
 		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
