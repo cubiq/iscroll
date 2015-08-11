@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -371,7 +371,7 @@ IScroll.prototype = {
 		this._transitionTime();
 		if ( !this.resetPosition(this.options.bounceTime) ) {
 			this.isInTransition = false;
-			this._execEvent('scrollEnd');
+			this._execEvent('scrollEnd', e);
 		}
 	},
 
@@ -410,10 +410,10 @@ IScroll.prototype = {
 			this.isInTransition = false;
 			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
-			this._execEvent('scrollEnd');
+			this._execEvent('scrollEnd', e);
 		} else if ( !this.options.useTransition && this.isAnimating ) {
 			this.isAnimating = false;
-			this._execEvent('scrollEnd');
+			this._execEvent('scrollEnd', e);
 		}
 
 		this.startX    = this.x;
@@ -423,7 +423,7 @@ IScroll.prototype = {
 		this.pointX    = point.pageX;
 		this.pointY    = point.pageY;
 
-		this._execEvent('beforeScrollStart');
+		this._execEvent('beforeScrollStart', e);
 	},
 
 	_move: function (e) {
@@ -504,7 +504,7 @@ IScroll.prototype = {
 		this.directionY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 
 		if ( !this.moved ) {
-			this._execEvent('scrollStart');
+			this._execEvent('scrollStart', e);
 		}
 
 		this.moved = true;
@@ -564,12 +564,12 @@ IScroll.prototype = {
 				utils.click(e);
 			}
 
-			this._execEvent('scrollCancel');
+			this._execEvent('scrollCancel', e);
 			return;
 		}
 
 		if ( this._events.flick && duration < 200 && distanceX < 100 && distanceY < 100 ) {
-			this._execEvent('flick');
+			this._execEvent('flick', e);
 			return;
 		}
 
@@ -612,7 +612,7 @@ IScroll.prototype = {
 			return;
 		}
 
-		this._execEvent('scrollEnd');
+		this._execEvent('scrollEnd', e);
 	},
 
 	_resize: function () {
@@ -913,6 +913,7 @@ IScroll.prototype = {
 
 		return { x: x, y: y };
 	},
+
 
 	_initIndicators: function () {
 		var interactive = this.options.interactiveScrollbars,
