@@ -1,11 +1,12 @@
 /*! iScroll v5.1.1 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
+var noRAF = function (callback) { window.setTimeout(callback, 1000 / 60); };
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
 	window.mozRequestAnimationFrame		||
 	window.oRequestAnimationFrame		||
 	window.msRequestAnimat_ionFrame		||
-	function (callback) { window.setTimeout(callback, 1000 / 60); };
+	noRAF
 
 var utils = (function () {
 	var me = {};
@@ -256,6 +257,8 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		
+		rAF: true,
 
 		bounce: true,
 		bounceTime: 600,
@@ -1492,7 +1495,9 @@ IScroll.prototype = {
 			startY = this.y,
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
-
+			
+		var rAFf = this.options.rAF ? rAF : noRAF		
+			
 		function step () {
 			var now = utils.getTime(),
 				newX, newY,
@@ -1516,7 +1521,7 @@ IScroll.prototype = {
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
-				rAF(step);
+				rAFf(step);
 			}
 		}
 
