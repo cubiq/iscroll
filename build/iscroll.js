@@ -7,6 +7,13 @@ var rAF = window.requestAnimationFrame	||
 	window.msRequestAnimationFrame		||
 	function (callback) { return window.setTimeout(callback, 1000 / 60); };
 
+var cAF = window.cancelAnimationFrame	||
+	window.webkitCancelAnimationFrame	||
+	window.mozCancelAnimationFrame		||
+	window.oCancelAnimationFrame		||
+	window.msCancelAnimationFrame		||
+	function (id) { clearTimeout(id); };
+
 var utils = (function () {
 	var me = {};
 
@@ -1498,10 +1505,8 @@ IScroll.prototype = {
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
 
-			if (window.cancelAnimationFrame) {
-				cancelAnimationFrame(that._animateTimeout); 
-			} else {
-				clearTimeout(that._animateTimeout);
+			if (that._animateTimeout)	{
+				cAF(that._animateTimeout);
 			}
 
 		function step () {
