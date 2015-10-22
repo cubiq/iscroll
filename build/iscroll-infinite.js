@@ -1003,7 +1003,7 @@ IScroll.prototype = {
 			newY = this.maxScrollY;
 		}
 
-		this.scrollTo(newX, newY, 0);
+		this.scrollTo(newX, newY, (this.options.mouseWheelAnimationDuration || 0));
 
 		if ( this.options.probeType > 1 ) {
 			this._execEvent('scroll');
