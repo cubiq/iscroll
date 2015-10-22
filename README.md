@@ -624,6 +624,12 @@ Set the speed of the mouse wheel.
 
 Default: `20`
 
+### <small>options.</small>mouseWheelAnimationDuration
+
+Set the duration of the mouse wheel scroll animation.
+
+Default: `0`
+
 ### <small>options.</small>preventDefaultException
 
 These are all the exceptions when `preventDefault()` would be fired anyway despite the **preventDefault** option value.
