@@ -35,17 +35,19 @@
 		}, 400);
 
 		if ( 'deltaX' in e ) {
-			if (e.deltaMode === 1) {
+			if (e.deltaMode === 1) { // scrolling by lines (Firefox mostly)
 				wheelDeltaX = -e.deltaX * this.options.mouseWheelSpeed;
 				wheelDeltaY = -e.deltaY * this.options.mouseWheelSpeed;
-			} else {
-				wheelDeltaX = -e.deltaX;
-				wheelDeltaY = -e.deltaY;
+			} else { // scrolling by pixels (WebKit/Blink)
+				// use offset defined by `mouseWheelSpeed` instead of number of pixels
+				// returned by the browser
+				wheelDeltaX = -Math.ceil(e.deltaX / Math.abs(e.deltaX)) * this.options.mouseWheelSpeed;
+				wheelDeltaY = -Math.ceil(e.deltaY / Math.abs(e.deltaY)) * this.options.mouseWheelSpeed;
 			}
 		} else if ( 'wheelDeltaX' in e ) {
 			wheelDeltaX = e.wheelDeltaX / 120 * this.options.mouseWheelSpeed;
 			wheelDeltaY = e.wheelDeltaY / 120 * this.options.mouseWheelSpeed;
-		} else if ( 'wheelDelta' in e ) {
+		} else if ( 'wheelDelta' in e ) { // IE? it seems to work this way in IE 11
 			wheelDeltaX = wheelDeltaY = e.wheelDelta / 120 * this.options.mouseWheelSpeed;
 		} else if ( 'detail' in e ) {
 			wheelDeltaX = wheelDeltaY = -e.detail / 3 * this.options.mouseWheelSpeed;
