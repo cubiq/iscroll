@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -1164,8 +1164,9 @@ IScroll.prototype = {
 	},
 
 	_wheelZoom: function (e) {
-		var wheelDeltaY,
+		var deltaY,
 			deltaScale,
+			sign,
 			that = this;
 
 		// Execute the zoomEnd event after 400ms the wheel stopped scrolling
@@ -1175,18 +1176,19 @@ IScroll.prototype = {
 		}, 400);
 
 		if ( 'deltaX' in e ) {
-			wheelDeltaY = -e.deltaY / Math.abs(e.deltaY);
+			deltaY = -e.deltaY;
 		} else if ('wheelDeltaX' in e) {
-			wheelDeltaY = e.wheelDeltaY / Math.abs(e.wheelDeltaY);
+			deltaY = e.wheelDeltaY;
 		} else if('wheelDelta' in e) {
-			wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
+			deltaY = e.wheelDelta;
 		} else if ('detail' in e) {
-			wheelDeltaY = -e.detail / Math.abs(e.wheelDelta);
+			deltaY = -e.detail;
 		} else {
 			return;
 		}
 
-		deltaScale = this.scale + wheelDeltaY / 5;
+		sign = deltaY ? deltaY < 0 ? -1 : 1 : 0;
+		deltaScale = this.scale + sign * 1/5;
 
 		this.zoom(deltaScale, e.pageX, e.pageY, 0);
 	},
