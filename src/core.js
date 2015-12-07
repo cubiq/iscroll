@@ -485,13 +485,13 @@ IScroll.prototype = {
 		
         	// set current page to page containing element scrolling to
 		var self = this;
-		this.pages.forEach(function (page, id) {
-			var minWidth = page[0].width * id;
-			var maxWidth = minWidth + page[0].width;
-
-			var minHeight = page[0].height * id;
-			var maxHeight = minHeight + page[0].height;
-
+		for (var i = 0; i < self.pages.length; i++) {
+			var minWidth = self.pages[i][0].width * id;
+			var maxWidth = minWidth + self.pages[i][0].width;
+	
+			var minHeight = self.pages[i][0].height * id;
+			var maxHeight = minHeight + self.pages[i][0].height;
+	
 			if (Math.abs(pos.left) >= minWidth && Math.abs(pos.left) < maxWidth) {
 				self.currentPage.x = minWidth;
 				self.currentPage.pageX = id;
@@ -500,7 +500,7 @@ IScroll.prototype = {
 				self.currentPage.y = minHeight;
 				self.currentPage.pageY = id;
 			}
-		});
+		}
 
 		// if offsetX/Y are true we center the element to the screen
 		if ( offsetX === true ) {
