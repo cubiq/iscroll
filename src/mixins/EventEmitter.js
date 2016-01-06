@@ -1,5 +1,5 @@
 /**
- * This mixins provides methods used for event handling. 
+ * Mixins provides methods used for event handling. 
  *
  */
 
@@ -104,4 +104,13 @@ function off(type, context, cb) {
   }
 }
 
-export { attach, emit, on, off };
+/**
+ * apply
+ * Inherit object with event emitter methods
+ * @param {object}      type - target object
+ */
+export default function (obj) {
+  obj._events = {};        // holds all the Default registered events
+  obj._customEvents = {};  // holds all iScroll specific events
+  Object.assign(obj, { attach, emit, on, off });
+};

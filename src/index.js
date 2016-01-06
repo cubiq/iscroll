@@ -14,9 +14,8 @@ class Iscroll {
     this.state = {};
     this.opts = opts;
 
-    // mixins here
-    Object.assign(this, require('./mixins/EventEmitter.js'));
-
+    // mixins
+    require('./mixins/EventEmitter.js').default(this);
     console.dir(this);
 
     // Devtools
