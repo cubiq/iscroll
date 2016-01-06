@@ -1,3 +1,6 @@
+/*!
+ * iScroll by Matteo "Cubiq" Spinelli ~ http://cubiq.org ~ Released under MIT license
+ */
 'use strict';
 
 class Iscroll {
@@ -11,6 +14,11 @@ class Iscroll {
     this.state = {};
     this.opts = opts;
 
+    // mixins here
+    Object.assign(this, require('./mixins/EventEmitter.js'));
+
+    console.dir(this);
+
     // Devtools
     if (NODE_ENV === 'development') {
       this.state.counter = 1;
@@ -21,6 +29,21 @@ class Iscroll {
       // State diplay panel
       require('./dev/StatePanel.js').default(this);
     }
+  }
+
+  // return all DOM to initial state, clean up
+  destructor() {
+  
+  }
+
+  // force update state
+  update() {
+
+  }
+
+  destroy() {
+    this.destructor();
+    this.off();
   }
 }
 
