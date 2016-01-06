@@ -24,9 +24,9 @@ var nextFrame = function() {
 
 };
 
-describe('Unit test of components', function() {
+describe('Unit test of fps.js', function() {
 
-  describe('fps.js', function() {
+  describe('fps.request', function() {
 
     it('fps.request exists ', function() {
       should.exist(fps.request);
@@ -67,6 +67,9 @@ describe('Unit test of components', function() {
       nextFrame();
       assert.equal(works, false);
     });
+  });
+
+  describe('fps.read', function() {
 
     it('fps.read exists', function() {
       should.exist(fps.read);
@@ -83,6 +86,9 @@ describe('Unit test of components', function() {
       nextFrame();
       assert.equal(works, true);
     });
+  });
+
+  describe('fps.write', function() {
 
     it('fps.write exists', function() {
       should.exist(fps.write);
@@ -129,6 +135,9 @@ describe('Unit test of components', function() {
       nextFrame();
       assert.equal(a.join(), ['1r', '2r', '3r', '1w', '2w', '3w'].join());
     });
+  });
+
+  describe('fps.throttle', function() {
 
     it('fps.throttle exists', function() {
       should.exist(fps.throttle);
