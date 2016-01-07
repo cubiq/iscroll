@@ -44,6 +44,21 @@ function attach(type, cb) {
 }
 
 /**
+ * attach
+ * Attach a custom event
+ * @param {String}  type
+ * @param {Function}  fn
+ */
+function attachOnce(type, cb) {
+
+  var callback = function() {
+    cb();
+    this.detach(type, callback);
+  }
+  this.attach(type, callback);
+  }
+
+/**
  * detach
  * Detach a custom event
  * @param {String}  type
@@ -147,7 +162,7 @@ export default {
    * @param {Object} object - target object
    */
   extend(obj) {
-    Object.assign(obj, { attach, detach, emit, on, off });
+    Object.assign(obj, { attach, attachOnce, detach, emit, on, off });
   }
 };
 

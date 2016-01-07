@@ -111,7 +111,18 @@ describe('Unit test of EventEmitter', function() {
         tap: customTap,
       });
 
+      expect(events.click).not.exists;
       expect(events.tap).not.exists;
+    });
+  });
+
+  describe('Custom events attachOnce', function() {
+
+    it('attachOnce', function() {
+      Obj.attachOnce('click', customClick);
+      expect(events.click).to.exists;
+      Obj.emit('click');
+      expect(events.click).to.not.exists;
     });
   });
 
