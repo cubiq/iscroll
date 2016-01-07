@@ -24,7 +24,7 @@ var fps = require('./fps.js');
 
 
 
-describe('Unit test of fps.js', function() {
+describe('fps.js', function() {
 
   describe('fps.request', function() {
 
