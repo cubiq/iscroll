@@ -65,7 +65,6 @@ const EventHandlingModule = {
    * @param {Object} e - event object
    */
   handleEvent(e) {
-    debug('handle event', e);
     switch ( e.type ) {
       case this.eventType.start:
         this._eventStart(e);
@@ -275,13 +274,14 @@ const EventHandlingModule = {
  * Extend object with configured event data
  * @param {Object} IscrollInstance - instance options
  */
-const assignEventsFromOptions = ({options, attach}) => {
+const assignEventsFromOptions = (IscrollInstance) => {
+  let { options } = IscrollInstance;
   listOfInternalEvents.forEach( eventName => {
     if (!options[eventName]) {
       return;
     }
 
-    attach(eventName, options[eventName]);
+    IscrollInstance.attach(eventName, options[eventName]);
   });
 };
 

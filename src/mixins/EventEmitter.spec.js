@@ -1,13 +1,11 @@
 /*jshint -W030 */
-var assert = require('chai').assert;
-var should = require('chai').should;
-var expect = require('chai').expect;
+import { should, expect, assert } from 'chai';
 var jsdom = require('jsdom').jsdom;
 var win = jsdom().defaultView; // virtual window
 
 import EventEmitter from './EventEmitter.js';
 
-describe('Unit test of EventEmitter', function() {
+describe('EventEmitter.js', function() {
   var Obj = {};
   EventEmitter.extend(Obj);
   EventEmitter.apply(Obj);
