@@ -20,3 +20,7 @@
 ## Testing
 - [ ] Cover EventEmitter.js
 
+## Feedback
+- [ ] Name build `iscroll.js`
+- [ ] Cleanup devdeps
+
