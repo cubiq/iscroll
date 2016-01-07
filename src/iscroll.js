@@ -11,11 +11,13 @@ if (NODE_ENV === 'development') {
 
 import EventEmitter from './mixins/EventEmitter.js';
 import EventProcessor from './mixins/EventProcessor.js';
+import RenderLayer from './components/RenderLayer.js';
 
 
 class Iscroll {
   constructor(element, options = {}) {
     debug('constructor!');
+    window.iscroll = this;
 
     if (element.jquery) {
       element = element[0];
@@ -39,6 +41,10 @@ class Iscroll {
     EventEmitter.apply(this);
     EventProcessor.apply(this);
 
+    // RENDERING
+    new RenderLayer('viewLayer', this.container.firstElementChild, this);
+
+    this.refresh();
     this.state.ready = true;
     debug('ready!');
     this.emit('onReady');
@@ -50,6 +56,12 @@ class Iscroll {
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS
     if (module.hot) {
+      
+      module.hot.accept(['./components/RenderLayer.js'], () => {
+        this.viewLayer.destroy();
+        new RenderLayer('viewLayer', this.container.firstElementChild, this);
+      });
+
       module.hot.accept(['./iscroll.detects.js', './mixins/EventEmitter.js', './mixins/EventProcessor.js'], () => {
         this.off();
         require('./iscroll.detects.js').default(this); // can be moved out of constructor, due perfomance reasons
@@ -68,7 +80,6 @@ class Iscroll {
         // restore all previous declared events
         this._events = events;
         this._customEvents = customEvents;
-
       });
     }
   }
@@ -81,6 +92,12 @@ class Iscroll {
   // force update state
   update() {
 
+  }
+
+  // force update state
+  refresh() {
+    this.state.width = this.container.offsetWidth;
+    this.state.height = this.container.offsetHeight;
   }
 
   destroy() {

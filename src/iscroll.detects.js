@@ -14,32 +14,14 @@ const detectVendorPrefix = detects => {
   let vendors = ['t', 'webkitT', 'MozT', 'msT', 'OT'];
   let vendor = false;
 
-  for ( let i = 0, l = vendors.length; i < l; i++ ) {
-    if ( vendors[i] + 'ransform' in elementStyle ) {
+  for (let i = 0, l = vendors.length; i < l; i++) {
+    if (vendors[i] + 'ransform' in elementStyle) {
       vendor = vendors[i].substr(0, vendors[i].length - 1);
       break;
     }
   }
 
   detects.vendor = vendor;
-};
-
-/**
- * detectTransitionEnd
- * Find the transitionEnd event based on the vendor, there's no pattern so
- * we have to use a function
- * @param {Object} detects - object to write detected data
- */
-const detectTransitionEnd = detects => {
-  let types = {
-          '': 'transitionend',
-    'webkit': 'webkitTransitionEnd',
-       'Moz': 'transitionend',
-         'O': 'oTransitionEnd',
-        'ms': 'MSTransitionEnd'
-  };
-
-  detects.vendor =  types[detects.vendor] || false;
 };
 
 /**
@@ -51,7 +33,7 @@ const detectTransitionEnd = detects => {
 const prefixCSSProperty = (style, detects) => {
   let { vendor} = detects;
 
-  if ( !vendor ) {
+  if (vendor === false) {
     return false;
   }
 
@@ -59,7 +41,6 @@ const prefixCSSProperty = (style, detects) => {
   style = vendor === '' ? style : vendor + style.charAt(0).toUpperCase() + style.substr(1);
   return style in elementStyle && style;
 };
-
 
 /**
  * detectPointerEvents
@@ -71,6 +52,7 @@ const detectPointerEvents = detects => {
   Object.assign(detects, {
     hasPointerEvents: !!window.navigator.pointerEnabled,
     hasMSpointerEvents: !!window.navigator.msPointerEnabled,
+
     // we are going to use user agent spoofing to prevent touch events on desktop. TODO: can it be done w/o spoofing?
     useTouchEvents: ('ontouchstart' in window) && /mobile|tablet|ip(ad|hone|od)|android|silk/i.test(window.navigator.userAgent),
   });
@@ -86,16 +68,15 @@ const detectPointerEvents = detects => {
 export default IscrollPrototype => {
   IscrollPrototype.detects = {};
   IscrollPrototype.styles = {};
-  let { detects, styles } = IscrollPrototype; 
+  let { detects, styles } = IscrollPrototype;
 
   // run detects;
   detectPointerEvents(detects);
   detectVendorPrefix(detects);
-  detectTransitionEnd(detects);
 
-  // run style prefixes
+  // run style prefixes (#should move out of here soon)
   Object.assign(styles, {
     transform: prefixCSSProperty('transform', detects),
-    transitionDuration: prefixCSSProperty('transitionDuration', detects)
+    transitionDuration: prefixCSSProperty('transitionDuration', detects),
   });
 };

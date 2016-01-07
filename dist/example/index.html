@@ -2,11 +2,41 @@
   <head>
     <title>Basic example</title>
     <script type="text/javascript" src="../build.js"></script>
+    <style type="text/css">
+      .iscroll {
+        position : relative;
+        overflow : hidden;
+      }
+
+      .iscroll__layer {
+        position : absolute;
+      }
+    </style>
   </head>
   <body>
-    <div id="iscroll" style="width : 100%; height : 100%"></div>
+    <div class="iscroll" id="iscroll" style="width:100%;height:100%">
+      <div class="iscroll__layer" id="viewLayer" style="width:1600px;height:1200px;background:#ccc">
+
+      </div>
+    </div>
     <script>
+      
+      // demo
       window.iscroll = new Iscroll(document.getElementById('iscroll'));
+
+      // fill demo
+      var a = [];
+      var element = `<div style="
+                      border: 1px solid #999;
+                      width:194px;
+                      height:194px;
+                      margin:2px;
+                      float:left">
+                    </div>`;
+      for(var i = 8*6; i>0;i--) {
+        a.push(element);
+      }
+      document.getElementById('viewLayer').innerHTML = a.join('');
     </script>
   </body>
 </html>

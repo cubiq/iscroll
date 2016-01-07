@@ -116,7 +116,8 @@ const EventHandlingModule = {
         startY: y,
         deltaX: 0,
         deltaY: 0,
-        startTime: Date.now()
+        startTime: Date.now(),
+        currentTime: Date.now(),
       };
     }
 
@@ -182,14 +183,12 @@ const EventHandlingModule = {
    * @param {Object} e - event object
    */
   _eventResize(e) {
-    clearTimeout(this._resizeTimeout);
-
     // if we resize before the script has been initialized
-    if ( !this.ready ) {
+    if ( !this.state.ready ) {
       return this.attachOnce('onReady', this._eventResize.bind(this, e));
     }
 
-    // defer the resize event to spare resources
+    // debounce the resize event to spare resources
     this._resizeTimeout = setTimeout(this.refresh.bind(this), 100);
   },
 
@@ -241,14 +240,14 @@ const EventHandlingModule = {
       let point = POINTS[id];
 
       switch ( point.phase ) {
-        case 'move':
-         this.emit('move', point);
-          break;
         case 'start':
           if ( !point.initiated ) {
             point.initiated = true;
            this.emit('start', point);
           }
+          break;
+        case 'move':
+         this.emit('move', point);
           break;
         case 'end':
           point.initiated = false;
@@ -285,6 +284,25 @@ const assignEventsFromOptions = (IscrollInstance) => {
   });
 };
 
+
+/**
+ * detectTransitionEnd
+ * Find the transitionEnd event based on the vendor, there's no pattern so
+ * we have to use a function
+ * @param {Object} detects - object to write detected data
+ */
+const detectTransitionEnd = ({detects, eventType}) => {
+  let types = {
+          '': 'transitionend',
+    'webkit': 'webkitTransitionEnd',
+       'Moz': 'transitionend',
+         'O': 'oTransitionEnd',
+        'ms': 'MSTransitionEnd'
+  };
+
+  eventType.transitionEnd =  types[detects.vendor] || false;
+};
+
 export default { 
 
   /**
@@ -307,6 +325,8 @@ export default {
     } else {
       IscrollInstance.eventType = EVENT_TYPE.mouse;
     }
+    detectTransitionEnd(IscrollInstance);
+
 
     // bind basic events
     IscrollInstance.on('orientationchange', window);
@@ -316,13 +336,6 @@ export default {
 
     // setup events from user config
     assignEventsFromOptions(IscrollInstance);
-
-    IscrollInstance.attach('start', function(){
-      if (!IscrollInstance.state.interactionsCount) {
-        IscrollInstance.state.interactionsCount = 0;
-      }
-      IscrollInstance.state.interactionsCount++;
-    });
 
   },
 
