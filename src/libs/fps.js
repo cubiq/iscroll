@@ -1,22 +1,23 @@
 'use strict';
 
-var request = window.requestAnimationFrame;
-var cancel = window.cancelAnimationFrame;
+const vendors = ['ms', 'moz', 'webkit', 'o'];
 
-var lastTime = 0;
-var vendors = ['ms', 'moz', 'webkit', 'o'];
-var readers = [];
-var writers = [];
-for (var x = 0; x < vendors.length && !request; ++x) {
+let request = window.requestAnimationFrame;
+let cancel = window.cancelAnimationFrame;
+
+let lastTime = 0;
+let readers = [];
+let writers = [];
+for (let x = 0; x < vendors.length && !request; ++x) {
   request = window[vendors[x] + 'RequestAnimationFrame'];
   cancel  = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
 }
 
 if (!request) {
   request = function(callback) {
-    var currTime = new Date().getTime();
-    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-    var id = setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+    let currTime = new Date().getTime();
+    let timeToCall = Math.max(0, 16 - (currTime - lastTime));
+    let id = setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
 
     lastTime = currTime + timeToCall;
     return id;
@@ -38,10 +39,10 @@ const write = (fn) => {
 };
 
 const throttle = (fn) => {
-  var raf;
+  let raf;
 
   return function requestAnimationFrameThrottler() {
-    var args = arguments;
+    const args = arguments;
     if (raf) {
       cancel(raf);
     }
@@ -54,11 +55,11 @@ const throttle = (fn) => {
 };
 
 const loop = () => {
-  var read = readers;
+  let read = readers;
   readers = [];
   read.forEach(t => t());
 
-  var write = writers;
+  let write = writers;
   writers = [];
   write.forEach(t => t());
 

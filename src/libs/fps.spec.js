@@ -1,7 +1,7 @@
 var assert = require('chai').assert;
 var should = require('chai').should();
 
-/* fallback for raf */
+/* RAF immitation */
 global.window = global;
 var rafCallbacks = [];
 global.requestAnimationFrame = function(callback) {
@@ -11,18 +11,18 @@ global.requestAnimationFrame = function(callback) {
 global.cancelAnimationFrame = function(index) {
   rafCallbacks.splice(index - 1);
 };
-/* ///////////////// */
-
-var fps = require('./fps.js');
-
 var nextFrame = function() {
   var callbacks = rafCallbacks;
   rafCallbacks = [];
   for (var i in callbacks) {
     callbacks[i]();
   }
-
 };
+/* ///////////////// */
+
+var fps = require('./fps.js');
+
+
 
 describe('Unit test of fps.js', function() {
 
