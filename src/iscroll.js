@@ -5,7 +5,7 @@
 
 // example of debug tool. All debug code will strip on production
 if (NODE_ENV === 'development') {
-  const debug = require('./iscroll.debug.js')('iscroll:iscroll.js');
+  const debug = require('./dev/debug.js')('iscroll:iscroll.js');
   window.debug.enable('iscroll:*');
 }
 

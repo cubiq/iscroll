@@ -316,6 +316,14 @@ export default {
 
     // setup events from user config
     assignEventsFromOptions(IscrollInstance);
+
+    IscrollInstance.attach('start', function(){
+      if (!IscrollInstance.state.interactionsCount) {
+        IscrollInstance.state.interactionsCount = 0;
+      }
+      IscrollInstance.state.interactionsCount++;
+    });
+
   },
 
   /**
