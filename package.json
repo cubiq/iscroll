@@ -29,10 +29,10 @@
     "start": "NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --progress",
     "build": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress",
     "analyse": "./node_modules/webpack/bin/webpack.js --json --profile > analyse.json",
-    "test": "npm run test:unit",
+    "test": "npm run test:coverage",
     "test:watch": "./node_modules/.bin/_mocha -w --compilers js:babel-core/register test/index.js",
     "test:unit": "./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js",
-    "test:coverage": "./node_modules/.bin/isparta cover ./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js; "
+    "test:coverage": "./node_modules/.bin/isparta cover --report text --report html ./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js; "
   },
   "repository": {
     "type": "git",
