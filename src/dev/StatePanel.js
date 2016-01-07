@@ -10,7 +10,7 @@ export default (IscrollInstance) => {
   stats.style.right = 0;
   stats.style.padding = 10;
   stats.style.background = 'red';
-  document.body.appendChild(stats);
+  IscrollInstance.container.appendChild(stats);
   
   function tick() {
     newstring = JSON.stringify(IscrollInstance.state, null, 4);
