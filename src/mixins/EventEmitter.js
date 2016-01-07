@@ -1,5 +1,5 @@
 /**
- * Mixins provides methods used for event handling. 
+ * Mixins provides methods used for event manipulating. 
  *
  */
 
@@ -14,7 +14,7 @@ function emit(type) {
     return;
   }
 
-  var i = this._customEvents[type].length;
+  let i = this._customEvents[type].length;
 
   while ( i-- ) {
     this._customEvents[type][i].apply(this, [].slice.call(arguments, 1));
@@ -22,7 +22,7 @@ function emit(type) {
 }
 
 /**
- * on
+ * attach
  * Attach a custom event
  * @param {String}  type
  * @param {Function}  fn
@@ -41,6 +41,31 @@ function attach(type, cb) {
   }
 
   this._customEvents[type].push(cb);
+}
+
+/**
+ * detach
+ * Detach a custom event
+ * @param {String}  type
+ * @param {Function}  fn
+ */
+function detach(type, cb) {
+  if ( typeof type === 'object' ) {
+    for ( var i in type ) {
+      this.detach(i, type[i]);
+    }
+    return;
+  }
+
+  if (!this._customEvents[type] ) {
+    return;
+  }
+
+  if (!cb) {
+    this._customEvents[type] = [];
+  } else {
+    this._customEvents[type].filter((item) => item !== cb);
+  }
 }
 
 /**
@@ -104,13 +129,25 @@ function off(type, context, cb) {
   }
 }
 
-/**
- * apply
- * Inherit object with event emitter methods
- * @param {object}      type - target object
- */
-export default function (obj) {
-  obj._events = {};        // holds all the Default registered events
-  obj._customEvents = {};  // holds all iScroll specific events
-  Object.assign(obj, { attach, emit, on, off });
+export default { 
+
+  /**
+   * apply
+   * Apply event emitter to object
+   * @param {Object} object - target object
+   */
+  apply(obj) {
+    obj._events = {};       // holds all the Default registered events
+    obj._customEvents = {}; // holds all iScroll specific events
+  },
+
+  /**
+   * extend
+   * Extend object (for prototypes)
+   * @param {Object} object - target object
+   */
+  extend(obj) {
+    Object.assign(obj, { attach, detach, emit, on, off });
+  }
 };
+

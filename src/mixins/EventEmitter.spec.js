@@ -1,3 +1,4 @@
+/*jshint -W030 */
 var assert = require('chai').assert;
 var should = require('chai').should;
 var expect = require('chai').expect;
@@ -8,7 +9,9 @@ import EventEmitter from './EventEmitter.js';
 
 describe('Unit test of EventEmitter', function() {
   var Obj = {};
-  EventEmitter(Obj);
+  EventEmitter.extend(Obj);
+  EventEmitter.apply(Obj);
+  
   Obj.container = win.document.createElement("div"); // imitate
 
   var element = win.document.createElement("div");
@@ -23,14 +26,10 @@ describe('Unit test of EventEmitter', function() {
     tap: 0
   };
 
-  var containerClick = function(){
-    triggers.container++;
-  };
-
-  var elementClick = function(){
-    triggers.custom++;
-  };
-
+  var containerClick = function(){ triggers.container++; };
+  var elementClick = function(){ triggers.custom++; };
+  let customClick = function() { calls.click++; };
+  let customTap = function() { calls.tap++; };
 
   describe('Interface exists', function() {
     it('emit exists', function() {
@@ -39,6 +38,10 @@ describe('Unit test of EventEmitter', function() {
 
     it('attach exists', function() {
       should().exist(Obj.attach);
+    });
+
+    it('detach exists', function() {
+      should().exist(Obj.detach);
     });
 
     it('on exists', function() {
@@ -55,7 +58,7 @@ describe('Unit test of EventEmitter', function() {
     it('Single attach', function() {
       expect(events.click).to.not.exists;
 
-      Obj.attach('click', function() { calls.click++; });
+      Obj.attach('click', customClick);
 
       expect(events.click).to.exists;
       expect(events.click).to.be.a('array');
@@ -66,8 +69,8 @@ describe('Unit test of EventEmitter', function() {
       expect(events.tap).to.not.exists;
 
       Obj.attach({
-        click: function() { calls.click++; },
-        tap: function() { calls.tap++; },
+        click: customClick,
+        tap: customTap,
       });
 
       expect(events.tap).to.exists;
@@ -87,6 +90,28 @@ describe('Unit test of EventEmitter', function() {
     it('Multiple emmit', function() {
       Obj.emit('click');
       assert.equal(calls.click, 2);
+    });
+  });
+
+  describe('Custom events detach', function() {
+
+    it('Single detach', function() {
+      expect(events.click).to.exists;
+      Obj.detach('click', customClick);
+      expect(events.click).to.not.exists;
+    });
+
+    it('Multiple detach', function() {
+      Obj.attach('click', customClick);
+      expect(events.click).to.exists;
+      expect(events.tap).to.exists;
+
+      Obj.detach({
+        click: customClick,
+        tap: customTap,
+      });
+
+      expect(events.tap).not.exists;
     });
   });
 
