@@ -1,9 +1,8 @@
 /**
- * Mixins provides methods used for event manipulating. 
+ * Mixins provides methods used for event manipulating.
  *
  */
 
- 
 /**
  * emit
  * Custom event emitter
@@ -11,13 +10,13 @@
  * @param {Object}  point
  */
 function emit(type) {
-  if ( !this._customEvents[type] ) {
+  if (!this._customEvents[type]) {
     return;
   }
 
   let i = this._customEvents[type].length;
 
-  while ( i-- ) {
+  while (i--) {
     this._customEvents[type][i].apply(this, [].slice.call(arguments, 1));
   }
 }
@@ -29,19 +28,19 @@ function emit(type) {
  * @param {Function}  fn
  */
 function attach(type, cb) {
-  if ( typeof type === 'object' ) {
-    for ( var i in type ) {
+  if (typeof type === 'object') {
+    for (let i of Object.keys(type)) {
       this.attach(i, type[i]);
     }
-
     return;
   }
-
-  if ( !this._customEvents[type] ) {
-    this._customEvents[type] = [];
-  }
-
-  this._customEvents[type].push(cb);
+  var types = type.split(' ');
+  types.forEach((type) => {
+    if (!this._customEvents[type]) {
+      this._customEvents[type] = [];
+    }
+    this._customEvents[type].push(cb);
+  });
 }
 
 /**
@@ -55,9 +54,10 @@ function attachOnce(type, cb) {
   var callback = function() {
     cb();
     this.detach(type, callback);
-  }
+  };
+
   this.attach(type, callback);
-  }
+}
 
 /**
  * detach
@@ -66,14 +66,15 @@ function attachOnce(type, cb) {
  * @param {Function}  fn
  */
 function detach(type, cb) {
-  if ( typeof type === 'object' ) {
-    for ( var i in type ) {
+  if (typeof type === 'object') {
+    for (var i in type) {
       this.detach(i, type[i]);
     }
+
     return;
   }
 
-  if (!this._customEvents[type] ) {
+  if (!this._customEvents[type]) {
     return;
   }
 
@@ -92,7 +93,7 @@ function detach(type, cb) {
  * @param {Function}    [cb=this]
  */
 function on(type, context, cb) {
-  if ( !this._events[type] ) {
+  if (!this._events[type]) {
     this._events[type] = [];
   }
 
@@ -115,15 +116,15 @@ function off(type, context, cb) {
   var i;
 
   // if called without parameters remove all events
-  if ( !type ) {
-    for ( i in this._events ) {
+  if (!type) {
+    for (i in this._events) {
       this.off(i, this._events[i].context, this._events[i].cb);
     }
 
     return;
   }
 
-  if ( !this._events[type] ) {
+  if (!this._events[type]) {
     return;
   }
 
@@ -133,19 +134,19 @@ function off(type, context, cb) {
   // we work on a clone of the original array
   var eventArr = this._events[type].slice(0);
 
-  for ( i = eventArr.length; i--; ) {
-    if ( eventArr[i].cb === cb && eventArr[i].context === context ) {
+  for (i = eventArr.length; i--;) {
+    if (eventArr[i].cb === cb && eventArr[i].context === context) {
       context.removeEventListener(type, cb, false);
       this._events[type].splice(i, 1);
     }
   }
 
-  if ( !this._events[type].length ) {
+  if (!this._events[type].length) {
     delete this._events[type];
   }
 }
 
-export default { 
+export default {
 
   /**
    * apply
@@ -164,6 +165,6 @@ export default {
    */
   extend(obj) {
     Object.assign(obj, { attach, attachOnce, detach, emit, on, off });
-  }
+  },
 };
 

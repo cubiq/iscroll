@@ -21,13 +21,15 @@ describe('EventEmitter.js', function() {
   };
   var calls = {
     click: 0,
-    tap: 0
+    tap: 0,
+    unified: 0
   };
 
   var containerClick = function(){ triggers.container++; };
   var elementClick = function(){ triggers.custom++; };
   let customClick = function() { calls.click++; };
   let customTap = function() { calls.tap++; };
+  let customUnifiedClick = function() { calls.unified++; };
 
   describe('Interface exists', function() {
     it('emit exists', function() {
@@ -76,6 +78,12 @@ describe('EventEmitter.js', function() {
       assert.equal(events.tap.length, 1);
       assert.equal(events.click.length, 2);
     });
+
+    it('Multiple attach single callback', function() {
+      Obj.attach('click tap', customUnifiedClick);
+      assert.equal(events.tap.length, 2);
+      assert.equal(events.click.length, 3);
+    });
   });
 
   describe('Custom events emmit', function() {
@@ -83,11 +91,19 @@ describe('EventEmitter.js', function() {
     it('Single emmit', function() {
       Obj.emit('tap');
       assert.equal(calls.tap, 1);
+      assert.equal(calls.unified, 1);
     });
 
     it('Multiple emmit', function() {
       Obj.emit('click');
       assert.equal(calls.click, 2);
+      assert.equal(calls.unified, 2);
+    });
+
+    it('Multiple emmit (unified)', function() {
+      Obj.emit('click');
+      Obj.emit('tap');
+      assert.equal(calls.unified, 4);
     });
   });
 
