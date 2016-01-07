@@ -86,5 +86,6 @@ Here is a list of files, with descriptions
  - `.babelrc` - contains babel settings
  - `.jscsrc` - *Javascript Code Styles* for keep developers calm and code looks good.
  - `.jshint` - Watch on code quality
+ - `.travis.yml` - Options for [Travis](travis-ci.org)
 
 
