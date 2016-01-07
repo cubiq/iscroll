@@ -65,6 +65,7 @@ const EventHandlingModule = {
    * @param {Object} e - event object
    */
   handleEvent(e) {
+    debug('handle event', e);
     switch ( e.type ) {
       case this.eventType.start:
         this._eventStart(e);
@@ -107,7 +108,7 @@ const EventHandlingModule = {
 
       this.state.POINTS[id] = {
         // instance: this, // disabled, for circular json reasons
-        id: id,
+        id: id+'',
         phase: 'start',
         initiated: false,
         x: x,
@@ -240,13 +241,11 @@ const EventHandlingModule = {
     for ( let id in POINTS ) {
       let point = POINTS[id];
 
-          console.log('>>>', POINTS);
       switch ( point.phase ) {
         case 'move':
          this.emit('move', point);
           break;
         case 'start':
-          console.log('>>>', POINTS);
           if ( !point.initiated ) {
             point.initiated = true;
            this.emit('start', point);

@@ -3,23 +3,26 @@
  */
 'use strict';
 
+// example of debug tool. All debug code will strip on production
+if (NODE_ENV === 'development') {
+  const debug = require('./iscroll.debug.js')('iscroll:iscroll.js');
+  window.debug.enable('iscroll:*');
+}
+
 import EventEmitter from './mixins/EventEmitter.js';
 import EventProcessor from './mixins/EventProcessor.js';
 
+
 class Iscroll {
   constructor(element, options = {}) {
+    debug('constructor!');
 
-    // if jquery element
     if (element.jquery) {
       element = element[0];
     }
-
-    // if selector
     if (typeof element === 'string') {
       element = document.querySelector(element);
     }
-
-    // if still no element - sorry
     if (!element) {
       throw 'Element is not defined!';
     }
@@ -28,7 +31,7 @@ class Iscroll {
     this.options = Object.assign({}, require('./iscroll.options.js'), options);
     this.state = {
       LOOP : false,
-      POINTS : {}
+      POINTS : []
     };
 
     // EXTENDS
@@ -37,13 +40,13 @@ class Iscroll {
     EventProcessor.apply(this);
 
     this.state.ready = true;
+    debug('ready!');
     this.emit('onReady');
 
     // #DEV - ADDITIONAL MODULES
-    if (NODE_ENV === 'development') {
-      // State display panel
-      require('./dev/StatePanel.js').default(this);
-    }
+    // if (NODE_ENV === 'development') {
+      require('./dev/StatePanel.js').default(this); // State display panel
+    // }
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS
     if (module.hot) {
@@ -53,11 +56,19 @@ class Iscroll {
         
         var EventEmitter = require('./mixins/EventEmitter.js').default;
         var EventProcessor = require('./mixins/EventProcessor.js').default;
-        
+          
+        var events = this._events;
+        var customEvents = this._customEvents;
+
         EventEmitter.apply(this);
         EventProcessor.apply(this);
         EventEmitter.extend(Iscroll.prototype);
         EventProcessor.extend(Iscroll.prototype);
+
+        // restore all previous declared events
+        this._events = events;
+        this._customEvents = customEvents;
+
       });
     }
   }

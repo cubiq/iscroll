@@ -63,5 +63,6 @@ if (NODE_ENV === 'production') {
       },
     })
   );
+  module.exports.module.loaders[0].loader = 'strip?strip[]=debug!'+module.exports.module.loaders[0].loader;
 }
 
