@@ -5,6 +5,8 @@
   "homepage": "http://cubiq.org/iscroll-4",
   "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
   "devDependencies": {
+    "babel": "6.3.26",
+    "babel-cli": "6.4.0",
     "babel-core": "6.3.26",
     "babel-loader": "6.2.0",
     "babel-preset-es2015": "6.3.13",
@@ -13,6 +15,8 @@
     "debug": "2.2.0",
     "exports": "0.0.1",
     "expose-loader": "0.7.1",
+    "isparta": "4.0.0",
+    "istanbul": "0.4.1",
     "loader": "2.0.0",
     "mocha": "2.3.4",
     "strictdom": "1.0.0",
@@ -23,11 +27,12 @@
   },
   "scripts": {
     "start": "NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --progress",
-    "build": "NODE_ENV=production webpack --progress",
-    "analyse": "webpack --json --profile > analyse.json",
+    "build": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress",
+    "analyse": "./node_modules/webpack/bin/webpack.js --json --profile > analyse.json",
     "test": "npm run test:unit",
-    "test:watch": "mocha -w --compilers js:babel-core/register test/index.js",
-    "test:unit": "mocha --compilers js:babel-core/register test/index.js"
+    "test:watch": "./node_modules/.bin/_mocha -w --compilers js:babel-core/register test/index.js",
+    "test:unit": "./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js",
+    "test:coverage": "./node_modules/.bin/isparta cover ./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js; "
   },
   "repository": {
     "type": "git",
