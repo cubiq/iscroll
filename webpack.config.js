@@ -8,7 +8,7 @@ module.exports = {
   // config
   context: __dirname + '/src',
   entry: {
-    build: './index.js',
+    build: './iscroll.js',
   },
   output: {
     path:       __dirname + '/dist',

@@ -16,7 +16,7 @@ export default (IscrollInstance) => {
     newstring = JSON.stringify(IscrollInstance.state, null, 4);
     if (oldstring !== newstring) {
       oldstring = newstring;
-      stats.innerHTML = `<pre>${newstring}</pre>`;
+      stats.innerHTML = `<pre style="width:360px">${newstring}</pre>`;
     }
     write(tick);
   }
