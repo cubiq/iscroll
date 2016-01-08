@@ -1,20 +1,27 @@
 /**
- * Component, renders layer
+ * Component, render layer
  */
 'use strict';
-import { inertia, easeInCubic } from '../libs/easings.js';
+import { inertia } from '../libs/easings.js';
 import { read } from '../libs/fps.js';
 
 class RenderLayer {
+
+  /**
+   * constructor
+   */
   constructor(name, element, IscrollInstance) {
     this.parent = IscrollInstance;
     this.container = element;
     this.parent[name] = this;
     this.name = name;
 
-    if (!this.parent.state[name]) {
-      this.parent.state[name] = {};
+    const { parent } = this;
+
+    if (!parent.state[name]) {
+      parent.state[name] = {};
     }
+    this.state = parent.state[name];
 
     if (NODE_ENV === 'development') {
       // shadowLayer
@@ -27,7 +34,7 @@ class RenderLayer {
       shadowLayer.style.background = 'rgba(255,0,0,0.1)';
       shadowLayer.style.opacity = 0;
       this.shadowLayer = shadowLayer;
-      this.parent.container.appendChild(shadowLayer);
+      parent.container.appendChild(shadowLayer);
 
       // momentumLayerX
       const momentumLayerX = document.createElement('div');
@@ -40,8 +47,8 @@ class RenderLayer {
       momentumLayerX.style.background = 'rgba(255,0,0,0.5)';
       momentumLayerX.style.transform = `scaleX(0)`;
       this.momentumLayerX = momentumLayerX;
-      this.parent.container.appendChild(momentumLayerX);
-      
+      parent.container.appendChild(momentumLayerX);
+
       // momentumLayerX
       const momentumLayerY = document.createElement('div');
       momentumLayerY.style.position = 'absolute';
@@ -53,16 +60,18 @@ class RenderLayer {
       momentumLayerY.style.transform = `scaleX(0)`;
       momentumLayerY.style.background = 'rgba(255,0,0,0.5)';
       this.momentumLayerY = momentumLayerY;
-      this.parent.container.appendChild(momentumLayerY);
+      parent.container.appendChild(momentumLayerY);
     }
 
-    this.state = this.parent.state[name];
     this.init();
     this.subscribe();
 
     this.timeCapsule = []; // keeps time data for momentum
   }
 
+  /**
+   * init
+   */
   init() {
     const { state, container } = this;
     if (!state.x) {
@@ -76,10 +85,14 @@ class RenderLayer {
     this.refresh();
   }
 
+  /**
+   * renderPosition
+   * Get pointer data from EventProcessor
+   * @param {Object} event - pointer event
+   */
   processInteraction(e) {
     const { state, timeCapsule } = this;
     state.isAnimated = false;
-
 
     if (e.phase === 'start') {
       state.startX = state.currentX;
@@ -89,15 +102,13 @@ class RenderLayer {
 
     // update timecapsule
     timeCapsule.push([e.x, e.y, e.currentTime]);
-    if (timeCapsule.length>5) {
+    if (timeCapsule.length > 5) {
       timeCapsule.shift();
     }
 
     if (e.distanceX && e.distanceY) {
       state.currentX = state.startX - e.distanceX;
       state.currentY = state.startY - e.distanceY;
-
-
 
       this.renderPosition();
     }
@@ -114,16 +125,20 @@ class RenderLayer {
     this.calculateMomentum();
   }
 
+  /**
+   * renderPosition
+   * Render layer position
+   */
   renderPosition() {
     const { state } = this;
-    const { options } = this.parent;
+    const { options, container } = this.parent;
     const parentState = this.parent.state;
     const transform = this.parent.styles.transform;
 
     // calculate boundaries and overscrollX
     if (state.currentX > 0) {
       state.overscrollX = state.currentX;
-    } else  if (state.width + state.currentX < parentState.width) {
+    } else if (state.width + state.currentX < parentState.width) {
       state.overscrollX = (state.width + state.currentX) - parentState.width;
     } else if (state.overscrollX) {
       delete state.overscrollX;
@@ -132,7 +147,7 @@ class RenderLayer {
     // calculate boundaries and overscrollY
     if (state.currentY > 0) {
       state.overscrollY = state.currentY;
-    } else  if (state.height + state.currentY < parentState.height) {
+    } else if (state.height + state.currentY < parentState.height) {
       state.overscrollY = (state.height + state.currentY) - parentState.height;
     } else if (state.overscrollY) {
       delete state.overscrollY;
@@ -154,50 +169,62 @@ class RenderLayer {
       }
     }
 
-
     if (NODE_ENV === 'development') {
       if (state.overscrollX || state.overscrollY) {
         this.shadowLayer.style[transform] = `translate3d(${state.currentX}px, ${state.currentY}px, 0px)`;
         this.shadowLayer.style.opacity = 1;
-      } else if(this.shadowLayer.style.opacity) {
+      } else if (this.shadowLayer.style.opacity) {
         this.shadowLayer.style.opacity = 0;
       }
     }
 
     if (transform) {
-      this.container.style[transform] = `translate3d(${state.x}px, ${state.y}px, 0px)`;
+      container.style[transform] = `translate3d(${state.x}px, ${state.y}px, 0px)`;
       return;
     }
 
     // respect old-fashioned browsers
-    this.container.style.left = this.state.x;
-    this.container.style.top = this.state.y;
+    container.style.left = this.state.x;
+    container.style.top = this.state.y;
   }
 
+  /**
+   * calculateMomentum
+   * Calculate momentum of pointer events (only first pointer);
+   */
   calculateMomentum() {
     const { timeCapsule, state } = this;
 
     let first = timeCapsule[0];
-    let last = timeCapsule[timeCapsule.length-1];
-    let distance = last[2] -first[2];
+    let last = timeCapsule[timeCapsule.length - 1];
+    let distance = last[2] - first[2];
 
-    state.momentumX = (last[0]-first[0])/distance;
-    state.momentumY = (last[1]-first[1])/distance;
+    state.momentumX = (last[0] - first[0]) / distance;
+    state.momentumY = (last[1] - first[1]) / distance;
 
     if (NODE_ENV === 'development') {
-      this.momentumLayerX.style.transform = `scaleX(${this.state.momentumX/5})`;
-      this.momentumLayerY.style.transform = `scaleY(${this.state.momentumY/5})`;
+      this.momentumLayerX.style.transform = `scaleX(${state.momentumX / 5})`;
+      this.momentumLayerY.style.transform = `scaleY(${state.momentumY / 5})`;
     }
   }
 
+
+  /**
+   * overscrollReducer
+   * Reduce ammount of overscroll
+   */
   overscrollReducer(value) {
-    return value/3;
+    return value / 3;
   }
 
+  /**
+   * overscrollRebound
+   * Animate overscrolled layer back to bounds
+   */
   overscrollRebound() {
     var { state } = this;
     let time = 350;
-    let totalFrames = Math.ceil(time/16); // 16ms per frame (60fps)
+    let totalFrames = Math.ceil(time / 16); // 16ms per frame (60fps)
     let currentFrame = 0;
 
     let startX = state.currentX;
@@ -205,21 +232,16 @@ class RenderLayer {
     let startY = state.currentY;
     let ammountY = -state.overscrollY;
 
-    
     const tick = () => {
 
       // currentFrame, startValue, endValue, totalFrames
       if (state.overscrollX) {
-        console.log('animateX');
-        state.currentX = inertia( null, currentFrame, startX, ammountX, totalFrames);
+        state.currentX = inertia(null, currentFrame, startX, ammountX, totalFrames);
       }
+
       if (state.overscrollY) {
-        console.log('animateY');
-        state.currentY = inertia( null, currentFrame, startY, ammountY, totalFrames);
+        state.currentY = inertia(null, currentFrame, startY, ammountY, totalFrames);
       }
-
-
-      //console.log(currentFrame, state.currentX, state.currentY);
 
       this.renderPosition();
 
@@ -237,27 +259,51 @@ class RenderLayer {
     read(tick);
   }
 
+  /**
+   * subscribe
+   * Subsribe to pointer events
+   */
   subscribe() {
     this.processInteraction = this.processInteraction.bind(this);
     this.parent.attach('start move end', this.processInteraction);
   }
 
+  /**
+   * subscribe
+   * Unsubscribe from anything
+   */
   unsubscribe() {
     this.parent.detach('start move end', this.processInteraction);
   }
 
+  /**
+   * refresh 
+   * Refresh component data
+   */
   refresh() {
-    this.state.width = this.container.offsetWidth;
-    this.state.height = this.container.offsetHeight;
+    const { state, container } = this;
+
+    state.width = container.offsetWidth;
+    state.height = container.offsetHeight;
 
     if (NODE_ENV === 'development') {
-      this.shadowLayer.style.width = this.state.width;
-      this.shadowLayer.style.height = this.state.height;
+      this.shadowLayer.style.width = state.width;
+      this.shadowLayer.style.height = state.height;
     }
   }
 
+  /**
+   * destroy
+   * destroy function
+   */
   destroy() {
     this.unsubscribe();
+ 
+    if (NODE_ENV === 'development') {
+      this.parent.container.removeChild(this.shadowLayer);
+      this.parent.container.removeChild(this.momentumLayerX);
+      this.parent.container.removeChild(this.momentumLayerY);
+    }
   }
  }
 
