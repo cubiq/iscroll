@@ -119,6 +119,8 @@ class RenderLayer {
 
       if (state.overscrollX || state.overscrollY) {
         this.overscrollRebound();
+      } else {
+        this.animateMomentum();
       }
     }
 
@@ -130,8 +132,8 @@ class RenderLayer {
    * Render layer position
    */
   renderPosition() {
-    const { state } = this;
-    const { options, container } = this.parent;
+    const { state, container } = this;
+    const { options } = this.parent;
     const parentState = this.parent.state;
     const transform = this.parent.styles.transform;
 
@@ -223,23 +225,58 @@ class RenderLayer {
    */
   overscrollRebound() {
     var { state } = this;
-    let time = 350;
+
+    this.animate(
+      state.currentX-state.overscrollX, 
+      state.currentY-state.overscrollY, 
+      false,
+      function(){
+        delete state.overscrollY;
+        delete state.overscrollX;
+      }
+    );
+  }
+
+  /**
+   * animateMomentum
+   * Animate throw with momentum
+   */
+  animateMomentum() {
+    var { state } = this;
+
+    var x = state.currentX + 300 * state.momentumX;
+    var y = state.currentY + 300 * state.momentumY;
+
+    this.animate(x, y, 350, this.overscrollRebound.bind(this));
+  }
+
+
+  /**
+   * animate
+   */
+  animate(x, y, time, callback) {
+    time = time || 350;
+    var { state } = this;
+
     let totalFrames = Math.ceil(time / 16); // 16ms per frame (60fps)
     let currentFrame = 0;
 
     let startX = state.currentX;
-    let ammountX = -state.overscrollX;
     let startY = state.currentY;
-    let ammountY = -state.overscrollY;
+    let ammountX = x - startX;
+    let ammountY = y - startY;
+
+    console.log('animate', arguments);
+
 
     const tick = () => {
 
       // currentFrame, startValue, endValue, totalFrames
-      if (state.overscrollX) {
+      if (ammountX) {
         state.currentX = inertia(null, currentFrame, startX, ammountX, totalFrames);
       }
 
-      if (state.overscrollY) {
+      if (ammountY) {
         state.currentY = inertia(null, currentFrame, startY, ammountY, totalFrames);
       }
 
@@ -250,13 +287,15 @@ class RenderLayer {
         read(tick);
       } else {
         state.isAnimated = false;
-        delete state.overscrollY;
-        delete state.overscrollX;
+        if (typeof callback === 'function') {
+          callback();
+        }
       }
     };
 
     state.isAnimated = true;
     read(tick);
+
   }
 
   /**

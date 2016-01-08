@@ -24,3 +24,15 @@
 - [ ] Name build `iscroll.js`
 - [ ] Cleanup devdeps
 
+
+## RenderLayer
+- [x] Calc Boundaries
+- [x] Overscroll
+- [x] Easings
+- [x] Calculate Momentum
+- [x] Throw animation
+- [ ] Snap
+- [ ] ScrollIndicator
+- [ ] Review params, moves them to config
+- [ ] Review throw animation, needs to be more kinetical
+

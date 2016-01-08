@@ -57,11 +57,6 @@ class Iscroll {
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS
     if (module.hot) {
       
-      module.hot.accept(['./components/RenderLayer.js'], () => {
-        this.viewLayer.destroy();
-        new RenderLayer('viewLayer', this.container.firstElementChild, this);
-      });
-
       module.hot.accept(['./iscroll.detects.js', './mixins/EventEmitter.js', './mixins/EventProcessor.js'], () => {
         this.off();
         require('./iscroll.detects.js').default(this); // can be moved out of constructor, due perfomance reasons
