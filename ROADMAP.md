@@ -31,6 +31,7 @@
 - [x] Easings
 - [x] Calculate Momentum
 - [x] Throw animation
+- [x] Throw to overscrolled position should be debounced
 - [ ] Snap
 - [ ] ScrollIndicator
 - [ ] Review params, moves them to config

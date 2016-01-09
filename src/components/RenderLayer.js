@@ -137,32 +137,67 @@ class RenderLayer {
   }
 
   /**
+   * getOverscrollX
+   * detect overscroll by x
+   * @param {Number} x
+   * @return {Number} overscroll by x
+   */
+  getOverscrollX(x) {
+    const state = this.state;
+    const parentState = this.parent.state;
+
+    let result  = 0;
+
+    if (!x) {
+      x = state.currentX;
+    }
+
+    if (x > 0) {
+      result = x;
+    } else if (state.width + x < parentState.width) {
+      result = (state.width + x) - parentState.width;
+    }
+
+    return result;
+  }
+
+  /**
+   * getOverscrollY
+   * detect overscroll by y
+   * @param {Number} y
+   * @return {Number} overscroll by y
+   */
+  getOverscrollY(y) {
+    const state = this.state;
+    const parentState = this.parent.state;
+
+    let result  = 0;
+
+    if (!y) {
+      y = state.currentY;
+    }
+
+    if (y > 0) {
+      result = y;
+    } else if (state.height + y < parentState.height) {
+      result = (state.height + y) - parentState.height;
+    }
+
+    return result;
+  }
+
+  /**
    * renderPosition
    * Render layer position
    */
   renderPosition() {
     const { state, container } = this;
     const { options } = this.parent;
-    const parentState = this.parent.state;
     const transform = this.parent.styles.transform;
 
     // calculate boundaries and overscrollX
-    if (state.currentX > 0) {
-      state.overscrollX = state.currentX;
-    } else if (state.width + state.currentX < parentState.width) {
-      state.overscrollX = (state.width + state.currentX) - parentState.width;
-    } else if (state.overscrollX) {
-      delete state.overscrollX;
-    }
-
-    // calculate boundaries and overscrollY
-    if (state.currentY > 0) {
-      state.overscrollY = state.currentY;
-    } else if (state.height + state.currentY < parentState.height) {
-      state.overscrollY = (state.height + state.currentY) - parentState.height;
-    } else if (state.overscrollY) {
-      delete state.overscrollY;
-    }
+    state.overscrollX = this.getOverscrollX();
+    state.overscrollY = this.getOverscrollY();
 
     // calculate position
     if (options.scrollX) {
@@ -202,7 +237,7 @@ class RenderLayer {
 
   /**
    * calculateVelocity
-   * Calculate velocity of pointer events (only first pointer);
+   * Calculate interaction velocity
    */
   calculateVelocity() {
     const { timeCapsule, state } = this;
@@ -248,7 +283,7 @@ class RenderLayer {
       });
     }
 
-    // calculate how much frames needs impulse to go out
+    // calculate how much frames needs to impulse for go out
     if (state.overscrollX) {
       distanceX = -state.overscrollX;
     } else if (state.velocityX && Math.abs(state.velocityX) > speedThreshold) {
@@ -274,8 +309,17 @@ class RenderLayer {
 
     this._animate({
       distanceX, distanceY, frames,
+      callback : () => {
+        // check if destination points makes us to feel little bit overscrolled.
+        if (state.overscrollX || state.overscrollY) {
+          return this._animate({
+            distanceX: -state.overscrollX || 0,
+            distanceY: -state.overscrollY || 0,
+            time: 350,
+          });
+        }
+      }
     });
-
   }
 
   /**
@@ -289,6 +333,7 @@ class RenderLayer {
     easing,
     frames,
     time,
+    callback
   }) {
     const { state } = this;
     let startX = state.currentX;
@@ -305,13 +350,6 @@ class RenderLayer {
 
     state.isAnimated = true;
 
-    console.log({
-      startX, distanceX,
-    });
-    console.log({
-      startY, distanceY,
-    });
-
     let tick = () => {
       if (!state.isAnimated) {
         return;
@@ -327,6 +365,9 @@ class RenderLayer {
         write(tick);
       } else {
         state.isAnimated = false;
+        if (typeof callback === 'function') {
+          callback();
+        }
       }
 
     };
