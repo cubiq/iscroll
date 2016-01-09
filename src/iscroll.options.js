@@ -6,7 +6,7 @@ module.exports = {
   // scrolling
   allowOverscroll: true,
   scrollY: true,
-  scrollX: false,
+  scrollX: true,
 
   // momentum
   friction : 0.92,

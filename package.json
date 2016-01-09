@@ -12,15 +12,12 @@
     "babel-preset-es2015": "6.3.13",
     "babel-register": "6.3.13",
     "chai": "3.4.1",
-    "debug": "2.2.0",
-    "exports": "0.0.1",
     "expose-loader": "0.7.1",
     "isparta": "4.0.0",
     "istanbul": "0.4.1",
     "jsdom": "7.2.2",
     "loader": "2.0.0",
     "mocha": "2.3.4",
-    "strictdom": "1.0.0",
     "strip-loader": "0.1.0",
     "webpack": "1.12.9",
     "webpack-dev-server": "1.14.0",
@@ -44,8 +41,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "babelify": "7.2.0",
-    "crypto": "0.0.3",
-    "lodash": "3.10.1"
+    "debug": "2.2.0"
   }
 }

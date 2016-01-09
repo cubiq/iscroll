@@ -50,20 +50,20 @@ class Iscroll {
     this.emit('onReady');
 
     // #DEV - ADDITIONAL MODULES
-    // if (NODE_ENV === 'development') {
+    if (NODE_ENV === 'development') {
       require('./dev/StatePanel.js').default(this); // State display panel
-    // }
+    }
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS
     if (module.hot) {
-      
+
       module.hot.accept(['./iscroll.detects.js', './mixins/EventEmitter.js', './mixins/EventProcessor.js'], () => {
         this.off();
         require('./iscroll.detects.js').default(this); // can be moved out of constructor, due perfomance reasons
-        
+
         var EventEmitter = require('./mixins/EventEmitter.js').default;
         var EventProcessor = require('./mixins/EventProcessor.js').default;
-          
+
         var events = this._events;
         var customEvents = this._customEvents;
 
@@ -81,7 +81,7 @@ class Iscroll {
 
   // return all DOM to initial state, clean up after meal
   destructor() {
-  
+
   }
 
   // force update state

@@ -15,7 +15,7 @@ var RenderLayer = require('./RenderLayer.js');
 // environment
 import EventEmitter from '../mixins/EventEmitter.js';
 
-describe('EventProcessor.js', function() {
+describe('RenderLayer.js', function() {
   // virtual iscroll instance
   const IscrollObj = {
     state: {

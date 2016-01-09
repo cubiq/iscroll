@@ -19,10 +19,12 @@
 
 ## Testing
 - [ ] Cover EventEmitter.js
+- [ ] Finish Covering RenderLayer.js
 
 ## Feedback
-- [ ] Name build `iscroll.js`
-- [ ] Cleanup devdeps
+- [x] Name build `iscroll.js`
+- [x] Cleanup devdeps
+- [x] Remove StatePanel from build
 
 
 ## RenderLayer
@@ -35,5 +37,5 @@
 - [ ] Snap
 - [ ] ScrollIndicator
 - [ ] Review params, moves them to config
-- [ ] Review throw animation, needs to be more kinetical
+- [x] Review throw animation, needs to be more kinetical
 
