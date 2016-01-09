@@ -29,7 +29,7 @@
     "start": "NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --progress",
     "build": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress",
     "analyse": "./node_modules/webpack/bin/webpack.js --json --profile > analyse.json",
-    "test": "npm run test:coverage",
+    "test": "npm run test:unit",
     "test:watch": "./node_modules/.bin/_mocha -w --compilers js:babel-core/register test/index.js",
     "test:unit": "./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js",
     "test:coverage": "node_modules/.bin/babel-node node_modules/isparta/bin/isparta cover --report text --report html node_modules/mocha/bin/_mocha"
@@ -44,6 +44,7 @@
   "license": "MIT",
   "dependencies": {
     "babelify": "7.2.0",
+    "crypto": "0.0.3",
     "lodash": "3.10.1"
   }
 }
