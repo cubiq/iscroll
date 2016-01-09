@@ -22,6 +22,6 @@ global.nextFrame = function() {
 
 // Load test suites
 require('../src/libs/fps.spec.js');
-// require('../src/mixins/EventEmitter.spec.js');
-// require('../src/mixins/EventProcessor.spec.js');
-// require('../src/components/RenderLayer.spec.js');
+require('../src/mixins/EventEmitter.spec.js');
+require('../src/mixins/EventProcessor.spec.js');
+require('../src/components/RenderLayer.spec.js');

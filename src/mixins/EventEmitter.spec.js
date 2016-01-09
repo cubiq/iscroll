@@ -5,11 +5,12 @@ var win = jsdom().defaultView; // virtual window
 
 import EventEmitter from './EventEmitter.js';
 
+
 describe('EventEmitter.js', function() {
   var Obj = {};
   EventEmitter.extend(Obj);
   EventEmitter.apply(Obj);
-  
+
   Obj.container = win.document.createElement("div"); // imitate
 
   var element = win.document.createElement("div");
@@ -162,7 +163,7 @@ describe('EventEmitter.js', function() {
       var clickevent=win.document.createEvent("MouseEvents");
       clickevent.initEvent('click', true, true);
       element.dispatchEvent(clickevent);
-      assert.equal(triggers.custom, 1); 
+      assert.equal(triggers.custom, 1);
     });
   });
 
@@ -192,7 +193,7 @@ describe('EventEmitter.js', function() {
       element.dispatchEvent(clickevent);
       element.dispatchEvent(clickevent);
       element.dispatchEvent(clickevent);
-      assert.equal(triggers.custom, 1); 
+      assert.equal(triggers.custom, 1);
     });
   });
 });

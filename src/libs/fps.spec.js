@@ -1,25 +1,5 @@
 var assert = require('chai').assert;
 var should = require('chai').should();
-
-/* RAF immitation */
-global.window = global;
-var rafCallbacks = [];
-global.requestAnimationFrame = function(callback) {
-  return rafCallbacks.push(callback);
-};
-
-global.cancelAnimationFrame = function(index) {
-  rafCallbacks.splice(index - 1);
-};
-var nextFrame = function() {
-  var callbacks = rafCallbacks;
-  rafCallbacks = [];
-  for (var i in callbacks) {
-    callbacks[i]();
-  }
-};
-/* ///////////////// */
-
 var fps = require('./fps.js');
 
 
@@ -39,7 +19,7 @@ describe('fps.js', function() {
       });
 
       assert.equal(works, false);
-      nextFrame();
+      window.nextFrame();
       assert.equal(works, true);
     });
 
@@ -50,7 +30,7 @@ describe('fps.js', function() {
       });
 
       should.exist(id);
-      nextFrame();
+      window.nextFrame();
     });
 
     it('fps.request should cancel', function() {
@@ -64,7 +44,7 @@ describe('fps.js', function() {
       });
 
       fps.cancel(id);
-      nextFrame();
+      window.nextFrame();
       assert.equal(works, false);
     });
   });
@@ -83,7 +63,7 @@ describe('fps.js', function() {
       });
 
       assert.equal(works, false);
-      nextFrame();
+      window.nextFrame();
       assert.equal(works, true);
     });
   });
@@ -102,7 +82,7 @@ describe('fps.js', function() {
       });
 
       assert.equal(works, false);
-      nextFrame();
+      window.nextFrame();
       assert.equal(works, true);
     });
 
@@ -132,7 +112,7 @@ describe('fps.js', function() {
         a.push('2w');
       });
 
-      nextFrame();
+      window.nextFrame();
       assert.equal(a.join(), ['1r', '2r', '3r', '1w', '2w', '3w'].join());
     });
   });
@@ -151,7 +131,7 @@ describe('fps.js', function() {
       });
 
       throttler('one', 'two', 'three');
-      nextFrame();
+      window.nextFrame();
     });
 
     it('fps.throttle works', function() {
@@ -164,19 +144,19 @@ describe('fps.js', function() {
       });
 
       throttler(1);
-      nextFrame();
+      window.nextFrame();
       assert.equal(value, 1);
 
       throttler(2);
       throttler(3);
-      nextFrame();
+      window.nextFrame();
       assert.equal(value, 3);
 
       throttler(4);
       throttler(5);
       throttler(6);
       throttler(7);
-      nextFrame();
+      window.nextFrame();
       assert.equal(value, 7);
     });
   });
