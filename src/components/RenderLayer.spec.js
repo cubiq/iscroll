@@ -82,8 +82,6 @@ describe('EventProcessor.js', function() {
     it('Overscroll is calculating', function() {
       IscrollObj.emit('move', point(30, 35, 2, 'move'));
 
-      console.log(IscrollObj.state);
-
       assert.equal(LayerObj.state.overscrollX, 30);
       assert.equal(LayerObj.state.overscrollY, 35);
     });
