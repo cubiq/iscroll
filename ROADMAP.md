@@ -37,5 +37,6 @@
 - [ ] Snap
 - [ ] ScrollIndicator
 - [ ] Review params, moves them to config
-- [x] Review throw animation, needs to be more kinetical
+- [x] Review throw animation, needs to be more
+- [ ] Additional deacelleration on overscroll
 
