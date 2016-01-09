@@ -32,7 +32,7 @@
     "test": "npm run test:coverage",
     "test:watch": "./node_modules/.bin/_mocha -w --compilers js:babel-core/register test/index.js",
     "test:unit": "./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js",
-    "test:coverage": "./node_modules/.bin/isparta cover --report text --report html ./node_modules/.bin/_mocha  --compilers js:babel-core/register test/index.js; "
+    "test:coverage": "node_modules/.bin/babel-node node_modules/isparta/bin/isparta cover --report text --report html node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",
