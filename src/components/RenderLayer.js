@@ -3,7 +3,7 @@
  */
 'use strict';
 import { inertia } from '../libs/easings.js';
-import { read } from '../libs/fps.js';
+import { write } from '../libs/fps.js';
 
 class RenderLayer {
 
@@ -21,6 +21,7 @@ class RenderLayer {
     if (!parent.state[name]) {
       parent.state[name] = {};
     }
+
     this.state = parent.state[name];
 
     if (NODE_ENV === 'development') {
@@ -67,6 +68,7 @@ class RenderLayer {
     this.subscribe();
 
     this.timeCapsule = []; // keeps time data for momentum
+    this.timeCapsuleSize = 15;
   }
 
   /**
@@ -86,7 +88,7 @@ class RenderLayer {
   }
 
   /**
-   * renderPosition
+   * processInteraction
    * Get pointer data from EventProcessor
    * @param {Object} event - pointer event
    */
@@ -95,18 +97,25 @@ class RenderLayer {
     state.isAnimated = false;
 
     if (e.phase === 'start') {
-      state.startX = state.currentX;
-      state.startY = state.currentY;
-      timeCapsule.splice(timeCapsule.length);
+      state.startX = state.lastX = state.currentX;
+      state.startY = state.lastY = state.currentY;
+      timeCapsule.length = 0; // empty array (mutate)
     }
 
     // update timecapsule
-    timeCapsule.push([e.x, e.y, e.currentTime]);
-    if (timeCapsule.length > 5) {
+    timeCapsule.push({
+      x: e.x,
+      y: e.y,
+      time: e.currentTime,
+    });
+    if (timeCapsule.length > this.timeCapsuleSize) {
       timeCapsule.shift();
     }
 
     if (e.distanceX && e.distanceY) {
+      state.lastX = state.currentX;
+      state.lastY = state.currentY;
+
       state.currentX = state.startX - e.distanceX;
       state.currentY = state.startY - e.distanceY;
 
@@ -117,14 +126,14 @@ class RenderLayer {
       delete state.startX;
       delete state.startY;
 
-      if (state.overscrollX || state.overscrollY) {
-        this.overscrollRebound();
-      } else {
-        this.animateMomentum();
-      }
+      this.calculateVelocity();
+      this.releaseVelocity();
     }
 
-    this.calculateMomentum();
+    if (NODE_ENV === 'development') {
+      // to display velocity on the corners while development
+      this.calculateVelocity();
+    }
   }
 
   /**
@@ -171,6 +180,7 @@ class RenderLayer {
       }
     }
 
+    // #DEV - display actual layer (not reduced by bounds or thresholds)
     if (NODE_ENV === 'development') {
       if (state.overscrollX || state.overscrollY) {
         this.shadowLayer.style[transform] = `translate3d(${state.currentX}px, ${state.currentY}px, 0px)`;
@@ -191,111 +201,155 @@ class RenderLayer {
   }
 
   /**
-   * calculateMomentum
-   * Calculate momentum of pointer events (only first pointer);
+   * calculateVelocity
+   * Calculate velocity of pointer events (only first pointer);
    */
-  calculateMomentum() {
+  calculateVelocity() {
     const { timeCapsule, state } = this;
 
-    let first = timeCapsule[0];
-    let last = timeCapsule[timeCapsule.length - 1];
-    let distance = last[2] - first[2];
+    let firstPoint = timeCapsule[0];
+    let lastPoint = timeCapsule[timeCapsule.length - 1];
 
-    state.momentumX = (last[0] - first[0]) / distance;
-    state.momentumY = (last[1] - first[1]) / distance;
+    let xOffset = lastPoint.x - firstPoint.x;
+    let yOffset = lastPoint.y - firstPoint.y;
+    let timeOffset = lastPoint.time - firstPoint.time;
+
+    let timePerPoint = timeOffset / this.timeCapsule.length;
+
+    state.velocityX = (xOffset / timePerPoint) || 0;
+    state.velocityY = (yOffset / timePerPoint) || 0;
 
     if (NODE_ENV === 'development') {
-      this.momentumLayerX.style.transform = `scaleX(${state.momentumX / 5})`;
-      this.momentumLayerY.style.transform = `scaleY(${state.momentumY / 5})`;
+      this.momentumLayerX.style.transform = `scaleX(${ state.velocityX / 30})`;
+      this.momentumLayerY.style.transform = `scaleY(${ state.velocityY / 30})`;
     }
   }
 
-
   /**
-   * overscrollReducer
-   * Reduce ammount of overscroll
+   * releaseVelocity
+   * Animate layer, based on current velocity
    */
-  overscrollReducer(value) {
-    return value / 3;
-  }
+  releaseVelocity() {
+    const { state } = this;
+    const { options } = this.parent;
+    let speedThreshold = 0.3;
+    let framesX = 0;
+    let framesY = 0;
+    let framesDefault = 350 / (1000 / 60); // used then both bounds have been overscrolled
+    let distanceX = 0;
+    let distanceY = 0;
+    let i = 1;
 
-  /**
-   * overscrollRebound
-   * Animate overscrolled layer back to bounds
-   */
-  overscrollRebound() {
-    var { state } = this;
+    if (state.overscrollX && state.overscrollY) {
+      return this._animate({
+        distanceX: -state.overscrollX || 0,
+        distanceY: -state.overscrollY || 0,
+        time: 350,
+      });
+    }
 
-    this.animate(
-      state.currentX-state.overscrollX, 
-      state.currentY-state.overscrollY, 
-      false,
-      function(){
-        delete state.overscrollY;
-        delete state.overscrollX;
+    // calculate how much frames needs impulse to go out
+    if (state.overscrollX) {
+      distanceX = -state.overscrollX;
+    } else if (state.velocityX && Math.abs(state.velocityX) > speedThreshold) {
+      framesX = Math.abs(Math.ceil(Math.log(speedThreshold / Math.abs(state.velocityX)) / Math.log(options.friction)));
+      while (i <= framesX) {
+        distanceX += state.velocityX * Math.pow(options.friction, i);
+        i++;
       }
-    );
+    }
+
+    if (state.overscrollY) {
+      distanceY = -state.overscrollY;
+    } else if (state.velocityY && Math.abs(state.velocityY) > speedThreshold) {
+      framesY = Math.abs(Math.ceil(Math.log(speedThreshold / Math.abs(state.velocityY)) / Math.log(options.friction)));
+      i = 1;
+      while (i <= framesY) {
+        distanceY += state.velocityY * Math.pow(options.friction, i);
+        i++;
+      }
+    }
+
+    let frames = Math.abs(framesDefault, framesY, framesX);
+
+    this._animate({
+      distanceX, distanceY, frames,
+    });
+
   }
 
   /**
-   * animateMomentum
-   * Animate throw with momentum
+   * _animate
+   * Internal function to provide flexible api for animations. Used as internal method.
+   * @param  {Object} option
    */
-  animateMomentum() {
-    var { state } = this;
-
-    var x = state.currentX + 300 * state.momentumX;
-    var y = state.currentY + 300 * state.momentumY;
-
-    this.animate(x, y, 350, this.overscrollRebound.bind(this));
-  }
-
-
-  /**
-   * animate
-   */
-  animate(x, y, time, callback) {
-    time = time || 350;
-    var { state } = this;
-
-    let totalFrames = Math.ceil(time / 16); // 16ms per frame (60fps)
-    let currentFrame = 0;
-
+  _animate({
+    distanceX,
+    distanceY,
+    easing,
+    frames,
+    time,
+  }) {
+    const { state } = this;
     let startX = state.currentX;
     let startY = state.currentY;
-    let ammountX = x - startX;
-    let ammountY = y - startY;
+    let currentFrame = 0;
 
-    console.log('animate', arguments);
+    if (!frames && time) {
+      frames = time / (1000 / 60);
+    }
 
+    if (!easing) {
+      easing = inertia;
+    }
 
-    const tick = () => {
+    state.isAnimated = true;
 
-      // currentFrame, startValue, endValue, totalFrames
-      if (ammountX) {
-        state.currentX = inertia(null, currentFrame, startX, ammountX, totalFrames);
+    console.log({
+      startX, distanceX,
+    });
+    console.log({
+      startY, distanceY,
+    });
+
+    let tick = () => {
+      if (!state.isAnimated) {
+        return;
       }
 
-      if (ammountY) {
-        state.currentY = inertia(null, currentFrame, startY, ammountY, totalFrames);
-      }
+      state.currentX = easing(null, currentFrame, startX, distanceX, frames);
+      state.currentY = easing(null, currentFrame, startY, distanceY, frames);
 
       this.renderPosition();
 
       currentFrame++;
-      if (currentFrame < totalFrames && state.isAnimated) {
-        read(tick);
+      if (currentFrame < frames) {
+        write(tick);
       } else {
         state.isAnimated = false;
-        if (typeof callback === 'function') {
-          callback();
-        }
       }
+
     };
 
-    state.isAnimated = true;
-    read(tick);
+    write(tick);
+  }
 
+  /**
+   * overscrollReducer
+   * Reduce ammount of overscroll
+   * @param {Number} value - ammout of overscroll
+   * @return {Number} result - reduced ammount
+   */
+  overscrollReducer(value) {
+    let direction = value > 0 ? 1 : -1;
+    let i = Math.abs(value);
+    let results = 0;
+    while (i > 0) {
+      results += 1 / Math.pow(1.007, i) * direction;
+      i--;
+    }
+
+    return results;
   }
 
   /**
@@ -316,7 +370,7 @@ class RenderLayer {
   }
 
   /**
-   * refresh 
+   * refresh
    * Refresh component data
    */
   refresh() {
@@ -337,7 +391,7 @@ class RenderLayer {
    */
   destroy() {
     this.unsubscribe();
- 
+
     if (NODE_ENV === 'development') {
       this.parent.container.removeChild(this.shadowLayer);
       this.parent.container.removeChild(this.momentumLayerX);

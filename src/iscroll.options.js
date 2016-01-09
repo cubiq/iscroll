@@ -8,6 +8,9 @@ module.exports = {
   scrollY: true,
   scrollX: false,
 
+  // momentum
+  friction : 0.92,
+
   // events
   onReady: undefined
 };
