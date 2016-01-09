@@ -1,19 +1,15 @@
 /*jshint -W030 */
-import { should, expect, assert } from 'chai';
-var jsdom = require('jsdom').jsdom;
-var win = jsdom().defaultView; // virtual window
-
 import EventEmitter from './EventEmitter.js';
-
+const { should, expect, assert } = global.chai;
 
 describe('EventEmitter.js', function() {
   var Obj = {};
   EventEmitter.extend(Obj);
   EventEmitter.apply(Obj);
 
-  Obj.container = win.document.createElement("div"); // imitate
+  Obj.container = document.createElement("div"); // imitate
 
-  var element = win.document.createElement("div");
+  var element = document.createElement("div");
   var events = Obj._customEvents;
 
   var triggers = {
@@ -153,14 +149,14 @@ describe('EventEmitter.js', function() {
 
   describe('DOM events triggers', function() {
     it('Trigger events on default element', function() {
-      var clickevent=win.document.createEvent("MouseEvents");
+      var clickevent=document.createEvent("MouseEvents");
       clickevent.initEvent('click', true, true);
       Obj.container.dispatchEvent(clickevent);
       assert.equal(triggers.container, 1);
     });
 
     it('Trigger events on custom element', function() {
-      var clickevent=win.document.createEvent("MouseEvents");
+      var clickevent=document.createEvent("MouseEvents");
       clickevent.initEvent('click', true, true);
       element.dispatchEvent(clickevent);
       assert.equal(triggers.custom, 1);
@@ -179,7 +175,7 @@ describe('EventEmitter.js', function() {
 
   describe('DOM events, remove handlers', function() {
     it('Trigger events on default element', function() {
-      var clickevent=win.document.createEvent("MouseEvents");
+      var clickevent=document.createEvent("MouseEvents");
       clickevent.initEvent('click', true, true);
       Obj.container.dispatchEvent(clickevent);
       Obj.container.dispatchEvent(clickevent);
@@ -188,7 +184,7 @@ describe('EventEmitter.js', function() {
     });
 
     it('Trigger events on custom element', function() {
-      var clickevent=win.document.createEvent("MouseEvents");
+      var clickevent=document.createEvent("MouseEvents");
       clickevent.initEvent('click', true, true);
       element.dispatchEvent(clickevent);
       element.dispatchEvent(clickevent);

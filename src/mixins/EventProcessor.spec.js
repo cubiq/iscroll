@@ -1,10 +1,8 @@
 /*jshint -W030 */
-import { should, assert } from 'chai';
-import { jsdom } from 'jsdom';
-global.window = jsdom().defaultView;
-
 import EventEmitter from './EventEmitter.js';
 import EventProcessor from './EventProcessor.js';
+
+const { should, assert } = chai;
 
 
 describe('EventProcessor.js', function() {
@@ -23,7 +21,7 @@ describe('EventProcessor.js', function() {
       'onRefresh',
       'onDestroy',
 
-      // declared on iscroll5 
+      // declared on iscroll5
       'beforeScrollStart',
       'scrollCancel',
       'scrollStart',
@@ -38,7 +36,7 @@ describe('EventProcessor.js', function() {
     options: {},
     styles: {},
     detects: {},
-    container : global.window.document.createElement("div") 
+    container : document.createElement("div")
   };
 
   // fillOptions

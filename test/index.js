@@ -1,24 +1,9 @@
+/* globals jsdom */
 global.chai = require('chai');
 global.expect = global.chai.expect;
-
-/* RAF immitation */
-global.window = global;
-var rafCallbacks = [];
-global.requestAnimationFrame = function(callback) {
-  return rafCallbacks.push(callback);
-};
-
-global.cancelAnimationFrame = function(index) {
-  rafCallbacks.splice(index - 1);
-};
-global.nextFrame = function() {
-  var callbacks = rafCallbacks;
-  rafCallbacks = [];
-  for (var i in callbacks) {
-    callbacks[i]();
-  }
-};
-/* ///////////////// */
+global.jsdom = require('jsdom').jsdom();
+global.window = jsdom.defaultView;
+global.document = window.document;
 
 // Load test suites
 require('../src/libs/fps.spec.js');
