@@ -5,3 +5,4 @@ global.expect = global.chai.expect;
 require('../src/libs/fps.spec.js');
 require('../src/mixins/EventEmitter.spec.js');
 require('../src/mixins/EventProcessor.spec.js');
+require('../src/components/RenderLayer.spec.js');

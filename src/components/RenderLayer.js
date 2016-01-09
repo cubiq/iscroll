@@ -2,8 +2,10 @@
  * Component, render layer
  */
 'use strict';
+
 import { inertia } from '../libs/easings.js';
 import { write } from '../libs/fps.js';
+
 
 class RenderLayer {
 
