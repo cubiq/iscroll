@@ -357,8 +357,8 @@ class RenderLayer {
         return;
       }
 
-      state.currentX = easing(null, currentFrame, startX, distanceX, frames);
-      state.currentY = easing(null, currentFrame, startY, distanceY, frames);
+      state.currentX = easing(currentFrame, startX, distanceX, frames);
+      state.currentY = easing(currentFrame, startY, distanceY, frames);
 
       this.renderPosition();
 
@@ -388,7 +388,7 @@ class RenderLayer {
     let i = Math.abs(value);
     let results = 0;
     while (i > 0) {
-      results += 1 / Math.pow(1.007, i) * direction;
+      results += 1 / Math.pow(1.0035, i) * direction;
       i--;
     }
 

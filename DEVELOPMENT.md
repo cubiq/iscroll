@@ -9,8 +9,8 @@ Task uses only local packages, no global packages required.
 
 #### General task
  - To develop awesomeness `npm start`
- - To test things `npm start test`
- - To build awesomeness `npm start build`
+ - To test things `npm run test`
+ - To build awesomeness `npm run build`
 
 #### Full task list:
  - `npm start` - start dev-server, which build files and watching for changes

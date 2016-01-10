@@ -46,7 +46,7 @@ const listOfInternalEvents = [
   'onRefresh',
   'onDestroy',
 
-  // declared on iscroll5 
+  // declared on iscroll5
   'beforeScrollStart',
   'scrollCancel',
   'scrollStart',
@@ -105,8 +105,8 @@ const EventHandlingModule = {
       x = events[i].pageX;
       y = events[i].pageY;
 
-      this.state.POINTS[id] = {
-        // instance: this, // disabled, for circular json reasons
+      this.globalState.POINTS[id] = {
+        instance: this,
         id: id+'',
         phase: 'start',
         initiated: false,
@@ -122,7 +122,7 @@ const EventHandlingModule = {
     }
 
     // start the rAF loop
-    if (!this.state.LOOP) {
+    if (!this.globalState.LOOP) {
       this._renderLoop();
     }
 
@@ -139,7 +139,7 @@ const EventHandlingModule = {
    */
   _eventMove(e) {
     let events = e.changedTouches || [e];
-    let { POINTS } = this.state;
+    let { POINTS } = this.globalState;
     let id, i;
 
     for (i = events.length; i--; ) {
@@ -160,7 +160,7 @@ const EventHandlingModule = {
    */
   _eventEnd(e) {
     let events = e.changedTouches || [e];
-    let { POINTS } = this.state;
+    let { POINTS } = this.globalState;
     let id, i;
 
     for ( i = events.length; i--; ) {
@@ -234,7 +234,7 @@ const EventHandlingModule = {
    */
   _renderLoop () {
     let pointCount = 0;
-    let { POINTS } = this.state; 
+    let { POINTS } = this.globalState;
 
     for ( let id in POINTS ) {
       let point = POINTS[id];
@@ -260,9 +260,9 @@ const EventHandlingModule = {
     }
 
     // keep animating until there are points in the POINTS object
-    this.state.LOOP = !!pointCount;
+    this.globalState.LOOP = !!pointCount;
 
-    if (this.state.LOOP) {
+    if (this.globalState.LOOP) {
       read(this._renderLoop.bind(this));
     }
   }
@@ -303,7 +303,7 @@ const detectTransitionEnd = ({detects, eventType}) => {
   eventType.transitionEnd =  types[detects.vendor] || false;
 };
 
-export default { 
+export default {
 
   /**
    * apply

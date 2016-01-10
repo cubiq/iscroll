@@ -9,12 +9,32 @@ if (NODE_ENV === 'development') {
   window.debug.enable('iscroll:*');
 }
 
+/**
+ * global Object, with
+ * @type {Object}
+ */
+const globalState = {
+  LOOP: false,
+  POINTS: [],
+};
+
 import EventEmitter from './mixins/EventEmitter.js';
 import EventProcessor from './mixins/EventProcessor.js';
 import RenderLayer from './components/RenderLayer.js';
 
 
+/**
+ * IScroll
+ * Main sandbox
+ * @class
+ */
 class Iscroll {
+
+  /**
+   * Constructor
+   * @param  {(HTMLElement|string\jQueryElement)} el - The initiator element
+   * @param  {Object} [options]
+   */
   constructor(element, options = {}) {
     debug('constructor!');
     window.iscroll = this;
@@ -31,10 +51,8 @@ class Iscroll {
 
     this.container = element;
     this.options = Object.assign({}, require('./iscroll.options.js'), options);
-    this.state = {
-      LOOP : false,
-      POINTS : []
-    };
+    this.state = {};
+    this.globalState = globalState;
 
     // EXTENDS
     require('./iscroll.detects.js').default(this); // can be moved out of constructor, due perfomance reasons
