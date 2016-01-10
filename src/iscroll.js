@@ -69,7 +69,7 @@ class Iscroll {
 
     // #DEV - ADDITIONAL MODULES
     if (NODE_ENV === 'development') {
-      require('./dev/StatePanel.js').default(this); // State display panel
+      //require('./dev/StatePanel.js').default(this); // State display panel
     }
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS

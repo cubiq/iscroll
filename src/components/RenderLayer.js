@@ -3,9 +3,8 @@
  */
 'use strict';
 
-import { inertia } from '../libs/easings.js';
+import { inertia, outQuartic } from '../libs/easings.js';
 import { write } from '../libs/fps.js';
-
 
 class RenderLayer {
 
@@ -221,7 +220,8 @@ class RenderLayer {
     if (NODE_ENV === 'development') {
       if (state.overscrollX || state.overscrollY) {
         this.shadowLayer.style[transform] = `translate3d(${state.currentX}px, ${state.currentY}px, 0px)`;
-        this.shadowLayer.style.opacity = 1;
+
+        // this.shadowLayer.style.opacity = 1;
       } else if (this.shadowLayer.style.opacity) {
         this.shadowLayer.style.opacity = 0;
       }
@@ -272,7 +272,6 @@ class RenderLayer {
     let speedThreshold = 0.3;
     let framesX = 0;
     let framesY = 0;
-    let framesDefault = 350 / (1000 / 60); // used then both bounds have been overscrolled
     let distanceX = 0;
     let distanceY = 0;
     let i = 1;
@@ -290,8 +289,16 @@ class RenderLayer {
       distanceX = -state.overscrollX;
     } else if (state.velocityX && Math.abs(state.velocityX) > speedThreshold) {
       framesX = Math.abs(Math.ceil(Math.log(speedThreshold / Math.abs(state.velocityX)) / Math.log(options.friction)));
+
+      i = 1;
       while (i <= framesX) {
-        distanceX += state.velocityX * Math.pow(options.friction, i);
+        let velocity = state.velocityX * Math.pow(options.friction, i);
+
+        if (this.getOverscrollY(state.currentY + distanceY)) {
+          velocity *= options.deceleration;
+          framesX -= Math.round(1 / options.deceleration);
+        }
+        distanceY += velocity;
         i++;
       }
     }
@@ -300,27 +307,34 @@ class RenderLayer {
       distanceY = -state.overscrollY;
     } else if (state.velocityY && Math.abs(state.velocityY) > speedThreshold) {
       framesY = Math.abs(Math.ceil(Math.log(speedThreshold / Math.abs(state.velocityY)) / Math.log(options.friction)));
+
       i = 1;
       while (i <= framesY) {
-        distanceY += state.velocityY * Math.pow(options.friction, i);
+        let velocity = state.velocityY * Math.pow(options.friction, i);
+
+        if (this.getOverscrollY(state.currentY + distanceY)) {
+          velocity *= options.deceleration;
+          framesY -= Math.round(1 / options.deceleration);
+        }
+        distanceY += velocity;
         i++;
       }
     }
 
-    let frames = Math.abs(framesDefault, framesY, framesX);
+    let frames = Math.abs(framesY, framesX);
 
     this._animate({
-      distanceX, distanceY, frames,
-      callback : () => {
+      distanceX, distanceY, frames, easing : outQuartic,
+      callback: () => {
         // check if destination points makes us to feel little bit overscrolled.
         if (state.overscrollX || state.overscrollY) {
           return this._animate({
             distanceX: -state.overscrollX || 0,
             distanceY: -state.overscrollY || 0,
-            time: 350,
+            time: 300,
           });
         }
-      }
+      },
     });
   }
 
@@ -335,7 +349,7 @@ class RenderLayer {
     easing,
     frames,
     time,
-    callback
+    callback,
   }) {
     const { state } = this;
     let startX = state.currentX;

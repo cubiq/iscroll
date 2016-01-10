@@ -6,10 +6,11 @@ module.exports = {
   // scrolling
   allowOverscroll: true,
   scrollY: true,
-  scrollX: true,
+  scrollX: false,
 
   // momentum
   friction : 0.92,
+  deceleration : 0.3,
 
   // events
   onReady: undefined
