@@ -4,7 +4,7 @@
 'use strict';
 
 import { inertia, outQuartic } from '../libs/easings.js';
-import { write } from '../libs/fps.js';
+import { write, cancel, request } from '../libs/fps.js';
 
 class RenderLayer {
 
@@ -86,6 +86,19 @@ class RenderLayer {
     }
 
     this.refresh();
+  }
+
+  /**
+   * processWheel
+   * Process mousewheel event
+   * @param {Object} event - wheel event
+   */
+  processWheel({ delta }) {
+    if (this.options.preventPageScrollWhileScrolling) {
+      e.preventDefault();
+    }
+
+    console.log(delta);
   }
 
   /**
@@ -416,6 +429,7 @@ class RenderLayer {
   subscribe() {
     this.processInteraction = this.processInteraction.bind(this);
     this.parent.attach('start move end', this.processInteraction);
+    this.parent.attach('wheel', this.processWheel);
   }
 
   /**
@@ -424,6 +438,7 @@ class RenderLayer {
    */
   unsubscribe() {
     this.parent.detach('start move end', this.processInteraction);
+    this.parent.detach('wheel', this.processWheel);
   }
 
   /**

@@ -83,6 +83,9 @@ const EventHandlingModule = {
       case 'resize':
         this._eventResize(e);
         break;
+      case this.eventType.mousewheel:
+        this._mouseWheel();
+        break;
     }
   },
 
@@ -265,6 +268,14 @@ const EventHandlingModule = {
     if (this.globalState.LOOP) {
       read(this._renderLoop.bind(this));
     }
+  },
+
+
+  _mouseWheel(e) {
+    e = e || window.event;
+    var delta = e.deltaY || e.detail || e.wheelDelta;
+
+    this.emit('wheel', { delta, originalEvent : e });
   }
 };
 
@@ -289,7 +300,7 @@ const assignEventsFromOptions = (IscrollInstance) => {
  * detectTransitionEnd
  * Find the transitionEnd event based on the vendor, there's no pattern so
  * we have to use a function
- * @param {Object} detects - object to write detected data
+ * @param {Object} IscrollInstance
  */
 const detectTransitionEnd = ({detects, eventType}) => {
   let types = {
@@ -301,6 +312,29 @@ const detectTransitionEnd = ({detects, eventType}) => {
   };
 
   eventType.transitionEnd =  types[detects.vendor] || false;
+};
+
+
+/**
+ * detectWheelEvent
+ * Find the mousewheel event
+ * @param {Object} IscrollInstance
+ */
+const detectWheelEvent = ({ eventType }) => {
+    let eventName = '';
+
+    if ('onwheel' in document) {
+      // IE9+, FF17+, Ch31+
+      eventName = 'wheel';
+    } else if ('onmousewheel' in document) {
+      // Old fashioned
+      eventName = 'mousewheel';
+    } else {
+      // Firefox < 17
+      eventName = 'MozMousePixelScroll';
+    }
+
+  eventType.mousewheel =  eventName;
 };
 
 export default {
@@ -326,6 +360,7 @@ export default {
       IscrollInstance.eventType = EVENT_TYPE.mouse;
     }
     detectTransitionEnd(IscrollInstance);
+    detectWheelEvent(IscrollInstance);
 
 
     // bind basic events
@@ -333,6 +368,7 @@ export default {
     IscrollInstance.on('resize', window);
     IscrollInstance.on(IscrollInstance.eventType.start);
     IscrollInstance.on(IscrollInstance.eventType.transitionEnd);
+    IscrollInstance.on(IscrollInstance.eventType.mousewheel);
 
     // setup events from user config
     assignEventsFromOptions(IscrollInstance);
