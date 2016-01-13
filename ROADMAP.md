@@ -3,14 +3,14 @@
 ## Dev environment
 - [ ] Add browser testing
 - [ ] Add linter (es6, jshint)
-- [ ] Add integration test (waiting for first demos)
 
 ## Refactoring
 - [ ] Totally moves to ES6
+- [ ] Add alias variables to improve minification
 
 ## Improvements
-- [ ] fps.js `strictdom` to report DOM perfomance leaks
-- [ ] fps.js rework read/write frame loop.
+- [ ] fps.js: Add `strictdom` to report DOM perfomance leaks
+- [ ] fps.js: Rework read/write frame loop.
 
 ## Testing
 - [ ] Cover EventEmitter.js
