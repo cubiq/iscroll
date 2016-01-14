@@ -37,7 +37,6 @@ class Iscroll {
    */
   constructor(element, options = {}) {
     debug('constructor!');
-    window.iscroll = this;
 
     if (element.jquery) {
       element = element[0];

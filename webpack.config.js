@@ -13,7 +13,8 @@ module.exports = {
   output: {
     path:       __dirname + '/dist',
     publicPath: '/',
-    filename:   'iscroll.js'
+    filename:   'iscroll.js',
+    libraryTarget: 'umd',
   },
 
   // resolve settings
