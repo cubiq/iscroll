@@ -93,12 +93,16 @@ class RenderLayer {
    * Process mousewheel event
    * @param {Object} event - wheel event
    */
-  processWheel({ delta }) {
-    if (this.options.preventPageScrollWhileScrolling) {
-      e.preventDefault();
+  processWheel({ delta, originalEvent }) {
+    var { state, parent } = this;
+    state.isAnimated = false;
+
+    if (parent.options.preventPageScrollWhileScrolling) {
+      originalEvent.preventDefault();
     }
 
-    console.log(delta);
+    state.currentY+= -delta;
+    this.renderPosition();
   }
 
   /**
@@ -111,8 +115,8 @@ class RenderLayer {
     state.isAnimated = false;
 
     if (e.phase === 'start') {
-      state.startX = state.lastX = state.currentX;
-      state.startY = state.lastY = state.currentY;
+      state.startX = state.lastX = state.currentX || 0;
+      state.startY = state.lastY = state.currentY || 0;
       timeCapsule.length = 0; // empty array (mutate)
     }
 
@@ -129,7 +133,6 @@ class RenderLayer {
     if (e.distanceX && e.distanceY) {
       state.lastX = state.currentX;
       state.lastY = state.currentY;
-
       state.currentX = state.startX - e.distanceX;
       state.currentY = state.startY - e.distanceY;
 
@@ -334,7 +337,7 @@ class RenderLayer {
       }
     }
 
-    let frames = Math.abs(framesY, framesX);
+    let frames = Math.max(framesY, framesX, Math.round(350/16));
 
     this._animate({
       distanceX, distanceY, frames, easing : outQuartic,
@@ -427,9 +430,10 @@ class RenderLayer {
    * Subsribe to pointer events
    */
   subscribe() {
-    this.processInteraction = this.processInteraction.bind(this);
-    this.parent.attach('start move end', this.processInteraction);
-    this.parent.attach('wheel', this.processWheel);
+    this._processInteraction = this.processInteraction.bind(this);
+    this._processWheel = this.processWheel.bind(this);
+    this.parent.attach('start move end', this._processInteraction);
+    this.parent.attach('wheel', this._processWheel);
   }
 
   /**
