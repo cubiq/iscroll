@@ -274,7 +274,10 @@ IScroll.prototype = {
 		this.endTime = utils.getTime();
 
 		// reset if we are outside of the boundaries
-		if ( this.resetPosition(this.options.bounceTime) ) {
+		var lastY = this.y, thresold = 100;
+		if (this.resetPosition(this.options.bounceTime)) {
+			if(lastY > thresold || ((lastY + thresold)  < this.maxScrollY))
+				this._execEvent('outsideScroll', lastY > 0 ? 'up' : 'down');
 			return;
 		}
 
