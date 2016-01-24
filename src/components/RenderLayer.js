@@ -98,7 +98,6 @@ class RenderLayer {
    */
   processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
     var { state, parent } = this;
-    this._stopAnimation();
 
     if (parent.options.preventPageScrollWhileScrolling) {
       originalEvent.preventDefault();
@@ -123,7 +122,6 @@ class RenderLayer {
     }
 
     if (Math.abs(deltaY) > 10) {
-      //console.log('isMouseWheel, needs to be animated');
       this.releaseWheel(deltaY, deltaX);
     }
   }
@@ -433,6 +431,13 @@ class RenderLayer {
     let startY = state.currentY;
     let currentFrame = 0;
 
+    if (state.animation && state.animation.raf) {
+      console.log('CANCEL RAF ID', state.animation.raf);
+      cancel(state.animation.raf);
+    }
+
+    this._stopAnimation();
+
     if (!frames && time) {
       frames = time / (1000 / 60);
     }
@@ -445,18 +450,21 @@ class RenderLayer {
       currentFrame, frames,
       startX, distanceX,
       startY, distanceY,
+      easing,
     };
 
     let tick = () => {
-      console.log(state.animation.currentFrame);
+      console.log(Date.now(), state.animation.currentFrame);
       if (!state.animation) {
         return;
       }
+
       state.animation.currentFrame++;
       let {
         currentFrame, frames,
         startX, distanceX,
         startY, distanceY,
+        easing,
       } = state.animation;
 
       state.currentX = easing(currentFrame, startX, distanceX, frames);
@@ -465,7 +473,7 @@ class RenderLayer {
       this.renderPosition();
 
       if (currentFrame < frames) {
-        write(tick);
+        state.animation.raf = request(tick);
       } else {
         state.animation = false;
         if (typeof callback === 'function') {
@@ -475,11 +483,11 @@ class RenderLayer {
 
     };
 
-    write(tick);
+    state.animation.raf = request(tick);
+    console.log('NEW RAF ID', state.animation.raf);
   }
 
   _stopAnimation() {
-
     this.state.animation = false;
   }
 

@@ -69,6 +69,24 @@ describe('fps.js', function() {
     });
   });
 
+  describe('fps.cancel', function() {
+
+    it('fps.request should canceled', function() {
+      var works = false;
+      fps.request(function() {});
+      fps.request(function() {});
+
+      var id = fps.request(function() {
+        works = true;
+      });
+
+      fps.cancel(id);
+      nextFrame();
+      assert.equal(works, false);
+    });
+
+  });
+
   describe('fps.read', function() {
 
     it('fps.read exists', function() {
