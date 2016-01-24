@@ -22,7 +22,6 @@ import EventEmitter from './mixins/EventEmitter.js';
 import EventProcessor from './mixins/EventProcessor.js';
 import RenderLayer from './components/RenderLayer.js';
 
-
 /**
  * IScroll
  * Main sandbox
@@ -42,9 +41,11 @@ class Iscroll {
     if (element.jquery) {
       element = element[0];
     }
+
     if (typeof element === 'string') {
       element = document.querySelector(element);
     }
+
     if (!element) {
       throw 'Element is not defined!';
     }
@@ -69,7 +70,7 @@ class Iscroll {
 
     // #DEV - ADDITIONAL MODULES
     if (NODE_ENV === 'development') {
-      //require('./dev/StatePanel.js').default(this); // State display panel
+      // require('./dev/StatePanel.js').default(this); // State display panel
     }
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS

@@ -84,7 +84,7 @@ const EventHandlingModule = {
         this._eventResize(e);
         break;
       case this.eventType.mousewheel:
-        this._mouseWheel();
+        this._mouseWheel(e);
         break;
     }
   },
@@ -271,11 +271,17 @@ const EventHandlingModule = {
   },
 
 
-  _mouseWheel(e) {
-    e = e || window.event;
-    var delta = e.deltaY || e.detail || e.wheelDelta;
+  _mouseWheel(event) {
 
-    this.emit('wheel', { delta, originalEvent : e });
+    var deltaX = -event.wheelDeltaX || event.deltaX || 0;
+    var deltaY = -event.wheelDeltaY || event.deltaY || 0;
+
+    this.emit('wheel', {
+      deltaY,
+      deltaX,
+      originalEvent : event,
+      currentTime : Date.now()
+    });
   }
 };
 

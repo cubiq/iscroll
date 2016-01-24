@@ -4,7 +4,13 @@
 'use strict';
 
 import { inertia, outQuartic } from '../libs/easings.js';
-import { write, cancel, request } from '../libs/fps.js';
+import { write, request, cancel } from '../libs/fps.js';
+
+// store events to calculate velocity here
+const pointersTimeCapsule = [];
+const pointersTimeCapsuleLimit = 15;
+const wheelTimeCapsule = [];
+const wheelTimeCapsuleLimit = 15;
 
 class RenderLayer {
 
@@ -67,9 +73,6 @@ class RenderLayer {
 
     this.init();
     this.subscribe();
-
-    this.timeCapsule = []; // keeps time data for momentum
-    this.timeCapsuleSize = 15;
   }
 
   /**
@@ -93,16 +96,76 @@ class RenderLayer {
    * Process mousewheel event
    * @param {Object} event - wheel event
    */
-  processWheel({ delta, originalEvent }) {
+  processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
     var { state, parent } = this;
-    state.isAnimated = false;
+    this._stopAnimation();
 
     if (parent.options.preventPageScrollWhileScrolling) {
       originalEvent.preventDefault();
     }
 
-    state.currentY+= -delta;
-    this.renderPosition();
+    // update wheelTimecapsule
+    wheelTimeCapsule.push({
+      x: deltaX,
+      y: deltaY,
+      time: currentTime,
+    });
+    if (wheelTimeCapsule.length > wheelTimeCapsuleLimit) {
+      wheelTimeCapsule.shift();
+    }
+
+    // filtrate Mac magicpad
+    if (deltaY % 120 && deltaY % 100) {
+      //console.log('isMacigPad');
+      state.currentY += -deltaY;
+      this.renderPosition();
+      return;
+    }
+
+    if (Math.abs(deltaY) > 10) {
+      //console.log('isMouseWheel, needs to be animated');
+      this.releaseWheel(deltaY, deltaX);
+    }
+  }
+
+  releaseWheel(deltaY, deltaX) {
+    const { state } = this;
+
+    if (wheelTimeCapsule.length < 2) {
+      wheelTimeCapsule.length = 0;
+      wheelTimeCapsule.push({
+        x: deltaX,
+        y: deltaY,
+        time: Date.now() - 16,
+      });
+      wheelTimeCapsule.push({
+        x: deltaX,
+        y: deltaY,
+        time: Date.now(),
+      });
+    }
+
+    // calculate wheel velocity
+    let firstPoint = wheelTimeCapsule[0];
+    let lastPoint = wheelTimeCapsule[wheelTimeCapsule.length - 1];
+    let xOffset = 0;
+    let yOffset = 0;
+    wheelTimeCapsule.forEach(function(item) {
+      xOffset += item.x;
+      yOffset += item.y;
+    });
+
+    xOffset *= 0.5;
+    yOffset *= 0.5;
+
+    let timeOffset = lastPoint.time - firstPoint.time;
+    let timePerPoint = timeOffset / wheelTimeCapsule.length;
+
+    state.velocityX = -1 * (xOffset / timePerPoint) || 0;
+    state.velocityY = -1 * (yOffset / timePerPoint) || 0;
+
+    wheelTimeCapsule.length = 0;
+    this.releaseVelocity();
   }
 
   /**
@@ -111,23 +174,23 @@ class RenderLayer {
    * @param {Object} event - pointer event
    */
   processInteraction(e) {
-    const { state, timeCapsule } = this;
-    state.isAnimated = false;
+    const { state } = this;
+    this._stopAnimation();
 
     if (e.phase === 'start') {
       state.startX = state.lastX = state.currentX || 0;
       state.startY = state.lastY = state.currentY || 0;
-      timeCapsule.length = 0; // empty array (mutate)
+      pointersTimeCapsule.length = 0; // empty array (mutate)
     }
 
-    // update timecapsule
-    timeCapsule.push({
+    // update pointersTimecapsule
+    pointersTimeCapsule.push({
       x: e.x,
       y: e.y,
       time: e.currentTime,
     });
-    if (timeCapsule.length > this.timeCapsuleSize) {
-      timeCapsule.shift();
+    if (pointersTimeCapsule.length > pointersTimeCapsuleLimit) {
+      pointersTimeCapsule.shift();
     }
 
     if (e.distanceX && e.distanceY) {
@@ -258,16 +321,16 @@ class RenderLayer {
    * Calculate interaction velocity
    */
   calculateVelocity() {
-    const { timeCapsule, state } = this;
+    const { state } = this;
 
-    let firstPoint = timeCapsule[0];
-    let lastPoint = timeCapsule[timeCapsule.length - 1];
+    let firstPoint = pointersTimeCapsule[0];
+    let lastPoint = pointersTimeCapsule[pointersTimeCapsule.length - 1];
 
     let xOffset = lastPoint.x - firstPoint.x;
     let yOffset = lastPoint.y - firstPoint.y;
     let timeOffset = lastPoint.time - firstPoint.time;
 
-    let timePerPoint = timeOffset / this.timeCapsule.length;
+    let timePerPoint = timeOffset / pointersTimeCapsule.length;
 
     state.velocityX = (xOffset / timePerPoint) || 0;
     state.velocityY = (yOffset / timePerPoint) || 0;
@@ -314,6 +377,7 @@ class RenderLayer {
           velocity *= options.deceleration;
           framesX -= Math.round(1 / options.deceleration);
         }
+
         distanceY += velocity;
         i++;
       }
@@ -332,15 +396,16 @@ class RenderLayer {
           velocity *= options.deceleration;
           framesY -= Math.round(1 / options.deceleration);
         }
+
         distanceY += velocity;
         i++;
       }
     }
 
-    let frames = Math.max(framesY, framesX, Math.round(350/16));
+    let frames = Math.max(framesY, framesX, Math.round(350 / 16));
 
     this._animate({
-      distanceX, distanceY, frames, easing : outQuartic,
+      distanceX, distanceY, frames, easing: outQuartic,
       callback: () => {
         // check if destination points makes us to feel little bit overscrolled.
         if (state.overscrollX || state.overscrollY) {
@@ -354,11 +419,6 @@ class RenderLayer {
     });
   }
 
-  /**
-   * _animate
-   * Internal function to provide flexible api for animations. Used as internal method.
-   * @param  {Object} option
-   */
   _animate({
     distanceX,
     distanceY,
@@ -367,6 +427,7 @@ class RenderLayer {
     time,
     callback,
   }) {
+
     const { state } = this;
     let startX = state.currentX;
     let startY = state.currentY;
@@ -380,23 +441,33 @@ class RenderLayer {
       easing = inertia;
     }
 
-    state.isAnimated = true;
+    state.animation = {
+      currentFrame, frames,
+      startX, distanceX,
+      startY, distanceY,
+    };
 
     let tick = () => {
-      if (!state.isAnimated) {
+      console.log(state.animation.currentFrame);
+      if (!state.animation) {
         return;
       }
+      state.animation.currentFrame++;
+      let {
+        currentFrame, frames,
+        startX, distanceX,
+        startY, distanceY,
+      } = state.animation;
 
       state.currentX = easing(currentFrame, startX, distanceX, frames);
       state.currentY = easing(currentFrame, startY, distanceY, frames);
 
       this.renderPosition();
 
-      currentFrame++;
       if (currentFrame < frames) {
         write(tick);
       } else {
-        state.isAnimated = false;
+        state.animation = false;
         if (typeof callback === 'function') {
           callback();
         }
@@ -405,6 +476,11 @@ class RenderLayer {
     };
 
     write(tick);
+  }
+
+  _stopAnimation() {
+
+    this.state.animation = false;
   }
 
   /**
@@ -456,8 +532,9 @@ class RenderLayer {
     state.height = container.offsetHeight;
 
     if (NODE_ENV === 'development') {
-      this.shadowLayer.style.width = state.width;
-      this.shadowLayer.style.height = state.height;
+      const { shadowLayer } = this;
+      shadowLayer.style.width = state.width;
+      shadowLayer.style.height = state.height;
     }
   }
 
@@ -469,9 +546,10 @@ class RenderLayer {
     this.unsubscribe();
 
     if (NODE_ENV === 'development') {
-      this.parent.container.removeChild(this.shadowLayer);
-      this.parent.container.removeChild(this.momentumLayerX);
-      this.parent.container.removeChild(this.momentumLayerY);
+      let { container } = this.parent;
+      container.removeChild(this.shadowLayer);
+      container.removeChild(this.momentumLayerX);
+      container.removeChild(this.momentumLayerY);
     }
   }
  }
