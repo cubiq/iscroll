@@ -98,6 +98,7 @@ class RenderLayer {
    */
   processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
     var { state, parent } = this;
+    this._stopAnimation();
 
     if (parent.options.preventPageScrollWhileScrolling) {
       originalEvent.preventDefault();
@@ -114,10 +115,11 @@ class RenderLayer {
     }
 
     // filtrate Mac magicpad
-    if (deltaY % 120 && deltaY % 100) {
-      //console.log('isMacigPad');
+    if (this._isMagicPad(deltaY)) {
       state.currentY += -deltaY;
-      this.renderPosition();
+      this.renderPosition({
+        preventOverscroll:true,
+      });
       return;
     }
 
@@ -164,6 +166,36 @@ class RenderLayer {
 
     wheelTimeCapsule.length = 0;
     this.releaseVelocity();
+  }
+
+  /**
+   * Analyse collected mousewheel data determine Mac MagicPad
+   * @return {Boolean}
+   *
+   */
+  _isMagicPad(deltaY) {
+    var array = [];
+    var isMagicPad = false;
+
+    if (!deltaY) {
+      return false;
+    }
+
+    if (!wheelTimeCapsule.length) {
+      array = [deltaY, deltaY, deltaY];
+    } else {
+      wheelTimeCapsule.forEach(function(item) {
+        array.push(item.y);
+      });
+    }
+
+    array.forEach(function(delta) {
+      if (delta % 120 && delta % 100) {
+        isMagicPad = true;
+      }
+    });
+
+    return isMagicPad;
   }
 
   /**
@@ -267,8 +299,12 @@ class RenderLayer {
   /**
    * renderPosition
    * Render layer position
+   * @param {Object} options
    */
-  renderPosition() {
+  renderPosition({
+    // preventOverscroll used to cancel overscroll in particular cases like MagicPad scroll
+    preventOverscroll,
+  } = {}) {
     const { state, container } = this;
     const { options } = this.parent;
     const transform = this.parent.styles.transform;
@@ -280,7 +316,7 @@ class RenderLayer {
     // calculate position
     if (options.scrollX) {
       state.x = state.currentX - (state.overscrollX || 0);
-      if (state.overscrollX && options.allowOverscroll) {
+      if (state.overscrollX && options.allowOverscroll && !preventOverscroll) {
         state.x += this.overscrollReducer(state.overscrollX);
       }
     }
@@ -288,7 +324,7 @@ class RenderLayer {
     // calculate position
     if (options.scrollY) {
       state.y = state.currentY - (state.overscrollY || 0);
-      if (state.overscrollY && options.allowOverscroll) {
+      if (state.overscrollY && options.allowOverscroll && !preventOverscroll) {
         state.y += this.overscrollReducer(state.overscrollY);
       }
     }
@@ -431,11 +467,6 @@ class RenderLayer {
     let startY = state.currentY;
     let currentFrame = 0;
 
-    if (state.animation && state.animation.raf) {
-      console.log('CANCEL RAF ID', state.animation.raf);
-      cancel(state.animation.raf);
-    }
-
     this._stopAnimation();
 
     if (!frames && time) {
@@ -488,7 +519,13 @@ class RenderLayer {
   }
 
   _stopAnimation() {
-    this.state.animation = false;
+    let { state } = this;
+
+    if (state.animation && state.animation.raf) {
+      cancel(state.animation.raf);
+    }
+
+    state.animation = false;
   }
 
   /**
