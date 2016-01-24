@@ -4,7 +4,7 @@
 'use strict';
 
 import { inertia, outQuartic } from '../libs/easings.js';
-import { write, request, cancel } from '../libs/fps.js';
+import { request, cancel } from '../libs/fps.js';
 
 // store events to calculate velocity here
 const pointersTimeCapsule = [];
@@ -104,7 +104,7 @@ class RenderLayer {
       originalEvent.preventDefault();
     }
 
-    // update wheelTimecapsule
+    // update wheelTimeCapsule
     wheelTimeCapsule.push({
       x: deltaX,
       y: deltaY,
@@ -194,6 +194,15 @@ class RenderLayer {
         isMagicPad = true;
       }
     });
+
+    // clean wheelTimeCapsule after ~3 frames
+    // Need to detect mousewheel right after MagicPad scroll
+    if (isMagicPad) {
+      clearTimeout(this.__MagicPadTO);
+      this.__MagicPadTO = setTimeout(function() {
+        wheelTimeCapsule.length = 0;
+      }, 1000 / 20);
+    }
 
     return isMagicPad;
   }

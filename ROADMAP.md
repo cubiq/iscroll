@@ -22,5 +22,4 @@
 - [ ] Snap
 - [ ] ScrollIndicator
 - [ ] Pull to refresh support
-- [ ] Add magicpad bounce
 
