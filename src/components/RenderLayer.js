@@ -133,10 +133,30 @@ class RenderLayer {
       this.releaseVelocity();
     }
 
-    if (NODE_ENV === 'development') {
-      // to display velocity on the corners while development
-      this.calculateVelocity();
-    }
+  }
+
+  /**
+   * getBoundariesDistance
+   * return distance to all boundaries
+   */
+  getBoundariesDistance() {
+    let { state } = this;
+    let parentState = this.parent.state;
+    let top = 0;
+    let right = 0;
+    let left = 0;
+    let bottom = 0;
+
+    // top
+    top = -state.currentY;
+    left = -state.currentX;
+
+    bottom = (state.height + state.currentY) - parentState.height;
+    right = (state.width + state.currentX) - parentState.width;
+
+    return {
+      top, left, right, bottom,
+    };
   }
 
   /**
@@ -317,11 +337,6 @@ class RenderLayer {
    */
   processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
     var { state, parent } = this;
-    this._stopAnimation();
-
-    if (parent.options.preventPageScrollWhileScrolling) {
-      originalEvent.preventDefault();
-    }
 
     // update wheelTimeCapsule
     wheelTimeCapsule.push({
@@ -329,6 +344,31 @@ class RenderLayer {
       y: deltaY,
       time: currentTime,
     });
+
+    // check boundaries, if we out of boundaries - ignore
+    var boundaries = this.getBoundariesDistance();
+    if (state.isMagicPad && deltaY < 0 && boundaries.top + deltaY < 40) {
+      if (state.animation || boundaries.top < 1) {
+        return;
+      }
+      this.releaseWheel(deltaX, deltaY);
+      return;
+    }
+
+    if (state.isMagicPad &&deltaY > 0 && boundaries.bottom - deltaY < 40) {
+      if (state.animation || boundaries.bottom < 1) {
+        return;
+      }
+      this.releaseWheel(deltaX, deltaY);
+      return;
+    }
+
+    this._stopAnimation();
+
+    if (parent.options.preventPageScrollWhileScrolling) {
+      originalEvent.preventDefault();
+    }
+
     if (wheelTimeCapsule.length > wheelTimeCapsuleLimit) {
       wheelTimeCapsule.shift();
     }
@@ -473,7 +513,6 @@ class RenderLayer {
     };
 
     let tick = () => {
-      console.log(Date.now(), state.animation.currentFrame);
       if (!state.animation) {
         return;
       }
@@ -503,7 +542,6 @@ class RenderLayer {
     };
 
     state.animation.raf = request(tick);
-    console.log('NEW RAF ID', state.animation.raf);
   }
 
   _stopAnimation() {
@@ -551,6 +589,8 @@ class RenderLayer {
         wheelTimeCapsule.length = 0;
       }, 1000 / 20);
     }
+
+    this.state.isMagicPad = isMagicPad;
 
     return isMagicPad;
   }
