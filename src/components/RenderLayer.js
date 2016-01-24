@@ -92,122 +92,6 @@ class RenderLayer {
   }
 
   /**
-   * processWheel
-   * Process mousewheel event
-   * @param {Object} event - wheel event
-   */
-  processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
-    var { state, parent } = this;
-    this._stopAnimation();
-
-    if (parent.options.preventPageScrollWhileScrolling) {
-      originalEvent.preventDefault();
-    }
-
-    // update wheelTimeCapsule
-    wheelTimeCapsule.push({
-      x: deltaX,
-      y: deltaY,
-      time: currentTime,
-    });
-    if (wheelTimeCapsule.length > wheelTimeCapsuleLimit) {
-      wheelTimeCapsule.shift();
-    }
-
-    // filtrate Mac magicpad
-    if (this._isMagicPad(deltaY)) {
-      state.currentY += -deltaY;
-      this.renderPosition({
-        preventOverscroll:true,
-      });
-      return;
-    }
-
-    if (Math.abs(deltaY) > 10) {
-      this.releaseWheel(deltaY, deltaX);
-    }
-  }
-
-  releaseWheel(deltaY, deltaX) {
-    const { state } = this;
-
-    if (wheelTimeCapsule.length < 2) {
-      wheelTimeCapsule.length = 0;
-      wheelTimeCapsule.push({
-        x: deltaX,
-        y: deltaY,
-        time: Date.now() - 16,
-      });
-      wheelTimeCapsule.push({
-        x: deltaX,
-        y: deltaY,
-        time: Date.now(),
-      });
-    }
-
-    // calculate wheel velocity
-    let firstPoint = wheelTimeCapsule[0];
-    let lastPoint = wheelTimeCapsule[wheelTimeCapsule.length - 1];
-    let xOffset = 0;
-    let yOffset = 0;
-    wheelTimeCapsule.forEach(function(item) {
-      xOffset += item.x;
-      yOffset += item.y;
-    });
-
-    xOffset *= 0.5;
-    yOffset *= 0.5;
-
-    let timeOffset = lastPoint.time - firstPoint.time;
-    let timePerPoint = timeOffset / wheelTimeCapsule.length;
-
-    state.velocityX = -1 * (xOffset / timePerPoint) || 0;
-    state.velocityY = -1 * (yOffset / timePerPoint) || 0;
-
-    wheelTimeCapsule.length = 0;
-    this.releaseVelocity();
-  }
-
-  /**
-   * Analyse collected mousewheel data determine Mac MagicPad
-   * @return {Boolean}
-   *
-   */
-  _isMagicPad(deltaY) {
-    var array = [];
-    var isMagicPad = false;
-
-    if (!deltaY) {
-      return false;
-    }
-
-    if (!wheelTimeCapsule.length) {
-      array = [deltaY, deltaY, deltaY];
-    } else {
-      wheelTimeCapsule.forEach(function(item) {
-        array.push(item.y);
-      });
-    }
-
-    array.forEach(function(delta) {
-      if (delta % 120 && delta % 100) {
-        isMagicPad = true;
-      }
-    });
-
-    // clean wheelTimeCapsule after ~3 frames
-    // Need to detect mousewheel right after MagicPad scroll
-    if (isMagicPad) {
-      clearTimeout(this.__MagicPadTO);
-      this.__MagicPadTO = setTimeout(function() {
-        wheelTimeCapsule.length = 0;
-      }, 1000 / 20);
-    }
-
-    return isMagicPad;
-  }
-
-  /**
    * processInteraction
    * Get pointer data from EventProcessor
    * @param {Object} event - pointer event
@@ -306,57 +190,21 @@ class RenderLayer {
   }
 
   /**
-   * renderPosition
-   * Render layer position
-   * @param {Object} options
+   * overscrollReducer
+   * Reduce ammount of overscroll
+   * @param {Number} value - ammout of overscroll
+   * @return {Number} result - reduced ammount
    */
-  renderPosition({
-    // preventOverscroll used to cancel overscroll in particular cases like MagicPad scroll
-    preventOverscroll,
-  } = {}) {
-    const { state, container } = this;
-    const { options } = this.parent;
-    const transform = this.parent.styles.transform;
-
-    // calculate boundaries and overscrollX
-    state.overscrollX = this.getOverscrollX();
-    state.overscrollY = this.getOverscrollY();
-
-    // calculate position
-    if (options.scrollX) {
-      state.x = state.currentX - (state.overscrollX || 0);
-      if (state.overscrollX && options.allowOverscroll && !preventOverscroll) {
-        state.x += this.overscrollReducer(state.overscrollX);
-      }
+  overscrollReducer(value) {
+    let direction = value > 0 ? 1 : -1;
+    let i = Math.abs(value);
+    let results = 0;
+    while (i > 0) {
+      results += 1 / Math.pow(1.0035, i) * direction;
+      i--;
     }
 
-    // calculate position
-    if (options.scrollY) {
-      state.y = state.currentY - (state.overscrollY || 0);
-      if (state.overscrollY && options.allowOverscroll && !preventOverscroll) {
-        state.y += this.overscrollReducer(state.overscrollY);
-      }
-    }
-
-    // #DEV - display actual layer (not reduced by bounds or thresholds)
-    if (NODE_ENV === 'development') {
-      if (state.overscrollX || state.overscrollY) {
-        this.shadowLayer.style[transform] = `translate3d(${state.currentX}px, ${state.currentY}px, 0px)`;
-
-        // this.shadowLayer.style.opacity = 1;
-      } else if (this.shadowLayer.style.opacity) {
-        this.shadowLayer.style.opacity = 0;
-      }
-    }
-
-    if (transform) {
-      container.style[transform] = `translate3d(${state.x}px, ${state.y}px, 0px)`;
-      return;
-    }
-
-    // respect old-fashioned browsers
-    container.style.left = this.state.x;
-    container.style.top = this.state.y;
+    return results;
   }
 
   /**
@@ -462,6 +310,137 @@ class RenderLayer {
     });
   }
 
+  /**
+   * processWheel
+   * Process mousewheel event
+   * @param {Object} event - wheel event
+   */
+  processWheel({ deltaY, deltaX, currentTime, originalEvent }) {
+    var { state, parent } = this;
+    this._stopAnimation();
+
+    if (parent.options.preventPageScrollWhileScrolling) {
+      originalEvent.preventDefault();
+    }
+
+    // update wheelTimeCapsule
+    wheelTimeCapsule.push({
+      x: deltaX,
+      y: deltaY,
+      time: currentTime,
+    });
+    if (wheelTimeCapsule.length > wheelTimeCapsuleLimit) {
+      wheelTimeCapsule.shift();
+    }
+
+    // filtrate Mac magicpad
+    if (this._isMagicPad(deltaY)) {
+      state.currentY += -deltaY;
+      this.renderPosition({
+        preventOverscroll:true,
+      });
+      return;
+    }
+
+    if (Math.abs(deltaY) > 10) {
+      this.releaseWheel(deltaY, deltaX);
+    }
+  }
+
+  releaseWheel(deltaY, deltaX) {
+    const { state } = this;
+
+    if (wheelTimeCapsule.length < 2) {
+      wheelTimeCapsule.length = 0;
+      wheelTimeCapsule.push({
+        x: deltaX,
+        y: deltaY,
+        time: Date.now() - 16,
+      });
+      wheelTimeCapsule.push({
+        x: deltaX,
+        y: deltaY,
+        time: Date.now(),
+      });
+    }
+
+    // calculate wheel velocity
+    let firstPoint = wheelTimeCapsule[0];
+    let lastPoint = wheelTimeCapsule[wheelTimeCapsule.length - 1];
+    let xOffset = 0;
+    let yOffset = 0;
+    wheelTimeCapsule.forEach(function(item) {
+      xOffset += item.x;
+      yOffset += item.y;
+    });
+
+    xOffset *= 0.5;
+    yOffset *= 0.5;
+
+    let timeOffset = lastPoint.time - firstPoint.time;
+    let timePerPoint = timeOffset / wheelTimeCapsule.length;
+
+    state.velocityX = -1 * (xOffset / timePerPoint) || 0;
+    state.velocityY = -1 * (yOffset / timePerPoint) || 0;
+
+    wheelTimeCapsule.length = 0;
+    this.releaseVelocity();
+  }
+
+  /**
+   * renderPosition
+   * Render layer position
+   * @param {Object} options
+   */
+  renderPosition({
+    // preventOverscroll used to cancel overscroll in particular cases like MagicPad scroll
+    preventOverscroll,
+  } = {}) {
+    const { state, container } = this;
+    const { options } = this.parent;
+    const transform = this.parent.styles.transform;
+
+    // calculate boundaries and overscrollX
+    state.overscrollX = this.getOverscrollX();
+    state.overscrollY = this.getOverscrollY();
+
+    // calculate position
+    if (options.scrollX) {
+      state.x = state.currentX - (state.overscrollX || 0);
+      if (state.overscrollX && options.allowOverscroll && !preventOverscroll) {
+        state.x += this.overscrollReducer(state.overscrollX);
+      }
+    }
+
+    // calculate position
+    if (options.scrollY) {
+      state.y = state.currentY - (state.overscrollY || 0);
+      if (state.overscrollY && options.allowOverscroll && !preventOverscroll) {
+        state.y += this.overscrollReducer(state.overscrollY);
+      }
+    }
+
+    // #DEV - display actual layer (not reduced by bounds or thresholds)
+    if (NODE_ENV === 'development') {
+      if (state.overscrollX || state.overscrollY) {
+        this.shadowLayer.style[transform] = `translate3d(${state.currentX}px, ${state.currentY}px, 0px)`;
+
+        // this.shadowLayer.style.opacity = 1;
+      } else if (this.shadowLayer.style.opacity) {
+        this.shadowLayer.style.opacity = 0;
+      }
+    }
+
+    if (transform) {
+      container.style[transform] = `translate3d(${state.x}px, ${state.y}px, 0px)`;
+      return;
+    }
+
+    // respect old-fashioned browsers
+    container.style.left = this.state.x;
+    container.style.top = this.state.y;
+  }
+
   _animate({
     distanceX,
     distanceY,
@@ -538,21 +517,42 @@ class RenderLayer {
   }
 
   /**
-   * overscrollReducer
-   * Reduce ammount of overscroll
-   * @param {Number} value - ammout of overscroll
-   * @return {Number} result - reduced ammount
+   * Analyse collected mousewheel data determine Mac MagicPad
+   * @return {Boolean}
+   *
    */
-  overscrollReducer(value) {
-    let direction = value > 0 ? 1 : -1;
-    let i = Math.abs(value);
-    let results = 0;
-    while (i > 0) {
-      results += 1 / Math.pow(1.0035, i) * direction;
-      i--;
+  _isMagicPad(deltaY) {
+    var array = [];
+    var isMagicPad = false;
+
+    if (!deltaY) {
+      return false;
     }
 
-    return results;
+    if (!wheelTimeCapsule.length) {
+      array = [deltaY, deltaY, deltaY];
+    } else {
+      wheelTimeCapsule.forEach(function(item) {
+        array.push(item.y);
+      });
+    }
+
+    array.forEach(function(delta) {
+      if (delta % 120 && delta % 100) {
+        isMagicPad = true;
+      }
+    });
+
+    // clean wheelTimeCapsule after ~3 frames
+    // Need to detect mousewheel right after MagicPad scroll
+    if (isMagicPad) {
+      clearTimeout(this.__MagicPadTO);
+      this.__MagicPadTO = setTimeout(function() {
+        wheelTimeCapsule.length = 0;
+      }, 1000 / 20);
+    }
+
+    return isMagicPad;
   }
 
   /**
