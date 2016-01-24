@@ -21,11 +21,10 @@
     "strip-loader": "0.1.0",
     "webpack": "1.12.9",
     "webpack-dev-server": "1.14.0",
-    "webpack-sources": "0.1.0",
-    "debug": "2.2.0"
+    "webpack-sources": "0.1.0"
   },
   "scripts": {
-    "start": "NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --progress --host 10.0.1.4",
+    "start": "NODE_ENV=development node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --progress",
     "build": "NODE_ENV=production ./node_modules/webpack/bin/webpack.js --progress",
     "analyse": "./node_modules/webpack/bin/webpack.js --json --profile > analyse.json",
     "test": "npm run test:unit",

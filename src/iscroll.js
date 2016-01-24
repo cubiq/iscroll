@@ -3,12 +3,6 @@
  */
 'use strict';
 
-// example of debug tool. All debug code will strip on production
-if (NODE_ENV === 'development') {
-  const debug = require('./dev/debug.js')('iscroll:iscroll.js');
-  window.debug.enable('iscroll:*');
-}
-
 /**
  * global Object, with
  * @type {Object}
@@ -36,7 +30,7 @@ class Iscroll {
    * @param  {Object} [options]
    */
   constructor(element, options = {}) {
-    debug('constructor!');
+    window.iscroll = this;
 
     if (element.jquery) {
       element = element[0];
@@ -63,13 +57,12 @@ class Iscroll {
 
     this.refresh();
     this.state.ready = true;
-    debug('ready!');
     this.emit('onReady');
 
     // #DEV - ADDITIONAL MODULES
-    if (NODE_ENV === 'development') {
-      //require('./dev/StatePanel.js').default(this); // State display panel
-    }
+    // if (NODE_ENV === 'development') {
+    //   require('./dev/StatePanel.js').default(this); // State display panel
+    // }
 
     // #DEV - HOT MODULE REPLACEMENT FOR EXTENDS
     if (module.hot) {

@@ -17,8 +17,9 @@
 - [ ] Finish Covering RenderLayer.js
 
 ## RenderLayer
+- [x] Add mousewheel
+- [x] Add magicpad support
 - [ ] Snap
 - [ ] ScrollIndicator
-- [ ] Add mousewheel
-- [ ] Add magicpad support
+- [ ] Pull to refresh support
 
