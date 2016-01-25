@@ -597,4 +597,5 @@ IScroll.prototype = {
 		}
 
 		return { x: x, y: y };
-	},
+	}
+}
