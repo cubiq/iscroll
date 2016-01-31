@@ -372,6 +372,7 @@ IScroll.prototype = {
 	refresh: function () {
 		var rf = this.wrapper.offsetHeight;		// Force reflow
 
+		this._execEvent('beforeRefresh');
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;
 
