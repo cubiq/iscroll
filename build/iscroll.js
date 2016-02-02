@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -670,6 +670,7 @@ IScroll.prototype = {
 	refresh: function () {
 		var rf = this.wrapper.offsetHeight;		// Force reflow
 
+		this._execEvent('beforeRefresh');
 		this.wrapperWidth	= this.wrapper.clientWidth;
 		this.wrapperHeight	= this.wrapper.clientHeight;
 
@@ -854,6 +855,7 @@ IScroll.prototype = {
 
 		this.x = x;
 		this.y = y;
+		this._execEvent('scrollMove');
 
 
 	if ( this.indicators ) {
