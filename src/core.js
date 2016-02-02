@@ -541,6 +541,7 @@ IScroll.prototype = {
 
 		this.x = x;
 		this.y = y;
+		this._execEvent('scrollMove');
 
 // INSERT POINT: _translate
 
