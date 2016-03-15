@@ -527,7 +527,7 @@ Minimum zoom level.
 
 Default: `1`
 
-### <small>options.</small>zoomStart
+### <small>options.</small>startZoom
 
 Starting zoom level.
 
