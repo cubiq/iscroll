@@ -80,7 +80,17 @@ function Indicator (scroller, options) {
 
 	if ( this.options.fade ) {
 		this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
-		this.wrapperStyle[utils.style.transitionDuration] = utils.isBadAndroid ? '0.001s' : '0ms';
+		var durationProp = utils.style.transitionDuration;
+		this.wrapperStyle[durationProp] = utils.isBadAndroid ? '0.0001ms' : '0ms';
+		// remove 0.0001ms
+		var self = this;
+		if(utils.isBadAndroid) {
+			rAF(function() {
+				if(self.wrapperStyle[durationProp] === '0.0001ms') {
+					self.wrapperStyle[durationProp] = '0s';
+				}
+			});
+		}
 		this.wrapperStyle.opacity = '0';
 	}
 }
@@ -228,10 +238,18 @@ Indicator.prototype = {
 
 	transitionTime: function (time) {
 		time = time || 0;
-		this.indicatorStyle[utils.style.transitionDuration] = time + 'ms';
+		var durationProp = utils.style.transitionDuration;
+		this.indicatorStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
-			this.indicatorStyle[utils.style.transitionDuration] = '0.001s';
+			this.indicatorStyle[durationProp] = '0.0001ms';
+			// remove 0.0001ms
+			var self = this;
+			rAF(function() {
+				if(self.indicatorStyle[durationProp] === '0.0001ms') {
+					self.indicatorStyle[durationProp] = '0s';
+				}
+			});
 		}
 	},
 
@@ -295,7 +313,7 @@ Indicator.prototype = {
 				this.maxBoundaryX = this.maxPosX;
 			}
 
-			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));
 		}
 
 		if ( this.options.listenY ) {

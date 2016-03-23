@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -48,7 +48,7 @@ var utils = (function () {
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
-		return window.MSPointerEvent ? 
+		return window.MSPointerEvent ?
 			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
 			pointerEvent;
 	};
@@ -90,8 +90,34 @@ var utils = (function () {
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
-	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	/*
+	This should find all Android browsers lower than build 535.19 (both stock browser and webview)
+	- galaxy S2 is ok
+    - 2.3.6 : `AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1`
+    - 4.0.4 : `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S3 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S4 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S5 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+   - galaxy S6 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+  */
+	me.isBadAndroid = (function() {
+		var appVersion = window.navigator.appVersion;
+		// Android browser is not a chrome browser.
+		if (/Android/.test(appVersion) && !(/Chrome\/\d/.test(appVersion))) {
+			var safariVersion = appVersion.match(/Safari\/(\d+.\d)/);
+			if(safariVersion && typeof safariVersion === "object" && safariVersion.length >= 2) {
+				return parseFloat(safariVersion[1]) < 535.19;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	})();
 
 	me.extend(me.style = {}, {
 		transform: _transform,
@@ -244,7 +270,6 @@ var utils = (function () {
 
 	return me;
 })();
-
 function IScroll (el, options) {
 	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
 	this.scroller = this.wrapper.children[0];
@@ -252,7 +277,7 @@ function IScroll (el, options) {
 
 	this.options = {
 
-// INSERT POINT: OPTIONS 
+// INSERT POINT: OPTIONS
 
 		startX: 0,
 		startY: 0,
@@ -303,7 +328,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this.directionX = 0;
@@ -374,11 +399,10 @@ IScroll.prototype = {
 		this.directionY = 0;
 		this.directionLocked = 0;
 
-		this._transitionTime();
-
 		this.startTime = utils.getTime();
 
 		if ( this.options.useTransition && this.isInTransition ) {
+			this._transitionTime();
 			this.isInTransition = false;
 			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
@@ -707,10 +731,12 @@ IScroll.prototype = {
 		easing = easing || utils.ease.circular;
 
 		this.isInTransition = this.options.useTransition && time > 0;
-
-		if ( !time || (this.options.useTransition && easing.style) ) {
-			this._transitionTimingFunction(easing.style);
-			this._transitionTime(time);
+		var transitionType = this.options.useTransition && easing.style;
+		if ( !time || transitionType ) {
+				if(transitionType) {
+					this._transitionTimingFunction(easing.style);
+					this._transitionTime(time);
+				}
 			this._translate(x, y);
 		} else {
 			this._animate(x, y, time, easing.fn);
@@ -751,10 +777,18 @@ IScroll.prototype = {
 	_transitionTime: function (time) {
 		time = time || 0;
 
-		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
+		var durationProp = utils.style.transitionDuration;
+		this.scrollerStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
-			this.scrollerStyle[utils.style.transitionDuration] = '0.001s';
+			this.scrollerStyle[durationProp] = '0.0001ms';
+			// remove 0.0001ms
+			var self = this;
+			rAF(function() {
+				if(self.scrollerStyle[durationProp] === '0.0001ms') {
+					self.scrollerStyle[durationProp] = '0s';
+				}
+			});
 		}
 
 // INSERT POINT: _transitionTime
@@ -844,7 +878,6 @@ IScroll.prototype = {
 
 		return { x: x, y: y };
 	},
-
 	_animate: function (destX, destY, duration, easingFn) {
 		var that = this,
 			startX = this.x,

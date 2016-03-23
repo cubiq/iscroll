@@ -46,7 +46,7 @@ var utils = (function () {
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
-		return window.MSPointerEvent ? 
+		return window.MSPointerEvent ?
 			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
 			pointerEvent;
 	};
@@ -88,8 +88,34 @@ var utils = (function () {
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
-	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	/*
+	This should find all Android browsers lower than build 535.19 (both stock browser and webview)
+	- galaxy S2 is ok
+    - 2.3.6 : `AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1`
+    - 4.0.4 : `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S3 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S4 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S5 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+   - galaxy S6 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+  */
+	me.isBadAndroid = (function() {
+		var appVersion = window.navigator.appVersion;
+		// Android browser is not a chrome browser.
+		if (/Android/.test(appVersion) && !(/Chrome\/\d/.test(appVersion))) {
+			var safariVersion = appVersion.match(/Safari\/(\d+.\d)/);
+			if(safariVersion && typeof safariVersion === "object" && safariVersion.length >= 2) {
+				return parseFloat(safariVersion[1]) < 535.19;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	})();
 
 	me.extend(me.style = {}, {
 		transform: _transform,

@@ -506,10 +506,18 @@ IScroll.prototype = {
 	_transitionTime: function (time) {
 		time = time || 0;
 
-		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
+		var durationProp = utils.style.transitionDuration;
+		this.scrollerStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
-			this.scrollerStyle[utils.style.transitionDuration] = '0.001s';
+			this.scrollerStyle[durationProp] = '0.0001ms';
+			// remove 0.0001ms
+			var self = this;
+			rAF(function() {
+				if(self.scrollerStyle[durationProp] === '0.0001ms') {
+					self.scrollerStyle[durationProp] = '0s';
+				}
+			});
 		}
 
 // INSERT POINT: _transitionTime
