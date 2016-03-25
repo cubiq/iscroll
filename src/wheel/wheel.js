@@ -16,7 +16,6 @@
 			return;
 		}
 
-		e.preventDefault();
 		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
@@ -95,6 +94,10 @@
 			newY = 0;
 		} else if ( newY < this.maxScrollY ) {
 			newY = this.maxScrollY;
+		}
+
+		if( newY > 0 && newY < this.maxScrollY){
+			e.preventDefault();
 		}
 
 		this.scrollTo(newX, newY, 0);
