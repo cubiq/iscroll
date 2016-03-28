@@ -395,7 +395,8 @@ IScroll.prototype = {
 
 	destroy: function () {
 		this._initEvents(true);
-
+		clearTimeout(this.resizeTimeout);
+ 		this.resizeTimeout = null;
 		this._execEvent('destroy');
 	},
 
@@ -1232,6 +1233,8 @@ IScroll.prototype = {
 		utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
 
 		this.on('destroy', function () {
+			clearTimeout(this.wheelTimeout);
+			this.wheelTimeout = null;
 			utils.removeEvent(this.wrapper, 'wheel', this);
 			utils.removeEvent(this.wrapper, 'mousewheel', this);
 			utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
@@ -1311,6 +1314,9 @@ IScroll.prototype = {
 
 		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
 		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+		this.directionX = wheelDeltaX > 0 ? -1 : wheelDeltaX < 0 ? 1 : 0;
+		this.directionY = wheelDeltaY > 0 ? -1 : wheelDeltaY < 0 ? 1 : 0;
 
 		if ( newX > 0 ) {
 			newX = 0;
@@ -1923,6 +1929,10 @@ Indicator.prototype = {
 	},
 
 	destroy: function () {
+		if ( this.options.fadeScrollbars ) {
+			clearTimeout(this.fadeTimeout);
+			this.fadeTimeout = null;
+		}
 		if ( this.options.interactive ) {
 			utils.removeEvent(this.indicator, 'touchstart', this);
 			utils.removeEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);

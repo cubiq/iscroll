@@ -358,7 +358,8 @@ IScroll.prototype = {
 
 	destroy: function () {
 		this._initEvents(true);
-
+		clearTimeout(this.resizeTimeout);
+ 		this.resizeTimeout = null;
 		this._execEvent('destroy');
 	},
 
