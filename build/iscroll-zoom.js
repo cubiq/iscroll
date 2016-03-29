@@ -305,7 +305,8 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+		bindToWrapper: typeof window.onmousedown === "undefined"
 	};
 
 	for ( var i in options ) {
@@ -1247,7 +1248,6 @@ IScroll.prototype = {
 		}
 
 		e.preventDefault();
-		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
@@ -2251,6 +2251,8 @@ IScroll.utils = utils;
 
 if ( typeof module != 'undefined' && module.exports ) {
 	module.exports = IScroll;
+} else if ( typeof define == 'function' && define.amd ) {
+        define( function () { return IScroll; } );
 } else {
 	window.IScroll = IScroll;
 }
