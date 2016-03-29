@@ -19,7 +19,6 @@
 		}
 
 		e.preventDefault();
-		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,

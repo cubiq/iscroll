@@ -25,7 +25,8 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+		bindToWrapper: typeof window.onmousedown === "undefined"
 	};
 
 	for ( var i in options ) {
