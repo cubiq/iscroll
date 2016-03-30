@@ -1630,7 +1630,7 @@ IScroll.prototype = {
 				this._key(e);
 				break;
 			case 'click':
-				if ( !e._constructed ) {
+				if ( this.enabled && !e._constructed ) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
