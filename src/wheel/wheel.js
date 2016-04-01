@@ -31,7 +31,9 @@
 		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
 		clearTimeout(this.wheelTimeout);
 		this.wheelTimeout = setTimeout(function () {
-			that._execEvent('scrollEnd');
+			if(!that.options.snap) {
+				that._execEvent('scrollEnd');
+			}
 			that.wheelTimeout = undefined;
 		}, 400);
 
