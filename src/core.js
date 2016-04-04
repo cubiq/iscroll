@@ -108,7 +108,18 @@ IScroll.prototype = {
 	_start: function (e) {
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
-			if ( e.button !== 0 ) {
+		  // for button property
+		  // http://unixpapa.com/js/mouse.html
+		  var button;
+	    if (!e.which) {
+	      /* IE case */
+	      button = (e.button < 2) ? 0 :
+	               ((e.button == 4) ? 1 : 2);
+	    } else {
+	      /* All others */
+	      button = e.button;
+	    }
+			if ( button !== 0 ) {
 				return;
 			}
 		}
