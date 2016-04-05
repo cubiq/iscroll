@@ -270,10 +270,9 @@ var utils = (function () {
 
 	return me;
 })();
-function IScroll (el, options) {
+function IScroll (el, options, scroller) {
 	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
-	this.scroller = this.wrapper.children[0];
-	this.scrollerStyle = this.scroller.style;		// cache style for better performance
+
 
 	this.options = {
 
@@ -305,6 +304,9 @@ function IScroll (el, options) {
 		useTransform: true,
 		bindToWrapper: typeof window.onmousedown === "undefined"
 	};
+	
+	this.scroller = (typeof scroller == 'undefined') ? this.wrapper.children[0] : scroller;
+	this.scrollerStyle = this.scroller.style;		// cache style for better performance
 
 	for ( var i in options ) {
 		this.options[i] = options[i];
