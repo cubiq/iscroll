@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3-master ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.2.0 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -365,7 +365,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.1.3-master',
+	version: '5.2.0',
 
 	_init: function () {
 		this._initEvents();
@@ -412,7 +412,18 @@ IScroll.prototype = {
 	_start: function (e) {
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
-			if ( e.button !== 0 ) {
+		  // for button property
+		  // http://unixpapa.com/js/mouse.html
+		  var button;
+	    if (!e.which) {
+	      /* IE case */
+	      button = (e.button < 2) ? 0 :
+	               ((e.button == 4) ? 1 : 2);
+	    } else {
+	      /* All others */
+	      button = e.button;
+	    }
+			if ( button !== 0 ) {
 				return;
 			}
 		}
