@@ -302,7 +302,9 @@ function IScroll (el, options, scroller) {
 		HWCompositing: true,
 		useTransition: true,
 		useTransform: true,
-		bindToWrapper: typeof window.onmousedown === "undefined"
+		bindToWrapper: typeof window.onmousedown === "undefined",
+		
+		snapWait: false
 	};
 	
 	this.scroller = (typeof scroller == 'undefined') ? this.wrapper.children[0] : scroller;
@@ -1354,6 +1356,9 @@ IScroll.prototype = {
 	},
 
 	goToPage: function (x, y, time, easing) {
+		if(this.options.snapWait && ((!this.options.useTransition && this.isAnimating) || (this.options.useTransition && this.isInTransition)))
+			return;
+
 		easing = easing || this.options.bounceEasing;
 
 		if ( x >= this.pages.length ) {
@@ -1364,8 +1369,10 @@ IScroll.prototype = {
 
 		if ( y >= this.pages[x].length ) {
 			y = this.pages[x].length - 1;
+			return;
 		} else if ( y < 0 ) {
 			y = 0;
+			return;
 		}
 
 		var posX = this.pages[x][y].x,
