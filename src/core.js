@@ -22,6 +22,7 @@ function IScroll (el, options) {
 
 		preventDefault: true,
 		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
+        clickFilter: (/(SELECT|INPUT|TEXTAREA)/i),
 
 		HWCompositing: true,
 		useTransition: true,
@@ -301,7 +302,7 @@ IScroll.prototype = {
 			}
 
 			if ( this.options.click ) {
-				utils.click(e);
+				utils.click(e, this.options.clickFilter);
 			}
 
 			this._execEvent('scrollCancel');

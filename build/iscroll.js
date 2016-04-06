@@ -252,11 +252,11 @@ var utils = (function () {
 		e.target.dispatchEvent(ev);
 	};
 
-	me.click = function (e) {
+	me.click = function (e, clickFilter) {
 		var target = e.target,
 			ev;
 
-		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
+		if ( !clickFilter.test(target.tagName) ) {
 			ev = document.createEvent('MouseEvents');
 			ev.initMouseEvent('click', true, true, e.view, 1,
 				target.screenX, target.screenY, target.clientX, target.clientY,
@@ -299,6 +299,7 @@ function IScroll (el, options) {
 
 		preventDefault: true,
 		preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ },
+        clickFilter: (/(SELECT|INPUT|TEXTAREA)/i),
 
 		HWCompositing: true,
 		useTransition: true,
@@ -600,7 +601,7 @@ IScroll.prototype = {
 			}
 
 			if ( this.options.click ) {
-				utils.click(e);
+				utils.click(e, this.options.clickFilter);
 			}
 
 			this._execEvent('scrollCancel');
