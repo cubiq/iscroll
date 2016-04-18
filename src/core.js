@@ -60,7 +60,7 @@ function IScroll (el, options) {
 
 	// https://github.com/cubiq/iscroll/issues/1029
 	if (!this.options.useTransition && !this.options.useTransform) {
-		this.scrollerStyle.position = "absolute";
+		this.scrollerStyle.position = "relative";
 	}
 
 // INSERT POINT: NORMALIZATION
