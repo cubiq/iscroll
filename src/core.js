@@ -58,6 +58,11 @@ function IScroll (el, options) {
 		this.options.tap = 'tap';
 	}
 
+	// https://github.com/cubiq/iscroll/issues/1029
+	if (!this.options.useTransition && !this.options.useTransform) {
+		this.scrollerStyle.position = "absolute";
+	}
+
 // INSERT POINT: NORMALIZATION
 
 	// Some defaults
@@ -519,8 +524,10 @@ IScroll.prototype = {
 	},
 
 	_transitionTime: function (time) {
+		if (!this.options.useTransition) {
+			return;
+		}
 		time = time || 0;
-
 		var durationProp = utils.style.transitionDuration;
 		if(!durationProp) {
 			return;
