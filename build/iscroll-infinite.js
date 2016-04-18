@@ -257,12 +257,22 @@ var utils = (function () {
 			ev;
 
 		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
-			ev = document.createEvent('MouseEvents');
-			ev.initMouseEvent('click', true, true, e.view, 1,
-				target.screenX, target.screenY, target.clientX, target.clientY,
-				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-				0, null);
-
+			// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/initMouseEvent
+			// initMouseEvent is deprecated.
+			ev = document.createEvent(window.MouseEvent ? 'MouseEvents' : 'Event');
+			ev.initEvent('click', true, true);
+			ev.view = e.view;
+			ev.detail = 1;
+			ev.screenX = target.screenX || 0;
+			ev.screenY = target.screenY || 0;
+			ev.clientX = target.clientX || 0;
+			ev.clientY = target.clientY || 0;
+			ev.ctrlKey = !!e.ctrlKey;
+			ev.altKey = !!e.altKey;
+			ev.shiftKey = !!e.shiftKey;
+			ev.metaKey = !!e.metaKey;
+			ev.button = 0;
+			ev.relatedTarget = null;
 			ev._constructed = true;
 			target.dispatchEvent(ev);
 		}
@@ -334,6 +344,11 @@ function IScroll (el, options) {
 
 	if ( this.options.tap === true ) {
 		this.options.tap = 'tap';
+	}
+
+	// https://github.com/cubiq/iscroll/issues/1029
+	if (!this.options.useTransition && !this.options.useTransform) {
+		this.scrollerStyle.position = "relative";
 	}
 
 	this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;
@@ -850,9 +865,15 @@ IScroll.prototype = {
 	},
 
 	_transitionTime: function (time) {
+		if (!this.options.useTransition) {
+			return;
+		}
 		time = time || 0;
-
 		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
+
 		this.scrollerStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
