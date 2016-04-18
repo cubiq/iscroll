@@ -81,6 +81,9 @@ function Indicator (scroller, options) {
 	if ( this.options.fade ) {
 		this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
 		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
 		this.wrapperStyle[durationProp] = utils.isBadAndroid ? '0.0001ms' : '0ms';
 		// remove 0.0001ms
 		var self = this;
@@ -243,6 +246,10 @@ Indicator.prototype = {
 	transitionTime: function (time) {
 		time = time || 0;
 		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
+
 		this.indicatorStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {

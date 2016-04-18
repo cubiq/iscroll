@@ -522,6 +522,10 @@ IScroll.prototype = {
 		time = time || 0;
 
 		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
+
 		this.scrollerStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
