@@ -261,7 +261,7 @@ var utils = (function () {
 			// initMouseEvent is deprecated.
 			ev = document.createEvent(window.MouseEvent ? 'MouseEvents' : 'Event');
 			ev.initEvent('click', true, true);
-			ev.view = e.view;
+			ev.view = e.view || window;
 			ev.detail = 1;
 			ev.screenX = target.screenX || 0;
 			ev.screenY = target.screenY || 0;
@@ -348,7 +348,9 @@ function IScroll (el, options) {
 
 	// https://github.com/cubiq/iscroll/issues/1029
 	if (!this.options.useTransition && !this.options.useTransform) {
-		this.scrollerStyle.position = "relative";
+		if(!(/relative|absolute/i).test(this.scrollerStyle.position)) {
+			this.scrollerStyle.position = "relative";
+		}
 	}
 
 	this.options.invertWheelDirection = this.options.invertWheelDirection ? -1 : 1;

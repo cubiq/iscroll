@@ -244,9 +244,6 @@ Indicator.prototype = {
 	},
 
 	transitionTime: function (time) {
-		if (!this.options.useTransition) {
-			return;
-		}
 		time = time || 0;
 		var durationProp = utils.style.transitionDuration;
 		if(!durationProp) {
