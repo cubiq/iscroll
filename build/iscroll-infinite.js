@@ -737,14 +737,18 @@ IScroll.prototype = {
 		this.scrollerWidth	= this.scroller.offsetWidth;
 		this.scrollerHeight	= this.scroller.offsetHeight;
 
-		this.maxScrollX		= this.wrapperWidth - this.scrollerWidth;
-		
-		var limit;
+		this.maxScrollX	= this.wrapperWidth - this.scrollerWidth;
+		this.maxScrollY	= this.wrapperHeight - this.scrollerHeight;
+		this.options.infiniteLimit = this.options.infiniteLimit || Math.floor(2147483645 / this.infiniteElementSize);
+
 		if ( this.options.infiniteElements ) {
-			this.options.infiniteLimit = this.options.infiniteLimit || Math.floor(2147483645 / this.infiniteElementHeight);
-			limit = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
+			if ( this.options.scrollY ) {
+				this.maxScrollY = -this.options.infiniteLimit * this.infiniteElementSize + this.wrapperHeight;
+			} else {
+				this.maxScrollX = -this.options.infiniteLimit * this.infiniteElementSize + this.wrapperWidth;
+			}
 		}
-		this.maxScrollY		= limit !== undefined ? limit : this.wrapperHeight - this.scrollerHeight;
+
 /* REPLACE END: refresh */
 
 		this.hasHorizontalScroll	= this.options.scrollX && this.maxScrollX < 0;
@@ -1507,8 +1511,8 @@ IScroll.prototype = {
 		this.infiniteElements = typeof el == 'string' ? document.querySelectorAll(el) : el;
 		this.infiniteLength = this.infiniteElements.length;
 		this.infiniteMaster = this.infiniteElements[0];
-		this.infiniteElementHeight = this.infiniteMaster.offsetHeight;
-		this.infiniteHeight = this.infiniteLength * this.infiniteElementHeight;
+		this.infiniteElementSize = this.options.scrollY ? this.infiniteMaster.offsetHeight : this.infiniteMaster.offsetWidth;
+		this.infiniteSize = this.infiniteLength * this.infiniteElementSize;
 
 		this.options.cacheSize = this.options.cacheSize || 1000;
 		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
@@ -1517,7 +1521,12 @@ IScroll.prototype = {
 		this.options.dataset.call(this, 0, this.options.cacheSize);
 
 		this.on('refresh', function () {
-			var elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementHeight);
+			var elementsPerPage;
+			if ( this.options.scrollY ) {
+				elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementSize);
+			} else {
+				elementsPerPage = Math.ceil(this.wrapperWidth  / this.infiniteElementSize);
+			}
 			this.infiniteUpperBufferSize = Math.floor((this.infiniteLength - elementsPerPage) / 2);
 			this.reorderInfinite();
 		});
@@ -1527,13 +1536,13 @@ IScroll.prototype = {
 
 	// TO-DO: clean up the mess
 	reorderInfinite: function () {
-		var center = -this.y + this.wrapperHeight / 2;
+		var offset = this.options.scrollY ? -this.y : -this.x;
 
-		var minorPhase = Math.max(Math.floor(-this.y / this.infiniteElementHeight) - this.infiniteUpperBufferSize, 0),
+		var minorPhase = Math.max(Math.floor(offset / this.infiniteElementSize) - this.infiniteUpperBufferSize, 0),
 			majorPhase = Math.floor(minorPhase / this.infiniteLength),
 			phase = minorPhase - majorPhase * this.infiniteLength;
 
-		var top = 0;
+		var position = 0;
 		var i = 0;
 		var update = [];
 
@@ -1541,21 +1550,25 @@ IScroll.prototype = {
 		var cachePhase = Math.floor(minorPhase / this.infiniteCacheBuffer);
 
 		while ( i < this.infiniteLength ) {
-			top = i * this.infiniteElementHeight + majorPhase * this.infiniteHeight;
+			position = i * this.infiniteElementSize + majorPhase * this.infiniteSize;
 
 			if ( phase > i ) {
-				top += this.infiniteElementHeight * this.infiniteLength;
+				position += this.infiniteElementSize * this.infiniteLength;
 			}
 
-			if ( this.infiniteElements[i]._top !== top ) {
-				this.infiniteElements[i]._phase = top / this.infiniteElementHeight;
+			if ( this.infiniteElements[i]._position !== position ) {
+				this.infiniteElements[i]._phase = position / this.infiniteElementSize;
 
 				if ( this.infiniteElements[i]._phase < this.options.infiniteLimit ) {
-					this.infiniteElements[i]._top = top;
+					this.infiniteElements[i]._position = position;
 					if ( this.options.infiniteUseTransform ) {
-						this.infiniteElements[i].style[utils.style.transform] = 'translate(0, ' + top + 'px)' + this.translateZ;
+
+						this.infiniteElements[i].style[utils.style.transform] = 'translate(' +
+								(this.options.scrollY ? '0, ' + position + 'px' : position + 'px, 0') +
+								')' + this.translateZ;
+
 					} else {
-						this.infiniteElements[i].style.top = top + 'px';
+						this.infiniteElements[i].style[this.options.scrollY ? 'top' : 'left'] = position + 'px';
 					}
 					update.push(this.infiniteElements[i]);
 				}
