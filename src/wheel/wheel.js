@@ -5,6 +5,8 @@
 		utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
 
 		this.on('destroy', function () {
+			clearTimeout(this.wheelTimeout);
+			this.wheelTimeout = null;
 			utils.removeEvent(this.wrapper, 'wheel', this);
 			utils.removeEvent(this.wrapper, 'mousewheel', this);
 			utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
@@ -17,7 +19,6 @@
 		}
 
 		e.preventDefault();
-		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
@@ -30,7 +31,9 @@
 		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
 		clearTimeout(this.wheelTimeout);
 		this.wheelTimeout = setTimeout(function () {
-			that._execEvent('scrollEnd');
+			if(!that.options.snap) {
+				that._execEvent('scrollEnd');
+			}
 			that.wheelTimeout = undefined;
 		}, 400);
 
@@ -84,6 +87,9 @@
 
 		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
 		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+		this.directionX = wheelDeltaX > 0 ? -1 : wheelDeltaX < 0 ? 1 : 0;
+		this.directionY = wheelDeltaY > 0 ? -1 : wheelDeltaY < 0 ? 1 : 0;
 
 		if ( newX > 0 ) {
 			newX = 0;

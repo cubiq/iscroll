@@ -37,13 +37,15 @@ Try to keep the DOM as simple as possible. iScroll uses the hardware compositing
 
 The optimal HTML structure is:
 
-    <div id="wrapper">
-        <ul>
-            <li>...</li>
-            <li>...</li>
-            ...
-        </ul>
-    </div>
+```html
+<div id="wrapper">
+    <ul>
+        <li>...</li>
+        <li>...</li>
+        ...
+    </ul>
+</div>
+```
 
 iScroll must be applied to the wrapper of the scrolling area. In the above example the `UL` element will be scrolled. Only the first child of the container element is scrolled, additional children are simply ignored.
 
@@ -55,18 +57,24 @@ iScroll must be applied to the wrapper of the scrolling area. In the above examp
 
 The minimal call to initiate the script is as follow:
 
-    <script type="text/javascript">
-    var myScroll = new IScroll('#wrapper');
-    </script>
+```html
+<script type="text/javascript">
+var myScroll = new IScroll('#wrapper');
+</script>
+```
 
 The first parameter can be a string representing the DOM selector of the scroll container element OR a reference to the element itself. The following is a valid syntax too:
 
-    var wrapper = document.getElementById('wrapper');
-    var myScroll = new IScroll(wrapper);
+```js
+var wrapper = document.getElementById('wrapper');
+var myScroll = new IScroll(wrapper);
+```
 
 So basically either you pass the element directly or a string that will be given to `querySelector`. Consequently to select a wrapper by its class name instead of the ID, you'd do:
 
-    var myScroll = new IScroll('.wrapper');
+```js
+var myScroll = new IScroll('.wrapper');
+```
 
 Note that iScroll uses `querySelector` not `querySelectorAll`, so only the first occurrence of the selector is used. If you need to apply iScroll to multiple objects you'll have to build your own cycle.
 
@@ -86,26 +94,28 @@ The iScroll needs to be initiated when the DOM is ready. The safest bet is to st
 
 To sum up, the smallest iScroll configuration is:
 
-    <head>
-    ...
-    <script type="text/javascript" src="iscroll.js"></script>
-    <script type="text/javascript">
-    var myScroll;
-    function loaded() {
-        myScroll = new IScroll('#wrapper');
-    }
-    </script>
-    </head>
-    ...
-    <body onload="loaded()">
-    <div id="wrapper">
-        <ul>
-            <li>...</li>
-            <li>...</li>
-            ...
-        </ul>
-    </div>
-    </body>
+```html
+<head>
+...
+<script type="text/javascript" src="iscroll.js"></script>
+<script type="text/javascript">
+var myScroll;
+function loaded() {
+    myScroll = new IScroll('#wrapper');
+}
+</script>
+</head>
+...
+<body onload="loaded()">
+<div id="wrapper">
+    <ul>
+        <li>...</li>
+        <li>...</li>
+        ...
+    </ul>
+</div>
+</body>
+```
 
 Refer to the [barebone example](http://lab.cubiq.org/iscroll5/demos/barebone/) for more details on the minimal CSS/HTML requirements.
 
@@ -117,16 +127,20 @@ Refer to the [barebone example](http://lab.cubiq.org/iscroll5/demos/barebone/) f
 
 iScroll can be configured by passing a second parameter during the initialization phase.
 
-    var myScroll = new IScroll('#wrapper', {
-        mouseWheel: true,
-        scrollbars: true
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    mouseWheel: true,
+    scrollbars: true
+});
+```
 
 The example above turns on mouse wheel support and scrollbars.
 
 After initialization you can access the *normalized* values from the `options` object. Eg:
 
-    console.dir(myScroll.options);
+```js
+console.dir(myScroll.options);
+```
 
 The above will return the configuration the `myScroll` instance will run on. By *normalized* I mean that if you set `useTransform:true` (for example) but the browser doesn't support CSS transforms, `useTransform` will be `false`.
 
@@ -184,10 +198,12 @@ If you have an internal mechanism for device detection or you know in advance wh
 
 For example to disable mouse and pointer events:
 
-    var myScroll = new IScroll('#wrapper', {
-        disableMouse: true,
-        disablePointer: true
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    disableMouse: true,
+    disablePointer: true
+});
+```
 
 Default: `false`
 
@@ -267,12 +283,16 @@ Set this to `true` to let iScroll emit a custom `tap` event when the scroll area
 
 This is the suggested way to handle user interaction with clickable elements. To listen to the tap event you would add an event listener as you would do for a standard event. Example: 
 
-    element.addEventListener('tap', doSomething, false); \\ Native
-    $('#element').on('tap', doSomething); \\ jQuery
+```js
+element.addEventListener('tap', doSomething, false); \\ Native
+$('#element').on('tap', doSomething); \\ jQuery
+```
     
 You can also customize the event name by passing a string. Eg:
 
-    tap: 'myCustomTapEvent'
+```js
+tap: 'myCustomTapEvent'
+```
 
 In this case you'd listen to `myCustomTapEvent`.
 
@@ -290,9 +310,11 @@ Let's start with the basis.
 
 As we mentioned in the [Basic features section](#basic-features) there's only one thing that you got to do to activate the scrollbars in all their splendor, and that one thing is:
 
-    var myScroll = new IScroll('#wrapper', {
-        scrollbars: true
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    scrollbars: true
+});
+```
 
 Of course the default behavior can be personalized.
 
@@ -337,9 +359,11 @@ See the [scrollbar demo](http://lab.cubiq.org/iscroll5/demos/scrollbars/).
 
 So you don't like the default scrollbar styling and you think you could do better. Help yourself! iScroll makes dressing the scrollbar a snap. First of all set the `scrollbars` option to `'custom'`:
 
-    var myScroll = new IScroll('#wrapper', {
-        scrollbars: 'custom'
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    scrollbars: 'custom'
+});
+```
 
 Then use the following CSS classes to style the little bastards.
 
@@ -358,20 +382,22 @@ Please keep reading to the following section for a revelation that will shake yo
 
 All the scrollbar options above are in reality just wrappers to the low level `indicators` option. It looks more or less like this:
 
-    var myScroll = new IScroll('#wrapper', {
-        indicators: {
-            el: [element|element selector]
-            fade: false,
-            ignoreBoundaries: false,
-            interactive: false,
-            listenX: true,
-            listenY: true,
-            resize: true,
-            shrink: false,
-            speedRatioX: 0,
-            speedRatioY: 0,
-        }
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    indicators: {
+        el: [element|element selector]
+        fade: false,
+        ignoreBoundaries: false,
+        interactive: false,
+        listenX: true,
+        listenY: true,
+        resize: true,
+        shrink: false,
+        speedRatioX: 0,
+        speedRatioY: 0,
+    }
+});
+```
 
 ### <small>options.indicators.</small>el
 
@@ -379,15 +405,19 @@ This is a mandatory parameter which holds a reference to the scrollbar container
 
 Valid syntax would be:
 
-    indicators: {
-        el: document.getElementById('indicator')
-    }
+```js
+indicators: {
+    el: document.getElementById('indicator')
+}
+```
 
 Or simply:
 
-    indicators: {
-        el: '#indicator'
-    }
+```js
+indicators: {
+    el: '#indicator'
+}
+```
 
 ### <small>options.indicators.</small>ignoreBoundaries
 
@@ -435,7 +465,9 @@ You silly! Of course you can scroll programmaticaly!
 
 Say your iScroll instance resides into the `myScroll` variable. You can easily scroll to any position with the following syntax:
 
-    myScroll.scrollTo(0, -100);
+```js
+myScroll.scrollTo(0, -100);
+```
 
 That would scroll down by 100 pixels. Remember: 0 is always the top left corner. To scroll you have to pass negative numbers.
 
@@ -443,7 +475,9 @@ That would scroll down by 100 pixels. Remember: 0 is always the top left corner.
 
 The easing functions are available in the `IScroll.utils.ease` object. For example to apply a 1 second elastic easing you'd do:
 
-    myScroll.scrollTo(0, -100, 1000, IScroll.utils.ease.elastic);
+```js
+myScroll.scrollTo(0, -100, 1000, IScroll.utils.ease.elastic);
+```
 
 The available options are: `quadratic`, `circular`, `back`, `bounce`, `elastic`.
 
@@ -451,7 +485,9 @@ The available options are: `quadratic`, `circular`, `back`, `bounce`, `elastic`.
 
 Same as above but X and Y are relative to the current position.
 
-    myScroll.scrollBy(0, -10);
+```js
+myScroll.scrollBy(0, -10);
+```
     
 Would scroll 10 pixels down. If you are at -100, you'll end up at -110.
 
@@ -475,17 +511,21 @@ iScroll can snap to fixed positions and elements.
 
 The simplest snap config is as follow:
 
-    var myScroll = new IScroll('#wrapper', {
-        snap: true
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    snap: true
+});
+```
 
 This would automatically split the scroller into pages the size of the container.
 
 `snap` also takes a string as a value. The string will be the selector to the elements the scroller will be snapped to. So the following
 
-    var myScroll = new IScroll('#wrapper', {
-        snap: 'li'
-    });
+```js
+var myScroll = new IScroll('#wrapper', {
+    snap: 'li'
+});
+```
 
 would snap to each and every `LI` tag.
 
@@ -497,7 +537,9 @@ To help you navigate through the snap points iScroll grants access to a series o
 
 `time` is the duration of the animation, `easing` the easing function used to scroll to the point. Refer to the **option.bounceEasing** in the [Advanced features](#advanced-features). They are both optional.
 
-    myScroll.goToPage(10, 0, 1000);
+```js
+myScroll.goToPage(10, 0, 1000);
+```
 
 This would scroll to the 10th page on the horizontal axis in 1 second.
 
@@ -527,7 +569,7 @@ Minimum zoom level.
 
 Default: `1`
 
-### <small>options.</small>zoomStart
+### <small>options.</small>startZoom
 
 Starting zoom level.
 
@@ -541,11 +583,13 @@ Default: `undefined` (ie: the mouse wheel scrolls)
 
 To sum up, a nice zoom config would be:
 
-    myScroll = new IScroll('#wrapper', {
-        zoom: true,
-        mouseWheel: true,
-        wheelAction: 'zoom'
-    });
+```js
+myScroll = new IScroll('#wrapper', {
+    zoom: true,
+    mouseWheel: true,
+    wheelAction: 'zoom'
+});
+```
 
 <div class="important">
 <p>The zoom is performed with CSS transform. iScroll can zoom only on browsers that support that.</p>
@@ -595,10 +639,12 @@ Easing function performed during the bounce animation. Valid values are: `'quadr
 
 `bounceEasing` is a bit smarter than that. You can also feed a custom easing function, like so:
 
-    bounceEasing: {
-        style: 'cubic-bezier(0,0,1,1)',
-        fn: function (k) { return k; }
-    }
+```js
+bounceEasing: {
+    style: 'cubic-bezier(0,0,1,1)',
+    fn: function (k) { return k; }
+}
+```
 
 The above would perform a linear easing. The `style` option is used every time the animation is executed with CSS transitions, `fn` is used with `requestAnimationFrame`. If the easing function is too complex and can't be represented by a cubic bezier just pass `''` (empty string) as `style`.
 
@@ -630,7 +676,9 @@ These are all the exceptions when `preventDefault()` would be fired anyway despi
 
 This is a pretty powerful option, if you don't want to `preventDefault()` on all elements with *formfield* class name for example, you could pass the following:
 
-    preventDefaultException: { className: /(^|\s)formfield(\s|$)/ }
+```js
+preventDefaultException: { className: /(^|\s)formfield(\s|$)/ }
+```
 
 Default: `{ tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ }`.
 
@@ -652,15 +700,17 @@ Every time you touch the DOM the browser renderer repaints the page. Once this r
 
 To ensure that javascript gets the updated properties you should defer the refreh with something like this:
 
-    ajax('page.php', onCompletion);
+```js
+ajax('page.php', onCompletion);
 
-    function onCompletion () {
-        // Update here your DOM
-        
-        setTimeout(function () {
-            myScroll.refresh();
-        }, 0);
-    };
+function onCompletion () {
+    // Update here your DOM
+    
+    setTimeout(function () {
+        myScroll.refresh();
+    }, 0);
+};
+```
 
 We have placed the `refresh()` call into a zero timeout. That is likely all you need to correctly refresh the iScroll boundaries. There are other ways to wait for the repaint, but the zero-timeout has proven pretty solid.
 
@@ -676,8 +726,10 @@ iScroll also emits some useful custom events you can hook to.
 
 To register them you use the `on(type, fn)` method.
 
-    myScroll = new IScroll('#wrapper');
-    myScroll.on('scrollEnd', doSomething);
+```js
+myScroll = new IScroll('#wrapper');
+myScroll.on('scrollEnd', doSomething);
+```
 
 The above code executes the `doSomething` function every time the content stops scrolling.
 
@@ -716,16 +768,18 @@ You can pass an object with the list of key codes you want iScroll to react to.
 
 The default values are as follow:
 
-    keyBindings: {
-        pageUp: 33,
-        pageDown: 34,
-        end: 35,
-        home: 36,
-        left: 37,
-        up: 38,
-        right: 39,
-        down: 40
-    }
+```js
+keyBindings: {
+    pageUp: 33,
+    pageDown: 34,
+    end: 35,
+    home: 36,
+    left: 37,
+    up: 38,
+    right: 39,
+    down: 40
+}
+```
 
 You can also pass a string (eg: `pageUp: 'a'`) and iScroll will convert it for you. You could just think of a key code and iScroll would read it out of your mind.
 
@@ -741,12 +795,14 @@ You will probably find useful:
 
 These pieces of information may be useful when dealing with custom events. Eg:
 
-    myScroll = new IScroll('#wrapper');
-    myScroll.on('scrollEnd', function () {
-        if ( this.x < -1000 ) {
-            // do something
-        }
-    });
+```js
+myScroll = new IScroll('#wrapper');
+myScroll.on('scrollEnd', function () {
+    if ( this.x < -1000 ) {
+        // do something
+    }
+});
+```
 
 The above executes some code if the `x` position is lower than -1000px when the scroller stops. Note that I used `this` instead of `myScroll`, you can use both of course, but iScroll passes itself as `this` context when firing custom event functions.
 
@@ -754,8 +810,10 @@ The above executes some code if the `x` position is lower than -1000px when the 
 
 The public `destroy()` method can be used to free some memory when the iScroll is not needed anymore.
 
-    myScroll.destroy();
-    myScroll = null;
+```js
+myScroll.destroy();
+myScroll = null;
+```
 
 <h2 id="contributing">Contributing and CLA</h2>
 

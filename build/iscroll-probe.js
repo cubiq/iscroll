@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.2.0 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -48,8 +48,8 @@ var utils = (function () {
 	};
 
 	me.prefixPointerEvent = function (pointerEvent) {
-		return window.MSPointerEvent ? 
-			'MSPointer' + pointerEvent.charAt(9).toUpperCase() + pointerEvent.substr(10):
+		return window.MSPointerEvent ?
+			'MSPointer' + pointerEvent.charAt(7).toUpperCase() + pointerEvent.substr(8):
 			pointerEvent;
 	};
 
@@ -86,12 +86,38 @@ var utils = (function () {
 		hasTransform: _transform !== false,
 		hasPerspective: _prefixStyle('perspective') in _elementStyle,
 		hasTouch: 'ontouchstart' in window,
-		hasPointer: window.PointerEvent || window.MSPointerEvent, // IE10 is prefixed
+		hasPointer: !!(window.PointerEvent || window.MSPointerEvent), // IE10 is prefixed
 		hasTransition: _prefixStyle('transition') in _elementStyle
 	});
 
-	// This should find all Android browsers lower than build 535.19 (both stock browser and webview)
-	me.isBadAndroid = /Android /.test(window.navigator.appVersion) && !(/Chrome\/\d/.test(window.navigator.appVersion));
+	/*
+	This should find all Android browsers lower than build 535.19 (both stock browser and webview)
+	- galaxy S2 is ok
+    - 2.3.6 : `AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1`
+    - 4.0.4 : `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S3 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S4 is badAndroid (stock brower, webview)
+     `AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30`
+   - galaxy S5 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+   - galaxy S6 is OK
+     `AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36 (Chrome/)`
+  */
+	me.isBadAndroid = (function() {
+		var appVersion = window.navigator.appVersion;
+		// Android browser is not a chrome browser.
+		if (/Android/.test(appVersion) && !(/Chrome\/\d/.test(appVersion))) {
+			var safariVersion = appVersion.match(/Safari\/(\d+.\d)/);
+			if(safariVersion && typeof safariVersion === "object" && safariVersion.length >= 2) {
+				return parseFloat(safariVersion[1]) < 535.19;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	})();
 
 	me.extend(me.style = {}, {
 		transform: _transform,
@@ -231,12 +257,22 @@ var utils = (function () {
 			ev;
 
 		if ( !(/(SELECT|INPUT|TEXTAREA)/i).test(target.tagName) ) {
-			ev = document.createEvent('MouseEvents');
-			ev.initMouseEvent('click', true, true, e.view, 1,
-				target.screenX, target.screenY, target.clientX, target.clientY,
-				e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
-				0, null);
-
+			// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/initMouseEvent
+			// initMouseEvent is deprecated.
+			ev = document.createEvent(window.MouseEvent ? 'MouseEvents' : 'Event');
+			ev.initEvent('click', true, true);
+			ev.view = e.view || window;
+			ev.detail = 1;
+			ev.screenX = target.screenX || 0;
+			ev.screenY = target.screenY || 0;
+			ev.clientX = target.clientX || 0;
+			ev.clientY = target.clientY || 0;
+			ev.ctrlKey = !!e.ctrlKey;
+			ev.altKey = !!e.altKey;
+			ev.shiftKey = !!e.shiftKey;
+			ev.metaKey = !!e.metaKey;
+			ev.button = 0;
+			ev.relatedTarget = null;
 			ev._constructed = true;
 			target.dispatchEvent(ev);
 		}
@@ -244,7 +280,6 @@ var utils = (function () {
 
 	return me;
 })();
-
 function IScroll (el, options) {
 	this.wrapper = typeof el == 'string' ? document.querySelector(el) : el;
 	this.scroller = this.wrapper.children[0];
@@ -258,8 +293,10 @@ function IScroll (el, options) {
 
 		snapThreshold: 0.334,
 
-// INSERT POINT: OPTIONS 
-
+// INSERT POINT: OPTIONS
+		disablePointer : !utils.hasPointer,
+		disableTouch : utils.hasPointer || !utils.hasTouch,
+		disableMouse : utils.hasPointer || utils.hasTouch,
 		startX: 0,
 		startY: 0,
 		scrollY: true,
@@ -275,7 +312,8 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+		bindToWrapper: typeof window.onmousedown === "undefined"
 	};
 
 	for ( var i in options ) {
@@ -307,6 +345,13 @@ function IScroll (el, options) {
 		this.options.tap = 'tap';
 	}
 
+	// https://github.com/cubiq/iscroll/issues/1029
+	if (!this.options.useTransition && !this.options.useTransform) {
+		if(!(/relative|absolute/i).test(this.scrollerStyle.position)) {
+			this.scrollerStyle.position = "relative";
+		}
+	}
+
 	if ( this.options.shrinkScrollbars == 'scale' ) {
 		this.options.useTransition = false;
 	}
@@ -318,7 +363,7 @@ function IScroll (el, options) {
 
 // INSERT POINT: NORMALIZATION
 
-	// Some defaults	
+	// Some defaults
 	this.x = 0;
 	this.y = 0;
 	this.directionX = 0;
@@ -335,7 +380,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.1.3',
+	version: '5.2.0',
 
 	_init: function () {
 		this._initEvents();
@@ -362,7 +407,8 @@ IScroll.prototype = {
 
 	destroy: function () {
 		this._initEvents(true);
-
+		clearTimeout(this.resizeTimeout);
+ 		this.resizeTimeout = null;
 		this._execEvent('destroy');
 	},
 
@@ -381,7 +427,18 @@ IScroll.prototype = {
 	_start: function (e) {
 		// React to left mouse button only
 		if ( utils.eventType[e.type] != 1 ) {
-			if ( e.button !== 0 ) {
+		  // for button property
+		  // http://unixpapa.com/js/mouse.html
+		  var button;
+	    if (!e.which) {
+	      /* IE case */
+	      button = (e.button < 2) ? 0 :
+	               ((e.button == 4) ? 1 : 2);
+	    } else {
+	      /* All others */
+	      button = e.button;
+	    }
+			if ( button !== 0 ) {
 				return;
 			}
 		}
@@ -405,11 +462,10 @@ IScroll.prototype = {
 		this.directionY = 0;
 		this.directionLocked = 0;
 
-		this._transitionTime();
-
 		this.startTime = utils.getTime();
 
 		if ( this.options.useTransition && this.isInTransition ) {
+			this._transitionTime();
 			this.isInTransition = false;
 			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
@@ -761,10 +817,12 @@ IScroll.prototype = {
 		easing = easing || utils.ease.circular;
 
 		this.isInTransition = this.options.useTransition && time > 0;
-
-		if ( !time || (this.options.useTransition && easing.style) ) {
-			this._transitionTimingFunction(easing.style);
-			this._transitionTime(time);
+		var transitionType = this.options.useTransition && easing.style;
+		if ( !time || transitionType ) {
+				if(transitionType) {
+					this._transitionTimingFunction(easing.style);
+					this._transitionTime(time);
+				}
 			this._translate(x, y);
 		} else {
 			this._animate(x, y, time, easing.fn);
@@ -803,12 +861,26 @@ IScroll.prototype = {
 	},
 
 	_transitionTime: function (time) {
+		if (!this.options.useTransition) {
+			return;
+		}
 		time = time || 0;
+		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
 
-		this.scrollerStyle[utils.style.transitionDuration] = time + 'ms';
+		this.scrollerStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
-			this.scrollerStyle[utils.style.transitionDuration] = '0.001s';
+			this.scrollerStyle[durationProp] = '0.0001ms';
+			// remove 0.0001ms
+			var self = this;
+			rAF(function() {
+				if(self.scrollerStyle[durationProp] === '0.0001ms') {
+					self.scrollerStyle[durationProp] = '0s';
+				}
+			});
 		}
 
 
@@ -922,7 +994,6 @@ IScroll.prototype = {
 
 		return { x: x, y: y };
 	},
-
 	_initIndicators: function () {
 		var interactive = this.options.interactiveScrollbars,
 			customStyle = typeof this.options.scrollbars != 'string',
@@ -980,8 +1051,10 @@ IScroll.prototype = {
 
 		// TODO: check if we can use array.map (wide compatibility and performance issues)
 		function _indicatorsMap (fn) {
-			for ( var i = that.indicators.length; i--; ) {
-				fn.call(that.indicators[i]);
+			if (that.indicators) {
+				for ( var i = that.indicators.length; i--; ) {
+					fn.call(that.indicators[i]);
+				}
 			}
 		}
 
@@ -1033,6 +1106,8 @@ IScroll.prototype = {
 		utils.addEvent(this.wrapper, 'DOMMouseScroll', this);
 
 		this.on('destroy', function () {
+			clearTimeout(this.wheelTimeout);
+			this.wheelTimeout = null;
 			utils.removeEvent(this.wrapper, 'wheel', this);
 			utils.removeEvent(this.wrapper, 'mousewheel', this);
 			utils.removeEvent(this.wrapper, 'DOMMouseScroll', this);
@@ -1045,7 +1120,6 @@ IScroll.prototype = {
 		}
 
 		e.preventDefault();
-		e.stopPropagation();
 
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
@@ -1058,7 +1132,9 @@ IScroll.prototype = {
 		// Execute the scrollEnd event after 400ms the wheel stopped scrolling
 		clearTimeout(this.wheelTimeout);
 		this.wheelTimeout = setTimeout(function () {
-			that._execEvent('scrollEnd');
+			if(!that.options.snap) {
+				that._execEvent('scrollEnd');
+			}
 			that.wheelTimeout = undefined;
 		}, 400);
 
@@ -1112,6 +1188,9 @@ IScroll.prototype = {
 
 		newX = this.x + Math.round(this.hasHorizontalScroll ? wheelDeltaX : 0);
 		newY = this.y + Math.round(this.hasVerticalScroll ? wheelDeltaY : 0);
+
+		this.directionX = wheelDeltaX > 0 ? -1 : wheelDeltaX < 0 ? 1 : 0;
+		this.directionY = wheelDeltaY > 0 ? -1 : wheelDeltaY < 0 ? 1 : 0;
 
 		if ( newX > 0 ) {
 			newX = 0;
@@ -1589,7 +1668,7 @@ IScroll.prototype = {
 				this._key(e);
 				break;
 			case 'click':
-				if ( !e._constructed ) {
+				if ( this.enabled && !e._constructed ) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
@@ -1678,7 +1757,20 @@ function Indicator (scroller, options) {
 
 	if ( this.options.fade ) {
 		this.wrapperStyle[utils.style.transform] = this.scroller.translateZ;
-		this.wrapperStyle[utils.style.transitionDuration] = utils.isBadAndroid ? '0.001s' : '0ms';
+		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
+		this.wrapperStyle[durationProp] = utils.isBadAndroid ? '0.0001ms' : '0ms';
+		// remove 0.0001ms
+		var self = this;
+		if(utils.isBadAndroid) {
+			rAF(function() {
+				if(self.wrapperStyle[durationProp] === '0.0001ms') {
+					self.wrapperStyle[durationProp] = '0s';
+				}
+			});
+		}
 		this.wrapperStyle.opacity = '0';
 	}
 }
@@ -1712,6 +1804,10 @@ Indicator.prototype = {
 	},
 
 	destroy: function () {
+		if ( this.options.fadeScrollbars ) {
+			clearTimeout(this.fadeTimeout);
+			this.fadeTimeout = null;
+		}
 		if ( this.options.interactive ) {
 			utils.removeEvent(this.indicator, 'touchstart', this);
 			utils.removeEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
@@ -1835,10 +1931,22 @@ Indicator.prototype = {
 
 	transitionTime: function (time) {
 		time = time || 0;
-		this.indicatorStyle[utils.style.transitionDuration] = time + 'ms';
+		var durationProp = utils.style.transitionDuration;
+		if(!durationProp) {
+			return;
+		}
+
+		this.indicatorStyle[durationProp] = time + 'ms';
 
 		if ( !time && utils.isBadAndroid ) {
-			this.indicatorStyle[utils.style.transitionDuration] = '0.001s';
+			this.indicatorStyle[durationProp] = '0.0001ms';
+			// remove 0.0001ms
+			var self = this;
+			rAF(function() {
+				if(self.indicatorStyle[durationProp] === '0.0001ms') {
+					self.indicatorStyle[durationProp] = '0s';
+				}
+			});
 		}
 	},
 
@@ -1902,7 +2010,7 @@ Indicator.prototype = {
 				this.maxBoundaryX = this.maxPosX;
 			}
 
-			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));	
+			this.sizeRatioX = this.options.speedRatioX || (this.scroller.maxScrollX && (this.maxPosX / this.scroller.maxScrollX));
 		}
 
 		if ( this.options.listenY ) {
@@ -2031,6 +2139,8 @@ IScroll.utils = utils;
 
 if ( typeof module != 'undefined' && module.exports ) {
 	module.exports = IScroll;
+} else if ( typeof define == 'function' && define.amd ) {
+        define( function () { return IScroll; } );
 } else {
 	window.IScroll = IScroll;
 }
