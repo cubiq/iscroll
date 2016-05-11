@@ -13,7 +13,8 @@
 				x = 0, y,
 				stepX = this.options.snapStepX || this.wrapperWidth,
 				stepY = this.options.snapStepY || this.wrapperHeight,
-				el;
+				el,
+				rect;
 
 			this.pages = [];
 
@@ -53,7 +54,8 @@
 				n = -1;
 
 				for ( ; i < l; i++ ) {
-					if ( i === 0 || el[i].offsetLeft <= el[i-1].offsetLeft ) {
+					rect = utils.getRect(el[i]);
+					if ( i === 0 || rect.left <= utils.getRect(el[i-1]).left ) {
 						m = 0;
 						n++;
 					}
@@ -62,16 +64,16 @@
 						this.pages[m] = [];
 					}
 
-					x = Math.max(-el[i].offsetLeft, this.maxScrollX);
-					y = Math.max(-el[i].offsetTop, this.maxScrollY);
-					cx = x - Math.round(el[i].offsetWidth / 2);
-					cy = y - Math.round(el[i].offsetHeight / 2);
+					x = Math.max(-rect.left, this.maxScrollX);
+					y = Math.max(-rect.top, this.maxScrollY);
+					cx = x - Math.round(rect.width / 2);
+					cy = y - Math.round(rect.height / 2);
 
 					this.pages[m][n] = {
 						x: x,
 						y: y,
-						width: el[i].offsetWidth,
-						height: el[i].offsetHeight,
+						width: rect.width,
+						height: rect.height,
 						cx: cx,
 						cy: cy
 					};

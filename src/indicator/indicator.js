@@ -303,7 +303,7 @@ Indicator.prototype = {
 			}
 		}
 
-		var r = this.wrapper.offsetHeight;	// force refresh
+		utils.getRect(this.wrapper);	// force refresh
 
 		if ( this.options.listenX ) {
 			this.wrapperWidth = this.wrapper.clientWidth;
