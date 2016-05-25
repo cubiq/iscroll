@@ -14,6 +14,14 @@ var releases = {
 			'default/handleEvent.js'
 		]
 	},
+	
+	liteprobe: {
+		files: [
+			'probe/_animate.js',
+			'default/handleEvent.js'
+		],
+		postProcessing: [ 'probe/build.json' ]
+	},
 
 	iscroll: {
 		files: [
@@ -75,7 +83,7 @@ if ( !args.length ) {
 }
 
 if ( args[0] == 'dist' ) {
-	args = ['lite', 'iscroll', 'zoom', 'probe', 'infinite'];
+	args = ['lite', 'liteprobe', 'iscroll', 'zoom', 'probe', 'infinite'];
 }
 
 // Get the list of files
