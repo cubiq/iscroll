@@ -698,7 +698,7 @@ This is achieved by calling the `refresh` method with the right timing. Please f
 
 Every time you touch the DOM the browser renderer repaints the page. Once this repaint has happened we can safely read the new DOM properties. The repaint phase is not instantaneous and it happens only at the end of the scope that triggered it. That's why we need to give the renderer a little rest before refreshing the iScroll.
 
-To ensure that javascript gets the updated properties you should defer the refreh with something like this:
+To ensure that javascript gets the updated properties you should defer the refresh with something like this:
 
 ```js
 ajax('page.php', onCompletion);
