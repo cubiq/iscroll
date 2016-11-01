@@ -9,7 +9,7 @@ function IScroll (el, options) {
 // INSERT POINT: OPTIONS
 		disablePointer : !utils.hasPointer,
 		disableTouch : utils.hasPointer || !utils.hasTouch,
-		disableMouse : utils.hasPointer || utils.hasTouch,
+		disableMouse : utils.hasPointer,
 		startX: 0,
 		startY: 0,
 		scrollY: true,
