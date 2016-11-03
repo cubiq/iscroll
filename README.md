@@ -235,7 +235,7 @@ Default: `false`
 
 ### <small>options.</small>momentum
 
-You can turn on/off the momentum animation performed when the user quickly flicks on screen. Turning this off greatly enhance performance.
+You can turn on/off the momentum animation performed when the user quickly flicks on screen. Turning this off greatly enhances performance.
 
 Default: `true`
 
