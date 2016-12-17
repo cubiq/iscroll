@@ -119,19 +119,6 @@
 		    this.scrollTo(newX, newY, this.options.bounceTime);
 		}
 		
-		if ( newX > 0 ) {
-			newX = 0;
-		} else if ( newX < this.maxScrollX ) {
-			newX = this.maxScrollX;
-		}
-
-		if ( newY > 0 ) {
-			newY = 0;
-		} else if ( newY < this.maxScrollY ) {
-			newY = this.maxScrollY;
-		}
-
-		this.scrollTo(newX, newY, 0);
 
 // INSERT POINT: _wheel
 	},
