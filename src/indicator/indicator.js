@@ -145,7 +145,7 @@ Indicator.prototype = {
 			utils.removeEvent(window, 'mouseup', this);
 		}
 
-		if ( this.options.defaultScrollbars ) {
+		if ( this.options.defaultScrollbars && this.wrapper.parentNode ) {
 			this.wrapper.parentNode.removeChild(this.wrapper);
 		}
 	},
