@@ -249,7 +249,7 @@ Default: `false`
 
 Whether or not to `preventDefault()` when events are fired. This should be left `true` unless you really know what you are doing.
 
-See `preventDefaultException` in the [Advanced features](#advanced-features) for more control over the preventDefault behavior.
+See `preventDefaultException` in the [Advanced options](#advanced-options) for more control over the preventDefault behavior.
 
 Default: `true`
 
@@ -535,7 +535,7 @@ To help you navigate through the snap points iScroll grants access to a series o
 
 `x` and `y` represent the page number you want to scroll to in the horizontal or vertical axes (yeah, it's the plural of *axis*, I checked). If the scroller in mono-dimensional, just pass `0` to the axis you don't need.
 
-`time` is the duration of the animation, `easing` the easing function used to scroll to the point. Refer to the **option.bounceEasing** in the [Advanced features](#advanced-features). They are both optional.
+`time` is the duration of the animation, `easing` the easing function used to scroll to the point. Refer to the **option.bounceEasing** in the [Advanced options](#advanced-options). They are both optional.
 
 ```js
 myScroll.goToPage(10, 0, 1000);
