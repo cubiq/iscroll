@@ -116,6 +116,10 @@ IScroll.prototype = {
 			return;
 		}
 
+		if (this.isAnimating || this.isInTransition) {
+			e.preventDefault();
+		}
+
 		if ( this.options.preventDefault && !utils.isBadAndroid && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
@@ -268,6 +272,8 @@ IScroll.prototype = {
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
+
+		this._execEvent('touchEnd');
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,

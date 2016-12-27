@@ -1,4 +1,4 @@
-/*! iScroll v5.1.3 ~ (c) 2008-2014 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.1.3 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -275,7 +275,10 @@ function IScroll (el, options) {
 
 		HWCompositing: true,
 		useTransition: true,
-		useTransform: true
+		useTransform: true,
+
+		VUPBoundary:true,   //true : respect v-boundary when not overflow, false: can scroll when not overflow
+		VDOWNboundary:true,
 	};
 
 	for ( var i in options ) {
@@ -390,6 +393,10 @@ IScroll.prototype = {
 			return;
 		}
 
+		if (this.isAnimating || this.isInTransition) {
+			e.preventDefault();
+		}
+
 		if ( this.options.preventDefault && !utils.isBadAndroid && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
@@ -490,7 +497,15 @@ IScroll.prototype = {
 		}
 
 		deltaX = this.hasHorizontalScroll ? deltaX : 0;
-		deltaY = this.hasVerticalScroll ? deltaY : 0;
+
+		// Still scroll when wrapper is not over-flow by scroller
+		if(!this.options.VUPBoundary && deltaY < 0) {
+			deltaY = deltaY;
+		}else if(!this.options.VDOWNboundary && deltaY > 0) {
+			deltaY = deltaY;
+		}else {
+			deltaY = this.hasVerticalScroll ? deltaY : 0;
+		}
 
 		newX = this.x + deltaX;
 		newY = this.y + deltaY;
@@ -540,6 +555,8 @@ IScroll.prototype = {
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
+
+		this._execEvent('touchEnd');
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
