@@ -7,7 +7,7 @@
 <title>iScroll demo: infinite scrolling</title>
 
 <script type="text/javascript" src="../../build/iscroll-infinite.js"></script>
-
+<script type="text/javascript" src="../demoUtils.js"></script>
 <script type="text/javascript">
 /******************************************************************************
  *
@@ -82,7 +82,10 @@ function updateContent (el, data) {
 	el.innerHTML = data;
 }
 
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+document.addEventListener('touchmove', function (e) { e.preventDefault(); }, isPassive() ? {
+	capture: false,
+	passive: false
+} : false);
 
 </script>
 
