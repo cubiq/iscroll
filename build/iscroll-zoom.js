@@ -836,15 +836,18 @@ IScroll.prototype = {
 
 		var pos = utils.offset(el);
 
+		pos.left = pos.left * this.scale;
+		pos.top = pos.top * this.scale;
+
 		pos.left -= this.wrapperOffset.left;
 		pos.top  -= this.wrapperOffset.top;
 
 		// if offsetX/Y are true we center the element to the screen
 		if ( offsetX === true ) {
-			offsetX = Math.round(el.offsetWidth / 2 - this.wrapper.offsetWidth / 2);
+			offsetX = Math.round((el.offsetWidth * this.scale) / 2 - this.wrapper.offsetWidth / 2);
 		}
 		if ( offsetY === true ) {
-			offsetY = Math.round(el.offsetHeight / 2 - this.wrapper.offsetHeight / 2);
+			offsetY = Math.round((el.el.offsetHeight * this.scale) / 2 - this.wrapper.offsetHeight / 2);
 		}
 
 		pos.left -= offsetX || 0;
