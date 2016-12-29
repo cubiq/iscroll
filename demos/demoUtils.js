@@ -1,13 +1,13 @@
-// https://github.com/WICG/EventListenerOptions/pull/30
+// ref https://github.com/WICG/EventListenerOptions/pull/30
 function isPassive() {
-    var supportsCaptureOption = false;
+    var supportsPassiveOption = false;
     try {
-        addEventListener("test", null, Object.defineProperty({}, 'capture', {
+        addEventListener("test", null, Object.defineProperty({}, 'passive', {
             get: function () {
-                supportsCaptureOption = true;
+                supportsPassiveOption = true;
             }
         }));
     } catch(e) {}
-    return supportsCaptureOption;
+    return supportsPassiveOption;
 }
   		  
