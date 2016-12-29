@@ -122,7 +122,8 @@ var utils = (function () {
 		transitionTimingFunction: _prefixStyle('transitionTimingFunction'),
 		transitionDuration: _prefixStyle('transitionDuration'),
 		transitionDelay: _prefixStyle('transitionDelay'),
-		transformOrigin: _prefixStyle('transformOrigin')
+		transformOrigin: _prefixStyle('transformOrigin'),
+		touchAction: _prefixStyle('touchAction')
 	});
 
 	me.hasClass = function (e, c) {
@@ -274,6 +275,20 @@ var utils = (function () {
 			ev._constructed = true;
 			target.dispatchEvent(ev);
 		}
+	};
+
+	me.getTouchAction = function(eventPassthrough) {
+		var touchAction = 'none';
+		if ( eventPassthrough === 'vertical' ) {
+			touchAction = 'pan-y';
+		} else if (eventPassthrough === 'horizontal' ) {
+			touchAction = 'pan-x';
+		}
+		if (touchAction != 'none') {
+			// add pinch-zoom support if the browser supports it, but if not (eg. Chrome <55) do nothing
+			touchAction += ' pinch-zoom';
+		}
+		return touchAction;
 	};
 
 	me.getRect = function(el) {
