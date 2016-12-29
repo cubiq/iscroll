@@ -7,7 +7,7 @@
 <title>iScroll demo: simple</title>
 
 <script type="text/javascript" src="../../build/iscroll.js"></script>
-
+<script type="text/javascript" src="../demoUtils.js"></script>
 <script type="text/javascript">
 
 var myScroll;
@@ -20,7 +20,10 @@ function loaded () {
 	}, false);
 }
 
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+document.addEventListener('touchmove', function (e) { e.preventDefault(); }, isPassive() ? {
+	capture: false,
+	passive: false
+} : false);
 
 </script>
 
