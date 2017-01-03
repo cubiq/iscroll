@@ -6,6 +6,10 @@
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
 
+			if (that._animateTimeout)	{
+				cAF(that._animateTimeout);
+			}
+
 		function step () {
 			var now = utils.getTime(),
 				newX, newY,
@@ -29,7 +33,7 @@
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
-				rAF(step);
+				that._animateTimeout = rAF(step);
 			}
 		}
 
