@@ -7,12 +7,16 @@
 		this.infiniteMaster = this.infiniteElements[0];
 		this.infiniteElementHeight = utils.getRect(this.infiniteMaster).height;
 		this.infiniteHeight = this.infiniteLength * this.infiniteElementHeight;
+		// Used to check if we are currently loading any data.
+		this.dataLoads = [];
+		// Used to check if a fixed row limit was set in the options. If not, a limit
+		// is set when the end of the cache is reached and no more data is loading.
+		this.infiniteLimitSet = this.options.infiniteLimit !== undefined;
 
 		this.options.cacheSize = this.options.cacheSize || 1000;
 		this.infiniteCacheBuffer = Math.round(this.options.cacheSize / 4);
 
-		//this.infiniteCache = {};
-		this.options.dataset.call(this, 0, this.options.cacheSize);
+		this.loadData(0, this.options.cacheSize);
 
 		this.on('refresh', function () {
 			var elementsPerPage = Math.ceil(this.wrapperHeight / this.infiniteElementHeight);
@@ -63,7 +67,7 @@
 		}
 
 		if ( this.cachePhase != cachePhase && (cachePhase === 0 || minorPhase - this.infiniteCacheBuffer > 0) ) {
-			this.options.dataset.call(this, Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.cacheSize);
+			this.loadData(Math.max(cachePhase * this.infiniteCacheBuffer - this.infiniteCacheBuffer, 0), this.options.cacheSize);
 		}
 
 		this.cachePhase = cachePhase;
@@ -73,16 +77,46 @@
 
 	updateContent: function (els) {
 		if ( this.infiniteCache === undefined ) {
+			// We need to disable scrolling and updating until we have data!
+			this.disable();
 			return;
 		}
 
 		for ( var i = 0, l = els.length; i < l; i++ ) {
+			// Check if the cache has data for the current element.
+			if(this.infiniteCache[els[i]._phase] === undefined) {
+				// The cache has no data for the current element. This either means
+				// the data is still loading or there is no more data.
+				if(this.dataLoads.length > 0) {
+					// Still loading data...
+					this.disable();
+					this.infiniteCacheUpdateAfterLoad = true;
+					return;
+				} else {
+					// Not loading any more data. End of data reached. Clear row and set row limit.
+					els[i].innerHTML = '';
+					if(!this.infiniteLimitSet) {
+						this.infiniteLimitSet = true;
+						// Calculation of new row limit is pretty much the same as in *refresh* method.
+						this.options.infiniteLimit = Math.floor(els[i]._top / this.infiniteElementHeight);
+						this.maxScrollY = -this.options.infiniteLimit * this.infiniteElementHeight + this.wrapperHeight;
+					}
+					return;
+				}
+			}
 			this.options.dataFiller.call(this, els[i], this.infiniteCache[els[i]._phase]);
 		}
 	},
 
+	loadData: function(start, count) {
+		this.dataLoads.push(1);
+		this.options.dataset.call(this, start, count);
+	},
+
 	updateCache: function (start, data) {
 		var firstRun = this.infiniteCache === undefined;
+		var updateAfterLoad = this.infiniteCacheUpdateAfterLoad !== undefined;
+		this.infiniteCacheUpdateAfterLoad = undefined;
 
 		this.infiniteCache = {};
 
@@ -90,9 +124,12 @@
 			this.infiniteCache[start++] = data[i];
 		}
 
+		this.dataLoads.pop();
+
 		if ( firstRun ) {
 			this.updateContent(this.infiniteElements);
 		}
 
+		this.enable();
 	},
 
