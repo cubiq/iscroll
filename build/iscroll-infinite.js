@@ -337,6 +337,7 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		touchWaitDuration: 300,
 
 		bounce: true,
 		bounceTime: 600,
@@ -546,7 +547,7 @@ IScroll.prototype = {
 		absDistY		= Math.abs(this.distY);
 
 		// We need to move at least 10 pixels for the scrolling to initiate
-		if ( timestamp - this.endTime > 300 && (absDistX < 10 && absDistY < 10) ) {
+		if ( timestamp - this.endTime > this.options.touchWaitDuration && (absDistX < 10 && absDistY < 10) ) {
 			return;
 		}
 
@@ -675,7 +676,7 @@ IScroll.prototype = {
 		}
 
 		// start momentum animation if needed
-		if ( this.options.momentum && duration < 300 ) {
+		if ( this.options.momentum && duration < this.options.touchWaitDuration ) {
 			momentumX = this.hasHorizontalScroll ? utils.momentum(this.x, this.startX, duration, this.maxScrollX, this.options.bounce ? this.wrapperWidth : 0, this.options.deceleration) : { destination: newX, duration: 0 };
 			momentumY = this.hasVerticalScroll ? utils.momentum(this.y, this.startY, duration, this.maxScrollY, this.options.bounce ? this.wrapperHeight : 0, this.options.deceleration) : { destination: newY, duration: 0 };
 			newX = momentumX.destination;

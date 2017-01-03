@@ -298,6 +298,12 @@ In this case you'd listen to `myCustomTapEvent`.
 
 Default: `false`
 
+### <small>options.</small>touchWaitDuration<br/><small>options.</small>touchWaitDuration
+
+Allows refinement of the timeout that constitutes what is considered a momentum scroll.
+
+Default: `300`
+
 <h2 id="scrollbars">Scrollbars</h2>
 
 The scrollbars are more than just what the name suggests. In fact internally they are referenced as *indicators*.
