@@ -1242,7 +1242,7 @@ IScroll.prototype = {
 			newY = this.maxScrollY;
 		}
 
-		this.scrollTo(newX, newY, 0);
+		this.scrollTo(newX, newY, (this.options.mouseWheelAnimationDuration || 0));
 
 // INSERT POINT: _wheel
 	},
