@@ -2043,6 +2043,9 @@ Indicator.prototype = {
 	},
 
 	_start: function (e) {
+		if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
+			return;
+		}
 		var point = e.touches ? e.touches[0] : e;
 
 		e.preventDefault();
@@ -2071,6 +2074,9 @@ Indicator.prototype = {
 	},
 
 	_move: function (e) {
+		if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
+			return;
+		}
 		var point = e.touches ? e.touches[0] : e,
 			deltaX, deltaY,
 			newX, newY,
@@ -2101,6 +2107,9 @@ Indicator.prototype = {
 
 	_end: function (e) {
 		if ( !this.initiated ) {
+			return;
+		}
+		if ( !this.enabled || (this.initiated && utils.eventType[e.type] !== this.initiated) ) {
 			return;
 		}
 
