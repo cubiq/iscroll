@@ -910,7 +910,12 @@ IScroll.prototype = {
 
 		time = time === undefined || time === null || time === 'auto' ? Math.max(Math.abs(this.x-pos.left), Math.abs(this.y-pos.top)) : time;
 
+		/* REPLACE START: scrollToElement */
+
 		this.scrollTo(pos.left, pos.top, time, easing);
+
+		/* REPLACE END: scrollToElement */
+
 	},
 
 	_transitionTime: function (time) {
