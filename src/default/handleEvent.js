@@ -2,6 +2,7 @@
 	handleEvent: function (e) {
 		switch ( e.type ) {
 			case 'touchstart':
+				e.stopPropagation();
 			case 'pointerdown':
 			case 'MSPointerDown':
 			case 'mousedown':
