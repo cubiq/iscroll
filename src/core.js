@@ -307,7 +307,7 @@ IScroll.prototype = {
 				utils.tap(e, this.options.tap);
 			}
 
-			if ( this.options.click ) {
+			if ( this.options.click && !utils.isAndroidBrowser ) {
 				utils.click(e);
 			}
 
@@ -602,7 +602,7 @@ IScroll.prototype = {
 		eventType(window, 'orientationchange', this);
 		eventType(window, 'resize', this);
 
-		if ( this.options.click ) {
+		if ( this.options.click && !utils.isAndroidBrowser ) {
 			eventType(this.wrapper, 'click', this, true);
 		}
 
