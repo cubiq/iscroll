@@ -181,6 +181,10 @@ IScroll.prototype = {
 		if ( this.options.preventDefault ) {	// increases performance on Android? TODO: check!
 			e.preventDefault();
 		}
+		
+		if( utils.isBadAndroid && this.options.useTransition ){
+			this.scroller.style[utils.style.transitionDuration] = '0s'; // Eliminates jerkiness when scrolling on Android
+		}
 
 		var point		= e.touches ? e.touches[0] : e,
 			deltaX		= point.pageX - this.pointX,
