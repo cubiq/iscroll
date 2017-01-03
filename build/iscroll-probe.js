@@ -503,7 +503,8 @@ IScroll.prototype = {
 			this.isInTransition = false;
 			pos = this.getComputedPosition();
 			this._translate(Math.round(pos.x), Math.round(pos.y));
-			this._execEvent('scrollEnd');
+			this._execEvent('scrollEnd','suspend');
+            e.preventDefault();
 		} else if ( !this.options.useTransition && this.isAnimating ) {
 			this.isAnimating = false;
 			this._execEvent('scrollEnd');
