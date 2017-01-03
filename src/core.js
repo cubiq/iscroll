@@ -351,7 +351,9 @@ IScroll.prototype = {
 		clearTimeout(this.resizeTimeout);
 
 		this.resizeTimeout = setTimeout(function () {
-			that.refresh();
+			if ( this.options.resizeIgnore === undefined && !this.options.resizeIgnore ) {
+				that.refresh();
+			}
 		}, this.options.resizePolling);
 	},
 
