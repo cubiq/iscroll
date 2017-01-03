@@ -1350,10 +1350,23 @@ IScroll.prototype = {
 						Math.min(Math.abs(this.x - this.startX), 1000),
 						Math.min(Math.abs(this.y - this.startY), 1000)
 					), 300);
+					
+			var pageX = this.currentPage.pageX + this.directionX,
+				pageY = this.currentPage.pageY + this.directionY;
+					x = this.pages[pageX][pageY].x,
+					y = this.pages[pageX][pageY].y;
+			this.targetPage = {
+						x: x,
+						y: y,
+						pageX: pageX ,
+						pageY: pageY 
+					};	
+			this._execEvent("beforePageChanged");
+						
 
 			this.goToPage(
-				this.currentPage.pageX + this.directionX,
-				this.currentPage.pageY + this.directionY,
+				pageX,
+				pageY,
 				time
 			);
 		});
@@ -1425,7 +1438,15 @@ IScroll.prototype = {
 
 			y = this.pages[0][m].y;
 		}
-
+		
+		this.targetPage = {
+			x: x,
+			y: y,
+			pageX: i,
+			pageY: m
+		};	
+		this._execEvent("beforePageChanged");
+		
 		return {
 			x: x,
 			y: y,
