@@ -277,14 +277,14 @@ var utils = (function () {
 		}
 	};
 
-	me.getTouchAction = function(eventPassthrough) {
+	me.getTouchAction = function(eventPassthrough, addPinch) {
 		var touchAction = 'none';
 		if ( eventPassthrough === 'vertical' ) {
 			touchAction = 'pan-y';
 		} else if (eventPassthrough === 'horizontal' ) {
 			touchAction = 'pan-x';
 		}
-		if (touchAction != 'none') {
+		if (addPinch && touchAction != 'none') {
 			// add pinch-zoom support if the browser supports it, but if not (eg. Chrome <55) do nothing
 			touchAction += ' pinch-zoom';
 		}

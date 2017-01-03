@@ -426,7 +426,13 @@ IScroll.prototype = {
 		
 		if(utils.hasPointer && !this.options.disablePointer) {
 			// The wrapper should have `touchAction` property for using pointerEvent.
-			this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough);
+			this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough, true);
+
+			// case. not support 'pinch-zoom'
+			// https://github.com/cubiq/iscroll/issues/1118#issuecomment-270057583
+			if (!this.wrapper.style[utils.style.touchAction]) {
+				this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough, false);
+			}
 		}
 		this.wrapperOffset = utils.offset(this.wrapper);
 
