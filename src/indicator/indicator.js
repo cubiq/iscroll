@@ -432,11 +432,15 @@ Indicator.prototype = {
 			return;
 		}
 
+		if( !this.options.fade ){
+				return;
+		}
+
 		clearTimeout(this.fadeTimeout);
 		this.fadeTimeout = null;
 
 		var time = val ? 250 : 500,
-			delay = val ? 0 : 300;
+				delay = val ? 0 : 300;
 
 		val = val ? '1' : '0';
 
