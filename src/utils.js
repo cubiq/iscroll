@@ -51,9 +51,9 @@ var utils = (function () {
 			pointerEvent;
 	};
 
-	me.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration) {
+	me.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration, maxSpeed) {
 		var distance = current - start,
-			speed = Math.abs(distance) / time,
+          speed = Math.min(Math.abs(distance) / time, maxSpeed || 1000),
 			destination,
 			duration;
 
