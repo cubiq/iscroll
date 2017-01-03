@@ -255,7 +255,7 @@ Default: `true`
 
 ### <small>options.</small>scrollbars
 
-Wheter or not to display the default scrollbars. See more in the [Scrollbar](#scrollbar) section.
+Wheter or not to display the default scrollbars. See more in the [Scrollbar](#scrollbars) section.
 
 Default: `false`.
 
