@@ -1,4 +1,4 @@
-/*! iScroll v5.2.0 ~ (c) 2008-2016 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.2.0 ~ (c) 2008-2017 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -279,14 +279,14 @@ var utils = (function () {
 		}
 	};
 
-	me.getTouchAction = function(eventPassthrough) {
+	me.getTouchAction = function(eventPassthrough, addPinch) {
 		var touchAction = 'none';
 		if ( eventPassthrough === 'vertical' ) {
 			touchAction = 'pan-y';
 		} else if (eventPassthrough === 'horizontal' ) {
 			touchAction = 'pan-x';
 		}
-		if (touchAction != 'none') {
+		if (addPinch && touchAction != 'none') {
 			// add pinch-zoom support if the browser supports it, but if not (eg. Chrome <55) do nothing
 			touchAction += ' pinch-zoom';
 		}
@@ -741,7 +741,13 @@ IScroll.prototype = {
 		
 		if(utils.hasPointer && !this.options.disablePointer) {
 			// The wrapper should have `touchAction` property for using pointerEvent.
-			this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough);
+			this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough, true);
+
+			// case. not support 'pinch-zoom'
+			// https://github.com/cubiq/iscroll/issues/1118#issuecomment-270057583
+			if (!this.wrapper.style[utils.style.touchAction]) {
+				this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough, false);
+			}
 		}
 		this.wrapperOffset = utils.offset(this.wrapper);
 
