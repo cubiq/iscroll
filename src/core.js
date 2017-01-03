@@ -108,7 +108,9 @@ IScroll.prototype = {
 		this._transitionTime();
 		if ( !this.resetPosition(this.options.bounceTime) ) {
 			this.isInTransition = false;
-			this._execEvent('scrollEnd');
+			if (this.wheelTimeout === undefined) {
+				this._execEvent('scrollEnd');
+			}
 		}
 	},
 
