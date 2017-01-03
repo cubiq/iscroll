@@ -181,6 +181,7 @@ var utils = (function () {
 		touchstart: 1,
 		touchmove: 1,
 		touchend: 1,
+		touchcancel: 1,
 
 		mousedown: 2,
 		mousemove: 2,
