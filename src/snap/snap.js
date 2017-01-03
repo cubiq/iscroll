@@ -2,8 +2,10 @@
 	_initSnap: function () {
 		this.currentPage = {};
 
-		if ( typeof this.options.snap == 'string' ) {
-			this.options.snap = this.scroller.querySelectorAll(this.options.snap);
+        this.options.snapSelector = this.options.snapSelector || this.options.snap;
+
+		if ( typeof this.options.snapSelector == 'string' ) {
+			this.options.snap = this.scroller.querySelectorAll(this.options.snapSelector);
 		}
 
 		this.on('refresh', function () {
@@ -17,6 +19,10 @@
 				rect;
 
 			this.pages = [];
+
+            if ( typeof this.options.snapSelector == 'string' ) {
+                this.options.snap = this.scroller.querySelectorAll(this.options.snapSelector);
+            }
 
 			if ( !this.wrapperWidth || !this.wrapperHeight || !this.scrollerWidth || !this.scrollerHeight ) {
 				return;
