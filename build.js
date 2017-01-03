@@ -5,7 +5,7 @@ var fs = require('fs');
 var hint = require("jshint").JSHINT;
 var uglify = require('uglify-js');
 
-var banner = '/*! iScroll v' + pkg.version + ' ~ (c) 2008-' + (new Date().getFullYear()) + ' Matteo Spinelli ~ http://cubiq.org/license */\n';
+var banner = '/*! iScroll v' + pkg.version + ' ~ (c) 2008-2015 Matteo Spinelli ~ http://cubiq.org/license */\n';
 
 var releases = {
 	lite: {
