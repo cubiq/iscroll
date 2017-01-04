@@ -378,6 +378,11 @@ IScroll.prototype = {
 		}
 
 		this.scrollTo(x, y, time, this.options.bounceEasing);
+		
+		if( this.options.snap ){
+			var snap = this._nearestSnap(x, y);
+			this.currentPage = snap;
+		}
 
 		return true;
 	},
