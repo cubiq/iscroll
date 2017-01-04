@@ -56,6 +56,12 @@
 			return;
 		}
 
+		// pass through
+		var direction = Math.abs(wheelDeltaX) >= Math.abs(wheelDeltaY) ? 'horizontal' : 'vertical';
+		if (direction === this.options.eventPassthrough) {
+			return;
+		}
+
 		wheelDeltaX *= this.options.invertWheelDirection;
 		wheelDeltaY *= this.options.invertWheelDirection;
 
