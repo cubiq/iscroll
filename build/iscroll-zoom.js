@@ -1284,6 +1284,11 @@ IScroll.prototype = {
 	},
 
 	_wheelZoom: function (e) {
+
+		if ( !this.enabled ) {
+			return;
+		}
+
 		var wheelDeltaY,
 			deltaScale,
 			that = this;
@@ -1301,14 +1306,15 @@ IScroll.prototype = {
 		} else if('wheelDelta' in e) {
 			wheelDeltaY = e.wheelDelta / Math.abs(e.wheelDelta);
 		} else if ('detail' in e) {
-			wheelDeltaY = -e.detail / Math.abs(e.wheelDelta);
+			wheelDeltaY = -e.detail / Math.abs(e.detail);
 		} else {
 			return;
 		}
 
-		deltaScale = this.scale + wheelDeltaY / 5;
-
-		this.zoom(deltaScale, e.pageX, e.pageY, 0);
+		if(wheelDeltaY) {
+			deltaScale = this.scale + wheelDeltaY / 5;
+			this.zoom(deltaScale, e.pageX, e.pageY, 0);
+		}
 	},
 
 	_initWheel: function () {
