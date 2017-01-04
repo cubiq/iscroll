@@ -22,6 +22,7 @@ Currently we have the following fragrances:
 * **iscroll.js**, it is the general purpose script. It includes the most commonly used features and grants very high performance in a small footprint.
 * **iscroll-lite.js**, it is a stripped down version of the main script. It doesn't support snap, scrollbars, mouse wheel, key bindings. But if all you need is scrolling (especially on mobile) *iScroll lite* is the smallest, fastest solution.
 * **iscroll-probe.js**, probing the current scroll position is a demanding task, that's why I decided to build a dedicated version for it. If you need to know the scrolling position at any given time, this is the iScroll for you. (I'm making some more tests, this might end up in the regular `iscroll.js` script, so keep an eye on it).
+* **iscroll-probe-line.js**, iscroll-lite.js with probing.
 * **iscroll-zoom.js**, adds zooming to the standard scroll.
 * **iscroll-infinite.js**, can do infinite and cached scrolling. Handling very long lists of elements is no easy task for mobile devices. *iScroll infinite* uses a caching mechanism that lets you scroll a potentially infinite number of elements.
 
@@ -746,7 +747,7 @@ The available types are:
 
 <h2 id="onscroll">onScroll event</h2>
 
-The `scroll` event is available on **iScroll probe edition** only (`iscroll-probe.js`). The probe behavior can be altered through the `probeType` option.
+The `scroll` event is available on **iScroll probe edition** only (`iscroll-probe.js` and `iscroll-probe-lite.js`). The probe behavior can be altered through the `probeType` option.
 
 ### <small>options.</small>probeType
 
