@@ -151,15 +151,8 @@ var utils = (function () {
 	};
 
 	me.offset = function (el) {
-		var left = -el.offsetLeft,
-			top = -el.offsetTop;
-
-		// jshint -W084
-		while (el = el.offsetParent) {
-			left -= el.offsetLeft;
-			top -= el.offsetTop;
-		}
-		// jshint +W084
+		var left = el.getBoundingClientRect().left * -1;
+		var top = el.getBoundingClientRect().top * -1;
 
 		return {
 			left: left,
