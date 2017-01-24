@@ -164,7 +164,7 @@
 			return;
 		}
 
-		deltaScale = this.scale + wheelDeltaY / 5;
+		deltaScale = this.scale + wheelDeltaY * this.options.mouseWheelSpeed / 100;
 
 		this.zoom(deltaScale, e.pageX, e.pageY, 0);
 	},
