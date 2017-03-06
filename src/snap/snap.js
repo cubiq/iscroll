@@ -57,8 +57,12 @@
 					rect = utils.getRect(el[i]);
 					if ( i === 0 || rect.left <= utils.getRect(el[i-1]).left ) {
 						m = 0;
-						n++;
+						// Don't add more vertical pages for elements past the scrollable range.
+						if ( -rect.top > this.maxScrollY ) {
+							n++;
+						}
 					}
+					n = Math.max(0, n);
 
 					if ( !this.pages[m] ) {
 						this.pages[m] = [];
