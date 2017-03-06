@@ -62,6 +62,7 @@
 							n++;
 						}
 					}
+					n = Math.max(0, n);
 
 					if ( !this.pages[m] ) {
 						this.pages[m] = [];
