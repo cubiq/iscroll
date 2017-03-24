@@ -361,7 +361,7 @@ IScroll.prototype = {
 
 		time = time || 0;
 
-		if ( !this.hasHorizontalScroll || this.x > 0 ) {
+		if ( !this.hasHorizontalScroll || this.x !== 0 ) {
 			x = 0;
 		} else if ( this.x < this.maxScrollX ) {
 			x = this.maxScrollX;
