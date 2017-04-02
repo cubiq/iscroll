@@ -173,6 +173,17 @@ IScroll.prototype = {
 		this._execEvent('beforeScrollStart');
 	},
 
+    // NEW FEATURE:
+    // user can lock scroll Y for certain direction, used by pull-to-refresh scenarios like(https://github.com/owenliang/pullToRefresh)
+    lockScrollUp: function() {
+        this.isScrollUpLocked = true;
+    },
+
+    unlockScrollUp: function() {
+        this.isScrollUpLocked = false;
+    },
+    ////////////////////////////////////////
+
 	_move: function (e) {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
