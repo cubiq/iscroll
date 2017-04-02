@@ -173,6 +173,17 @@ IScroll.prototype = {
 		this._execEvent('beforeScrollStart');
 	},
 
+    // NEW FEATURE:
+    // user can lock scroll Y for certain direction, used by pull-to-refresh scenarios like(https://github.com/owenliang/pullToRefresh)
+    lockScrollUp: function() {
+        this.isScrollUpLocked = true;
+    },
+
+    unlockScrollUp: function() {
+        this.isScrollUpLocked = false;
+    },
+    ////////////////////////////////////////
+
 	_move: function (e) {
 		if ( !this.enabled || utils.eventType[e.type] !== this.initiated ) {
 			return;
@@ -235,6 +246,10 @@ IScroll.prototype = {
 
 		deltaX = this.hasHorizontalScroll ? deltaX : 0;
 		deltaY = this.hasVerticalScroll ? deltaY : 0;
+
+        // NEW FEATURE:
+        // user can lock scroll Y for certain direction, used by pull-to-refresh-like scenarios
+        deltaY = deltaY < 0 && this.isScrollUpLocked ? 0 : deltaY;
 
 		newX = this.x + deltaX;
 		newY = this.y + deltaY;
