@@ -247,6 +247,10 @@ IScroll.prototype = {
 		deltaX = this.hasHorizontalScroll ? deltaX : 0;
 		deltaY = this.hasVerticalScroll ? deltaY : 0;
 
+        // NEW FEATURE:
+        // user can lock scroll Y for certain direction, used by pull-to-refresh-like scenarios
+        deltaY = deltaY < 0 && this.isScrollUpLocked ? 0 : deltaY;
+
 		newX = this.x + deltaX;
 		newY = this.y + deltaY;
 
