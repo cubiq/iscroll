@@ -1,11 +1,12 @@
 /*! iScroll v5.2.0-snapshot ~ (c) 2008-2017 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
+var noRAF = function (callback) { window.setTimeout(callback, 1000 / 60); };
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
 	window.mozRequestAnimationFrame		||
 	window.oRequestAnimationFrame		||
-	window.msRequestAnimationFrame		||
-	function (callback) { window.setTimeout(callback, 1000 / 60); };
+	window.msRequestAnimat_ionFrame		||
+	noRAF
 
 var utils = (function () {
 	var me = {};
@@ -246,10 +247,11 @@ var utils = (function () {
 	});
 
 	me.tap = function (e, eventName) {
-		var ev = document.createEvent('Event');
+		var ev = document.createEvent('Event'),
+			point = e.changedTouches ? e.changedTouches[0] : e;
 		ev.initEvent(eventName, true, true);
-		ev.pageX = e.pageX;
-		ev.pageY = e.pageY;
+		ev.pageX = point.pageX;
+		ev.pageY = point.pageY;
 		e.target.dispatchEvent(ev);
 	};
 
@@ -336,6 +338,8 @@ function IScroll (el, options) {
 		scrollY: true,
 		directionLockThreshold: 5,
 		momentum: true,
+		
+		rAF: true,
 
 		bounce: true,
 		bounceTime: 600,
@@ -597,6 +601,8 @@ IScroll.prototype = {
 			this._execEvent('scrollStart');
 		}
 
+		this._execEvent('scrollMove');
+
 		this.moved = true;
 
 		this._translate(newX, newY);
@@ -621,6 +627,8 @@ IScroll.prototype = {
 		if ( this.options.preventDefault && !utils.preventDefaultException(e.target, this.options.preventDefaultException) ) {
 			e.preventDefault();
 		}
+		
+		this._execEvent('scrollRelease');
 
 		var point = e.changedTouches ? e.changedTouches[0] : e,
 			momentumX,
@@ -1625,7 +1633,9 @@ IScroll.prototype = {
 			startY = this.y,
 			startTime = utils.getTime(),
 			destTime = startTime + duration;
-
+			
+		var rAFf = this.options.rAF ? rAF : noRAF		
+			
 		function step () {
 			var now = utils.getTime(),
 				newX, newY,
@@ -1649,7 +1659,7 @@ IScroll.prototype = {
 			that._translate(newX, newY);
 
 			if ( that.isAnimating ) {
-				rAF(step);
+				rAFf(step);
 			}
 		}
 
