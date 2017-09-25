@@ -1044,6 +1044,7 @@ IScroll.prototype = {
 	_initIndicators: function () {
 		var interactive = this.options.interactiveScrollbars,
 			customStyle = typeof this.options.scrollbars != 'string',
+		    	forceDisplay,
 			indicators = [],
 			indicator;
 
@@ -1062,6 +1063,7 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
+					forceDisplay:false,
 					listenX: false
 				};
 
@@ -1079,6 +1081,7 @@ IScroll.prototype = {
 					resize: this.options.resizeScrollbars,
 					shrink: this.options.shrinkScrollbars,
 					fade: this.options.fadeScrollbars,
+					forceDisplay: false,
 					listenY: false
 				};
 
@@ -2006,11 +2009,11 @@ Indicator.prototype = {
 	refresh: function () {
 		this.transitionTime();
 
-		if ( this.options.listenX && !this.options.listenY ) {
+		if ( !this.options.forceDisplay && this.options.listenX && !this.options.listenY ) {
 			this.indicatorStyle.display = this.scroller.hasHorizontalScroll ? 'block' : 'none';
-		} else if ( this.options.listenY && !this.options.listenX ) {
+		} else if ( !this.options.forceDisplay && this.options.listenY && !this.options.listenX ) {
 			this.indicatorStyle.display = this.scroller.hasVerticalScroll ? 'block' : 'none';
-		} else {
+		} else if ( !this.options.forceDisplay ) {
 			this.indicatorStyle.display = this.scroller.hasHorizontalScroll || this.scroller.hasVerticalScroll ? 'block' : 'none';
 		}
 
