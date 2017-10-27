@@ -18,8 +18,6 @@
 			return;
 		}
 
-		e.preventDefault();
-
 		var wheelDeltaX, wheelDeltaY,
 			newX, newY,
 			that = this;
@@ -102,8 +100,30 @@
 		} else if ( newY < this.maxScrollY ) {
 			newY = this.maxScrollY;
 		}
-
+		
 		this.scrollTo(newX, newY, 0);
 
+		if(this.options.enable_ofscroll)
+		{
+				if(wheelDeltaY < 0){
+						if(this.maxScrollY === this.y){
+								// end scroll not prevented
+						} else {
+								e.preventDefault();
+								e.stopPropagation();
+						}
+				}
+				else if(wheelDeltaY > 0){
+
+						if(this.y === 0){
+
+								// end scroll not prevented
+						}else{
+
+								e.preventDefault();
+								e.stopPropagation();
+						}
+				}
+		 }
 // INSERT POINT: _wheel
 	},

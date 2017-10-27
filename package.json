@@ -1,9 +1,9 @@
 {
-  "name": "iscroll",
+  "name": "boss-iscroll",
   "description": "Smooth scrolling for the web",
-  "version": "5.2.0-snapshot",
+  "version": "5.2.3",
   "homepage": "http://iscrolljs.com",
-  "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
+  "author": "Boss and Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
   "keywords": [
     "scrolling",
     "carousel",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cubiq/iscroll.git"
+    "url": "https://github.com/supostat/iscroll.git"
   },
   "bugs": {
     "url": "https://github.com/cubiq/iscroll/issues"
