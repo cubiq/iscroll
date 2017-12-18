@@ -966,6 +966,10 @@ IScroll.prototype = {
 		this.x = x;
 		this.y = y;
 
+		if ( this.options.probeType > 1 ) {
+			this._execEvent('scroll');
+		}
+
 // INSERT POINT: _translate
 
 	},
