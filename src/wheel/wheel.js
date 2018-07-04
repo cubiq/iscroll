@@ -1,4 +1,38 @@
+	isTopPrevented: false,
+	isBottomPrevented: false,
 
+	__timeoutTop: null,
+
+	// duration to prevent scrolling in ms
+	__preventDuration: 1000,
+
+	_preventTopScroll: function (e, isPrevented) {
+		if (!isPrevented) {
+			e.preventDefault();
+			e.stopPropagation();
+			clearTimeout(this.__timeoutTop)
+			__timeoutTop = setTimeout(() => {
+				this.isTopPrevented = true;
+			}, this.__preventDuration);
+		} else {
+			this.isTopPrevented = false;
+		}
+	},
+
+	__timeoutBottom: null,
+
+	_preventBottomScroll: function (e, isPrevented) {
+		if (!isPrevented) {
+			e.preventDefault();
+			e.stopPropagation();
+			clearTimeout(this.__timeoutBottom)
+			__timeoutBottom = setTimeout(() => {
+			this.isBottomPrevented = true;
+		}, this.__preventDuration);
+		} else {
+			this.isBottomPrevented = false;
+		}
+	},
 	_initWheel: function () {
 		utils.addEvent(this.wrapper, 'wheel', this);
 		utils.addEvent(this.wrapper, 'mousewheel', this);
@@ -107,7 +141,8 @@
 		{
 				if(wheelDeltaY < 0){
 						if(this.maxScrollY === this.y){
-								// end scroll not prevented
+								// end scroll prevented for __preventDuration
+								this._preventBottomScroll(e, this.isBottomPrevented);
 						} else {
 								e.preventDefault();
 								e.stopPropagation();
@@ -116,10 +151,10 @@
 				else if(wheelDeltaY > 0){
 
 						if(this.y === 0){
+								// end scroll prevented for __preventDuration
 
-								// end scroll not prevented
-						}else{
-
+								this._preventTopScroll(e, this.isTopPrevented);
+						} else {
 								e.preventDefault();
 								e.stopPropagation();
 						}
