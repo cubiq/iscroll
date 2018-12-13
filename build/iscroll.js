@@ -1,4 +1,4 @@
-/*! iScroll v5.2.0-snapshot ~ (c) 2008-2017 Matteo Spinelli ~ http://cubiq.org/license */
+/*! iScroll v5.2.1-snapshot ~ (c) 2008-2018 Matteo Spinelli ~ http://cubiq.org/license */
 (function (window, document, Math) {
 var rAF = window.requestAnimationFrame	||
 	window.webkitRequestAnimationFrame	||
@@ -411,7 +411,7 @@ function IScroll (el, options) {
 }
 
 IScroll.prototype = {
-	version: '5.2.0-snapshot',
+	version: '5.2.1-snapshot',
 
 	_init: function () {
 		this._initEvents();
@@ -1634,11 +1634,7 @@ IScroll.prototype = {
 			if ( now >= destTime ) {
 				that.isAnimating = false;
 				that._translate(destX, destY);
-
-				if ( !that.resetPosition(that.options.bounceTime) ) {
-					that._execEvent('scrollEnd');
-				}
-
+				that._execEvent('scrollEnd');
 				return;
 			}
 
@@ -1656,6 +1652,7 @@ IScroll.prototype = {
 		this.isAnimating = true;
 		step();
 	},
+
 	handleEvent: function (e) {
 		switch ( e.type ) {
 			case 'touchstart':

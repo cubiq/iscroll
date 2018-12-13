@@ -1,7 +1,7 @@
 {
   "name": "iscroll",
   "description": "Smooth scrolling for the web",
-  "version": "5.2.0-snapshot",
+  "version": "5.2.1-snapshot",
   "homepage": "http://iscrolljs.com",
   "author": "Matteo Spinelli <matteo@cubiq.org> (http://cubiq.org)",
   "keywords": [

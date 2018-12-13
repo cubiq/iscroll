@@ -2,6 +2,13 @@
 
 ---
 
+##  Version 5.2.1 - 2018.12.13
+
+### Fixes
+* Fixes weird bug in Safari 12.0.2/OSX 10.13.6. TODO: flesh out this description later.
+
+---
+
 ##  Version 5.2.0 - 2016.04.05
 
 ### Fixes
